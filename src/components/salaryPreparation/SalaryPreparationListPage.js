@@ -13,14 +13,14 @@ const  SalaryPreparationListPage = (props) => {
 
     const {isLoading} =props;
 
-  const to='/app/salaryStructure';
+  const to='/app/salaryPreparation';
 
 const itemsValue = [];
 
 const navigate = useNavigate();
 
 const loadClick = () => {
-    navigate("/app/salaryStructure")
+    navigate("/app/salaryPreparation")
 }
 
 

@@ -122,16 +122,15 @@ import PosSupplierReducer from "./PosSupplierReducer";
 import empDepartmentReducer from "./empDepartmentReducer";
 import empDesignationReducer from "./empDesignationReducer";
 import SalaryStructureReducer from "./SalaryStructureReducer";
-// import productGroupsReducres from "./productGroupsReducres";
+//import productGroupsReducres from "./productGroupsReducres";
+import salaryReducer from "./salaryReducer";
 
 export default combineReducers({
 
-  // MARK FROM RAM [01-08-2024]
      empDepartment : empDepartmentReducer,
      empDesignation:empDesignationReducer,
-    //  salaryDetail:SalaryStructureReducer,
-  // MARK TO RAM [01-08-2024]
-
+    salaryDetail:SalaryStructureReducer,
+    salary:salaryReducer,
   posSupplier:PosSupplierReducer,
   companyConfig: companyConfigReducer,
   monthlySales: monthlySalesReducer,

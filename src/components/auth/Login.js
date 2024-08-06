@@ -15,7 +15,8 @@ import {
 import FooterLogin from "../footer/FooterLogin";
 import Footer from "../footer/Footer";
 import VStoreImage from "../../assets/images/vstore.png";
-import Logindes from "../../assets/images/logindes.png"
+import Logindes from "../../assets/images/logindes.png";
+import multitaskingconcept from "../../assets/images/multitaskingconcept.png";
 import "../../assets/scss/custom/custom.scss";
 
 const Login = () => {
@@ -26,7 +27,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem(Tokens.ADMIN);
 
-  const words = ["Billings", "Inventory", "Business"];
+  const words = ["Billings", "Inventory", "Business","Payroll"];
   let i = 0;
   let timer;
 
@@ -74,7 +75,7 @@ const Login = () => {
         deletingEffect();
         return false;
       };
-      timer = setTimeout(loopTyping, 100);
+      timer = setTimeout(loopTyping, 126);
     };
     loopTyping();
   };
@@ -94,7 +95,7 @@ const Login = () => {
         typingEffect();
         return false;
       };
-      timer = setTimeout(loopDeleting, 100);
+      timer = setTimeout(loopDeleting, 126);
     };
     loopDeleting();
   };
@@ -189,11 +190,15 @@ const Login = () => {
               {/* <span id="app"></span> */}
               <span className="logintitle3">Smartly.!</span>
             </h1>
-            <img
+            {/* <img
               className="logindes"
               src={Logindes}
               width="40%"
               height="auto"
+            /> */}
+            <img
+              className="multitaskingconcept"
+              src={multitaskingconcept}
             />
             <img
               className="login-logo"
@@ -202,16 +207,21 @@ const Login = () => {
               width="40%"
               height="auto"
             />
-            {/* <label className="login-version">
-              Release Version VS01-04/03/2024
-            </label> */}
+           {/* <div className="row">
+            <div className="col-md-1"></div>
+            <div className="col-md-5"> */}
+            <label className="login-version fw-bold ">
+              v2.0 Aug 2024
+            </label>
+            {/* </div>
+           </div> */}
           </div>
         </div>
 
         <div className="d-flex flex-grow-1 align-items-center justify-content-end login-right" style={{ width: "60%" }}>
           <div className="bg-theme-white rounded-15 width-450 shadow-md px-3 px-sm-4 py-10 mxStyle">
             <h1 className="text-dark text-center mb-7">
-              {getFormattedMessage("login-form.title-company")}
+              {getFormattedMessage("login-form.title-company-hindustan")}
             </h1>
             <form>
               <div className="mb-sm-7 mb-4">

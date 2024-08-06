@@ -12,7 +12,7 @@ export const fetchSalaryDetails=
             dispatch(setLoading(true));
         }
 
-        let url = apiBaseURL.SALARYDEATILS;
+        let url = apiBaseURL.SALARYDETAILS;
         console.log(url)
        
         apiConfig
@@ -22,7 +22,7 @@ export const fetchSalaryDetails=
 
                 dispatch({
                     type: salaryDetailActionType.FETCH_SALARYDEATILS,
-                    payload: response?.data?.data,
+                    payload: response?.data,
                 });
           
                 

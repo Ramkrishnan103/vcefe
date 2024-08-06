@@ -1079,10 +1079,17 @@
   "newDepartment.modal.input.product-group.label":"New Department",
   "salary.title":"Salary",
   "SalaryPreparation.title":"Salary Preparation",
-  "salaryStructure.title":"Payroll Process",
+  "PatRollProcess.title":"Payroll Process",
   "employee.title":"Employee",
   "netPaidAmount.title":"Net Paid Amount",
   "totalDeduction.title":"Total Deduction",
-  "totalEarnings.title":"Total Earnings"
+  "totalEarnings.title":"Total Earnings",
+
+  
+  "Products.title":"Products",
+  "Product.title":"Product",
+  "Vendors.title":"Vendors",
+  "Payroll.title":"Payroll",
+  "login-form.title-company-hindustan":"Hello, Hindustan HR"
 
 }

@@ -111,9 +111,10 @@ import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
 import EmpDepartmentCreate from "./components/employeeDepartment/EmpDepartmentCreate";
 import EditEmpDepartment from "./components/employeeDepartment/EditEmpDepartment";
 import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
-import Salary from "./components/salaryStructure/Salary";
-import SalaryPreparationListPage from "./components/salaryStructure/SalaryPreparationListPage";
-
+//mark from ram [05-08-2024]
+import Salary from "./components/salaryPreparation/Salary";
+import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
+//mark to ram [05-08-2024]
 export const route = [
   {
     path: "dashboard",
@@ -205,11 +206,11 @@ export const route = [
     ele: <DailySales />,
     permission: Permissions.MANAGE_UNITS,
   },
-  // {
-  //   path: "product-groups",
-  //   ele: <ProductGroups />,
-  //   permission: Permissions.MANAGE_UNITS,
-  // },
+   {
+    path: "product-groups",
+    ele: <ProductGroups />,
+    permission: Permissions.MANAGE_UNITS,
+  },
   // {
   //   path: "suppliers",
   //   ele: <Suppliers />,
@@ -646,8 +647,7 @@ export const route = [
     permission:Permissions.MANAGE_CUSTOMERS,
   },
 
-  // MARK FROM RAM [01-08-2024]
-
+ 
   {
     path:"empDepartment",
     ele:<EmpDepartment/>,
@@ -658,8 +658,10 @@ export const route = [
     ele:<EmpDesignation/>,
     permission:Permissions.MANAGE_CUSTOMERS,
   },
+  // MARK FROM RAM [05-08-2024]
+
     {
-      path:"salaryStructure",
+      path:"salaryPreparation",
       ele:<Salary/>,
       permission:Permissions.MANAGE_CUSTOMERS,
     },
@@ -669,5 +671,5 @@ export const route = [
       permission:Permissions.MANAGE_CUSTOMERS,
     }
   
-  //  MARK TO RAM [01-08-2024]
+  //  MARK TO RAM [05-08-2024]
 ];

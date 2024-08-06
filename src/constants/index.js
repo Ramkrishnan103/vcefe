@@ -122,11 +122,12 @@ export const apiBaseURL = {
   LEDGER: "/ledgers",
   CLOSINGSTOCKREPORT: "/closingStockReport",
 
-  // MARK FROM RAM [01-08-2024]
+  
   EMPDEPARTMENT :"/empDepartment",
   EMPDESIGNATION:"/empDesignation",
-  // SALARYDEATILS :"/salaryDetails"
-  //MARK TO RAM [01-08-2024]
+
+   SALARYDETAILS :"/salaryDetails",
+   SALARY:"/salaryConfig"
 
 };
 
@@ -434,7 +435,6 @@ export const posSupplierActionType = {
   DELETE_POS_SUPPLIERS :"DELETE_POS_SUPPLIERS"
 };
 
-// MARK FROM RAM [01-08-2024]
 
 export const empDepartmentActionType = {
   FETCH_EMPDEPARTMENT:"FETCH_EMPDEPARTMENT",
@@ -456,7 +456,10 @@ export const salaryDetailActionType  = {
   FETCH_SALARYDEATILS :"FETCH_SALARYDEATILS"
 }
 
-//  MARK TO RAM [01-08-2024]
+export const salaryActionType  = {
+  FETCH_SALARY :"FETCH_SALARY"
+}
+
 
 export const todaySalePurchaseCountActionType = {
   TODAY_SALE_COUNT: "TODAY_SALE_COUNT",
