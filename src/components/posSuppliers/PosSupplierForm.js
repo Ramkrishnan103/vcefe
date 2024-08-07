@@ -9,6 +9,7 @@ import { useNavigate } from "react-router"
 import { connect } from "react-redux"
 import { editSuppliers } from "../../store/action/PosSupplierAction"
 import { Link } from "react-router-dom"
+import * as EmailValidator from "email-validator";
 
 const PosSupplierForm = (props) => {
 
@@ -32,7 +33,7 @@ const [supplierValue,setSupplierValue] = useState (
         email: singleSupplier ? singleSupplier[0]?.email : "",
         mobileNo1: singleSupplier ? singleSupplier[0]?.mobileNo : "",
         mobileNo2: singleSupplier ? singleSupplier[0]?.mobileNo : "",
-        isActive :singleSupplier ? singleSupplier[0]?.isActive:true,
+        isActive :singleSupplier ? singleSupplier[0]?.isActive :true,
        
     }
 )
@@ -98,12 +99,17 @@ const [errors, setErrors] = useState({
     if (!supplierValue["ledgerName"]) {
       errors["ledgerName"] = getFormattedMessage("supplierName.input.name.validate.label");
     }
-   else if (!supplierValue["location"]) {
-      errors["location"] = getFormattedMessage("location.input.validate.label");
-    }
     else if (!supplierValue["state"]) {
       errors["state"] = getFormattedMessage("state.input.validate.label");
     }
+    else if (!supplierValue["location"]) {
+      errors["location"] = getFormattedMessage("location.input.validate.label");
+    }
+    
+    else if (supplierValue["email"] && !EmailValidator.validate(supplierValue["email"])) {
+      errors["email"] = getFormattedMessage("globally.input.email.valid.validate.label");
+      isValid = false;
+    }  
    
     else {
       isValid = true;
@@ -161,9 +167,12 @@ console.log("Data =>" ,data)
 
 
   const mobileNo1handleChange = (e) => {
-    const { name, value } = e.target;
-    const sanitizedValue = name === 'mobileNo1' ? value.replace(/[eE+-]/g, '') : value;
-    setSupplierValue({ ...supplierValue, [name]: sanitizedValue });
+    const value = e.target.value;
+    
+    // Allow only digits and limit the length to 15 characters
+    if (/^\d*$/.test(value) && value.length <= 15) {
+      setSupplierValue({ ...supplierValue, [e.target.name]: value });
+    }
   };
 
   const mobileNo1handleKeyDown = (e) => {
@@ -193,16 +202,17 @@ console.log("Data =>" ,data)
         {singleSupplier ? (
           <Link to={singleSupplier} className="btn btn-primary me-3 save-btn"
            style={{width:"120px"}} onClick={onSubmit}>
-            {getFormattedMessage("globally.edit-btn")}
+            {getFormattedMessage("globally.UPDATE-btn")}
           </Link>
         ) : 
         <Link to={""} className="btn btn-primary me-3 save-btn"
         style={{width:"120px"}} onClick={onSubmit}>
-         {getFormattedMessage("globally.save-btn")}
+         {getFormattedMessage("globally.SAVE-btn")}
        </Link>
         }
         {to ? (
-          <Link to={to} className="btn btn-outline-primary back-btn">
+          <Link to={to} className="btn btn-outline-primary back-btn" 
+          style={{width:"120px"}}>
             {getFormattedMessage("globally.back-btn")}
           </Link>
         ) : null}
@@ -222,13 +232,13 @@ console.log("Data =>" ,data)
               className="me-3 form-check-input cursor-pointer mt-1 "
                 style={{ marginLeft: "10px" }}
                 checked={supplierValue.isActive}
-                placeholder={placeholderText(
-                  "globally.input.remarks.placeholder.label"
-                )}
+                // placeholder={placeholderText(
+                //   "globally.input.remarks.placeholder.label"
+                // )}
                  onChange={(e) => handleInputChange(e)}
               />
               <label className="form-label mt-1">
-                {getFormattedMessage("globally.input.isActive.label")}
+                {getFormattedMessage("globally.input.isActive.?.label")}
               </label>
 
               <span className="text-danger d-block fw-400 fs-small mt-2"></span>
@@ -245,9 +255,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="ledgerName"
                 value={supplierValue.ledgerName }
-                placeholder={placeholderText(
-                  "globally.input.ledgerName.placeholder.label"
-                )}
+                maxLength={100}
+                // placeholder={placeholderText(
+                //   "globally.input.ledgerName.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -266,9 +277,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="supplierCode"
                 value={supplierValue.supplierCode}
-                placeholder={placeholderText(
-                  "globally.input.supplierCode.placeholder.label"
-                )}
+                maxLength={50}
+                // placeholder={placeholderText(
+                //   "globally.input.supplierCode.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -287,9 +299,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="address"
                 value={supplierValue.address}
-                placeholder={placeholderText(
-                  "globally.input.address.placeholder.label"
-                )}
+                maxLength={100}
+                // placeholder={placeholderText(
+                //   "globally.input.address.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -308,9 +321,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="area"
                 value={supplierValue.area}
-                placeholder={placeholderText(
-                  "globally.input.area.placeholder.label"
-                )}
+                maxLength={50}
+                // placeholder={placeholderText(
+                //   "globally.input.area.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -330,9 +344,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="city"
                 value={supplierValue.city}
-                placeholder={placeholderText(
-                  "globally.input.city.placeholder.label"
-                )}
+                maxLength={50}
+                // placeholder={placeholderText(
+                //   "globally.input.city.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -353,9 +368,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="state"
                 value={supplierValue.state}
-                placeholder={placeholderText(
-                  "globally.input.state.placeholder.label"
-                )}
+                maxLength={50}
+                // placeholder={placeholderText(
+                //   "globally.input.state.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -374,9 +390,10 @@ console.log("Data =>" ,data)
               <span className="required" />
               <ReactSelect
                 className="position-relative"
-                placeholder={placeholderText(
-                  "globally.input.location.placeholder.label"
-                )}
+                maxLength={50}
+                // placeholder={placeholderText(
+                //   "globally.input.location.placeholder.label"
+                // )}
 
                 value={options.find(option => option.label === supplierValue.location)}
                 data={options}
@@ -397,9 +414,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="regNo"
                 value={supplierValue.regNo}
-                placeholder={placeholderText(
-                  "globally.input.GSTNO.placeholder.label"
-                )}
+                maxLength={15}
+                // placeholder={placeholderText(
+                //   "globally.input.GSTNO.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -420,9 +438,10 @@ console.log("Data =>" ,data)
                 type="text"
                 name="email"
                 value={supplierValue.email}
-                placeholder={placeholderText(
-                  "globally.input.email.placeholder.label"
-                )}
+                maxLength={100}
+                // placeholder={placeholderText(
+                //   "globally.input.email.placeholder.label"
+                // )}
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
@@ -446,7 +465,9 @@ console.log("Data =>" ,data)
                 className="form-control"
                 pattern="[0-9]*"
                 value={supplierValue.mobileNo1}
-                placeholder={placeholderText("globally.input.phone-number1.placeholder.label")}
+              //  maxLength={15}
+              htmlSize={15}
+                // placeholder={placeholderText("globally.input.phone-number1.placeholder.label")}
                 onChange={(e) => mobileNo1handleChange(e)}
                 onKeyDown={mobileNo1handleKeyDown}
               />

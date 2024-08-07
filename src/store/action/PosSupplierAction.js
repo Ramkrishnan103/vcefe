@@ -183,6 +183,7 @@ export const fetchSuppliers =
                             type: toastType.ERROR,
                         })
                     );
+                    navigate("/app/supplier/edit:",supplierId);
                 }
                 else{
                     dispatch(
@@ -192,6 +193,7 @@ export const fetchSuppliers =
                             ),
                         })
                     );
+                    navigate("/app/supplier");
                 }
                 
                 dispatch({
@@ -199,7 +201,7 @@ export const fetchSuppliers =
                     payload: response?.data?.data,
                 });      
                
-                navigate("/app/supplier");
+                
                 dispatch(setSavingButton(false));
             })
             .catch(({ response }) => {

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router"
+import { Navigate, useNavigate } from "react-router"
 import TopProgressBar from "../../shared/components/loaders/TopProgressBar"
 import { getFormattedMessage } from "../../shared/sharedMethod"
 import HeaderTitle from "../header/HeaderTitle"
@@ -15,9 +15,9 @@ const PosCreateSupplier = (props) => {
 
     
    
-
+const navigate=useNavigate();
     const addSuppliersData = (formValue) => {
-        addSuppliers(formValue, handleClose, Filters.OBJ);
+        addSuppliers(formValue, navigate, Filters.OBJ);
     };
 
     console.log("biuiii ")

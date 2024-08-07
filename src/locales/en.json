@@ -1090,6 +1090,11 @@
   "Product.title":"Product",
   "Vendors.title":"Vendors",
   "Payroll.title":"Payroll",
-  "login-form.title-company-hindustan":"Hello, Hindustan HR"
+  "login-form.title-company-hindustan":"Hello, Hindustan HR",
+
+  "globally.SAVE-btn":"SAVE",
+  "globally.UPDATE-btn":"UPDATE",
+  "globally.input.isActive.?.label":"is Active.?",
+  "Listsupplier.title":"List Of Suppliers"
 
 }
