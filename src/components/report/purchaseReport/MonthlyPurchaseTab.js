@@ -158,42 +158,65 @@ const MonthlyPurchaseTab = (props) => {
     const { title, yearRange } = reportDetails;
 
     const doc = new jsPDF();
+    let pageNumber = 1;
 
-    // Add Company Name
-    doc.setFontSize(18);
-    doc.text(companyName, 105, 20, null, null, 'center');
+    // Function to add the header
+    const addHeader = () => {
+        doc.setFontSize(18);
+        doc.text(companyName, 105, 20, null, null, 'center');
 
-    // Add Address
-    doc.setFontSize(12);
-    doc.text(address, 105, 30, null, null, "center");
+        doc.setFontSize(12);
+        doc.text(address, 105, 30, null, null, "center");
 
-    // Add Phone Number
-    doc.setFontSize(12);
-    doc.text(phoneNumber, 105, 35, null, null, "center");
+        doc.setFontSize(10);
+        doc.text(phoneNumber, 105, 35, null, null, "center");
 
-    const textY = 40; // Y-coordinate for the text
-    const lineOffset = 5; // Offset between the text and the line
-    const lineY = textY + lineOffset; // Y-coordinate for the line
+        doc.setLineWidth(0.2);
+        doc.line(10, 40, 200, 40);  // Adjust Y coordinate to ensure line is placed properly
+    };
+
+    // Function to add the footer with page number
+    const addFooter = () => {
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(10);
+        doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');  // Adjust Y coordinate as needed
+    };
+
+    // Add first page
+    addHeader();
     
+    // Add Report Title and Year Range
     doc.setFontSize(14);
-    doc.text(`${title} ${yearRange}`, 10, textY, null, null, "left");
-    
-    // Set the line width and draw the line after the text
-    doc.setLineWidth(0.2); 
-    doc.line(10, lineY, 200, lineY);
-    
+    doc.text(`${title} ${yearRange}`, 10, 50); // Adjust starting Y position for title
+
     // Add Table
     doc.autoTable({
-        startY: 50, // Adjust the start position of the table
+        startY: 60, // Adjust the start position of the table
         head: [['Month', 'Purchase Value']],
         body: itemsValue.map(item => [item.monthYear, item.purchaseValue]),
         foot: [['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]],
+      //   headStyles: {
+      //     halign: 'left' // Align header text to the right
+      // },
+      // footStyles: {
+      //     halign: 'right' // Align footer text to the right
+      // }
+        columnStyles: {
+          0: { align: 'left' },  // Left align the first column (Month)
+          1: { align: 'right' }  // Right align the second column (Purchase Value)
+        },
+        didDrawPage: function (data) {
+            // Add footer to each page
+            addFooter();
+            pageNumber++;
+        },
+        margin: { top: 50 },
+        pageBreak: 'auto'
     });
 
     // Save the PDF
     doc.save('MonthlyPurchases.pdf');
 };
-
 
   // const onChange = (filter) => {
   //     fetchMonthPurchase(filter, true);
