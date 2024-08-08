@@ -9,16 +9,15 @@ import ActionButton from "../../shared/action-buttons/ActionButton"
 import { faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "react-bootstrap-v5"
-import {fetchSalaryDetails} from "../../store/action/SalaryStructureAction"
+// import {fetchSalaryDetails} from "../../store/action/SalaryStructureAction"
 import SalaryPreparation from "./SalaryPreparation"
-import { fetchSalary } from "../../store/action/salaryAction"
 
 const Salary = (props) => {
 
-    const {salaryDetail,isLoading,fetchSalaryDetails,salary,fetchSalary}=props;
+    const {salaryDetail,isLoading,fetchSalaryDetails}=props;
     const [importEmpDeaprtment, setimportEmpDeaprtment] = useState(false);
 
-    console.log("Salary Details  =>" ,salaryDetail)
+    // console.log("Emp Department =>" ,empDepartment)
     const [editModel, setEditModel] = useState(false);
     const [salarydetails, setSalarydetails] = useState();
     const [deleteModel, setDeleteModel] = useState(false);
@@ -44,10 +43,9 @@ const Salary = (props) => {
       };
 
      
-    useEffect(() => {
-        fetchSalaryDetails();
-        fetchSalary();
-    },[])
+    // useEffect(() => {
+    //     fetchSalaryDetails();
+    // },[fetchSalaryDetails])
 
    
     const handleSearchData = (e) => {
@@ -57,39 +55,25 @@ const Salary = (props) => {
         const filtered_salaryDetails =
           value.length > 0
             ? salarydetails.filter((item) =>
-                item?.EmployeeList?.salaryMonth
+                item?.attributes?.departmentName
                   ?.toLowerCase()
                   ?.includes(value?.toLowerCase())
               )
             : salarydetails;
             setFilterSalaryDetails(filtered_salaryDetails);
       };
-
-      const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-
-      
     
-      const itemsValue = salaryDetail ? [{
-        year: salaryDetail.salaryYear || [],
-        month: salaryDetail.salaryMonth
-        ? monthNames[salaryDetail.salaryMonth - 1] // Adjust for zero-based index
-        : '',
-        totalEarnings: salaryDetail.data?.flatMap(value => 
-          value.EmployeeList?.flatMap(item => item.totalEarnings) || []
-        ).reduce((acc, curr) => acc + curr, 0) || 0,
-        deductions: salaryDetail.data?.flatMap(value => 
-          value.EmployeeList?.flatMap(item => item.deductions) || []
-        ).reduce((acc, curr) => acc + curr, 0) || 0,
-        netPaid: salaryDetail.data?.flatMap(value => 
-          value.EmployeeList?.flatMap(item => item.netPaid) || []
-        ).reduce((acc, curr) => acc + curr, 0) || 0,
-      }] : [];
 
+    const itemsValue =[];
+    // filterSalaryDetails && 
+    // filterSalaryDetails.map(empDepartments => ({
+    //     departmentId:empDepartments?.departmentId,
+    //     departmentName:empDepartments?.attributes?.departmentName,
+    //     remarks:empDepartments?.attributes?.remarks,
+    //     isActive: empDepartments?.attributes?.isActive == true ? "Yes" : "No" ,
+    // }))  ;
 
-    console.log("Item Value =>" ,itemsValue)
+    
 
     const columns = [
         {
@@ -112,14 +96,14 @@ const Salary = (props) => {
       },
       {
           name: getFormattedMessage('totalDeduction.title'),
-          selector: row => row.deductions,
-          sortField: 'deductions',
+          selector: row => row.totalDeduction,
+          sortField: 'totalDeduction',
           sortable: true,
       },
       {
         name: getFormattedMessage('netPaidAmount.title'),
-        selector: row => row.netPaid,
-        sortField: 'netPaid',
+        selector: row => row.netPaidAmount,
+        sortField: 'netPaidAmount',
         sortable: true,
     },
         {
@@ -139,22 +123,18 @@ const Salary = (props) => {
     const [show, setShow] = useState(false);
     const handleCloseCreate = () => setShow(!show);
 
-    const onClick = () => {
-      if (salary?.some(item => item?.attributes?.isActive === true)) {
-          setShow(true);
-      }
-  }
-
-
+    const  onClick = () => {
+        setShow(true)
+    }
 
 
     return (
         <MasterLayout>
             <TopProgressBar/>
-            <TabTitle title={placeholderText('salary.title')} />
+            <TabTitle title={placeholderText('salary.create.title')} />
 
             <div>
-                <h3 className="text-light" style={{fontWeight:"bold"}}>Listing Of Salaries</h3>
+                <h3 className="text-light fw-bolder">Listing Of Salaries</h3>
             </div>
 
 <div className="row">
@@ -200,16 +180,14 @@ const Salary = (props) => {
  {show?<SalaryPreparation show={show} handleClose={handleCloseCreate} title={getFormattedMessage("SalaryPreparation.title")} />:""}
 
 
-
-
         </MasterLayout>
         
     )
 }
 
 const mapStateToProps = (state) =>  {
-    const {salaryDetail,isLoading,salary} =state;
-    return {salaryDetail,isLoading,salary}
+    const {salaryDetail,isLoading} =state;
+    return {salaryDetail,isLoading}
 }
 
-export default connect(mapStateToProps,{fetchSalaryDetails,fetchSalary}) (Salary)
+export default connect(mapStateToProps,{}) (Salary)

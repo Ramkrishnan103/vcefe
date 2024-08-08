@@ -122,6 +122,7 @@ const Customers = (props) => {
         <MasterLayout>
             <TopProgressBar />
             <TabTitle title={placeholderText('customers.title')}/>
+            
             <ReactDataTable columns={columns} items={itemsValue}  isLoading={isLoading}
                             ButtonValue={getFormattedMessage('customer.create.title')} totalRows={totalRecord}
                             buttonImport={true}  goToImport={handleClose} importBtnTitle={'customers.import.title'}

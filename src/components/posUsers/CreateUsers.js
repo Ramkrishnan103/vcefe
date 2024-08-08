@@ -19,8 +19,8 @@ const CreateUsers= (props) => {
   
     return (
         <MasterLayout>
-            <HeaderTitle title={getFormattedMessage('users.create.title')} to='/app/users'/>
-            <UsersForm addUsersData={addUsersData}/>
+            {/* <HeaderTitle title={getFormattedMessage( "user.create.account.title")} /> */}
+            <UsersForm addUsersData={addUsersData} title={getFormattedMessage("user.create.account.title")} to='/app/users'/>
         </MasterLayout>
 
     )

@@ -104,8 +104,9 @@ export const addUser = (supplier, navigate) => async (dispatch) => {
     dispatch(setSavingButton(true));
     await apiConfig
         .post(apiBaseURL.USERS, supplier)
-        //console.log(apiBaseURL.USERS,supplier)
+       
         .then((response) => {
+            console.log(apiBaseURL.USERS,supplier)
             console.log(response)
             dispatch({
                 type: userActionType.ADD_USER,

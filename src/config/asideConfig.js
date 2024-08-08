@@ -32,15 +32,10 @@ import {
     faShieldHalved,
     faClipboardList,
     faPercent,
-    faAddressBook,
-    faPeopleArrows,
-    faTemperatureLow,
-    faLayerGroup
+    faAddressBook
 } from "@fortawesome/free-solid-svg-icons";
 import { getFormattedMessage } from "../shared/sharedMethod";
 import { title } from "faker/lib/locales/az";
-import { faSadTear } from "@fortawesome/free-solid-svg-icons/faSadTear";
-import { faUserGear } from "@fortawesome/free-solid-svg-icons/faUserGear";
 
 export default [
     {
@@ -57,9 +52,8 @@ export default [
             },
         ],
     },
-    //  MARK FROM RAM [06-08-2024]
     {
-        title: "Products.title",
+        title: "classification.title",
         to: "/app/classification",
         name: "classification",
         class: "d-flex",
@@ -67,21 +61,12 @@ export default [
         permission: Permissions.MANAGE_STOCKS,
         is_submenu: "true",
         subPath: {
-            productsSubPath: "/app/products",
             brandsSubPath: "/app/brands",
             unitsSubPath: "/app/units",
             productGroupsSubPath: "/app/product-groups",
             categoriesSubPath: "/app/product-categories",
         },
         subMenu: [
-            {
-                title: "product.title",
-                to: "/app/products",
-                name: "products",
-                class: "d-flex",
-                fontIcon: <FontAwesomeIcon icon={faBoxes} />,
-                permission: Permissions.MANAGE_PRODUCTS,
-            },
             {
                 title: "brands.title",
                 name: "brands",
@@ -102,7 +87,7 @@ export default [
             {
                 title: "product-groups.title",
                 name: "product groups",
-                fontIcon: <FontAwesomeIcon icon={faLayerGroup} />,
+                fontIcon: <FontAwesomeIcon icon={faRulerHorizontal} />,
                 to: "/app/product-groups",
                 class: "d-flex",
                 permission: Permissions.MANAGE_UNITS,
@@ -115,6 +100,103 @@ export default [
                 class: "d-flex",
                 permission: Permissions.MANAGE_UNITS,
             },
+        ]
+    },
+    {
+        title: "masterdata.title",
+        name: "masterdata",
+        fontIcon: <FontAwesomeIcon icon={faBoxes} />,
+        to: "/app/products",
+        class: "d-flex",
+        is_submenu: "true",
+        permission: Permissions.MANAGE_PRODUCTS,
+        subPath: {
+            productsSubPath: "/app/products",
+            barcodeSubPath: "/app/print/barcode",
+            monthlysalesSubPath: "/app/monthlysales",
+        },
+        subMenu: [
+            {
+                title: "ledger.title",
+                name: "ledger",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/ledger",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+            //Mark from Nila 29-7-24
+            {
+                title: "customer.title",
+                name: "customer",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/posCustomer",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+            {
+                title: "salaryStructure.title",
+                name: "salary",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/salary",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+            {
+                title: "payrollProcess.title",
+                name: "payroll",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/payroll",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+            {
+                title: "employee.title",
+                name: "ledger",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/employees",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+           
+            {
+                title: "User.title",
+                name: "Users",
+                fontIcon: <FontAwesomeIcon icon={faUser} />,
+                to: "/app/users",
+                class: "d-flex",
+                permission: Permissions.MANAGE_UNITS,
+                items: [
+                    {
+                        title: getFormattedMessage("User.title"),
+                        to: "/app/users",
+                    },
+                ],
+            },
+            
+            {
+                title: "products.title",
+                to: "/app/products",
+                name: "products",
+                class: "d-flex",
+                fontIcon: <FontAwesomeIcon icon={faBoxes} />,
+                permission: Permissions.MANAGE_PRODUCTS,
+            },
+            {
+                title: "priceList.title",
+                to: "/app/price-list",
+                name: "products",
+                class: "d-flex",
+                fontIcon: <FontAwesomeIcon icon={faClipboardList} />,
+                permission: Permissions.MANAGE_PRODUCTS,
+            },
+            // {
+            //     title: "customers.title",
+            //     name: "customers",
+            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+            //     to: "/app/customers",
+            //     class: "d-flex",
+            //     permission: Permissions.MANAGE_CUSTOMERS,
+            // },
             {
                 title: "TaxSetup.title",
                 name: "TaxSetup",
@@ -129,318 +211,6 @@ export default [
                     },
                 ],
             },
-        ]
-    },
-
-    {
-        title: "priceList.title",
-        to: "/app/price-list",
-        name: "products",
-        class: "d-flex",
-        fontIcon: <FontAwesomeIcon icon={faClipboardList} />,
-        permission: Permissions.MANAGE_PRODUCTS,
-    },
-
-    {
-        title: "Vendors.title",
-        name: "Vendors",
-        fontIcon: <FontAwesomeIcon icon={faUser} />,
-        to: "/app/Vendors",
-        class: "d-flex",
-        is_submenu: "true",
-        permission: Permissions.MANAGE_PRODUCTS,
-        subPath: {
-            // productsSubPath: "/app/products",
-            //barcodeSubPath: "/app/print/barcode",
-           // monthlysalesSubPath: "/app/monthlysales",
-        },
-        subMenu: [
-            // MARK FROM RAM [01-08-2024]
-            {
-                title: "supplier.title",
-                name: "supplier",
-                fontIcon: <FontAwesomeIcon icon={faTruck} />,
-                to: "/app/supplier",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            },
-            {
-                title: "ledger.title",
-                name: "ledger",
-                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-                to: "/app/ledger",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            },
-        ]
-    },
-    
-    {
-        title: "Payroll.title",
-        name: "Payroll",
-        fontIcon: <FontAwesomeIcon icon={faMoneyBills} />,
-        to: "/app/Payroll",
-        class: "d-flex",
-        is_submenu: "true",
-        permission: Permissions.MANAGE_PRODUCTS,
-        subPath: {
-            // productsSubPath: "/app/products",
-            //barcodeSubPath: "/app/print/barcode",
-           // monthlysalesSubPath: "/app/monthlysales",
-        },
-        subMenu: [
-            {
-                title: "empDepartment.title",
-                name: "empDepartment",
-                fontIcon: <FontAwesomeIcon icon={faBoxOpen} />,
-                to: "/app/empDepartment",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            },
-            {
-                title: "empDesignation.title",
-                name: "empDesignation",
-                fontIcon: <FontAwesomeIcon icon={faLayerGroup} />,
-                to: "/app/empDesignation",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            },
-            {
-                title: "PatRollProcess.title",
-                name: "salaryPreparation",
-                fontIcon: <FontAwesomeIcon icon={faMoneyBills} />,
-                to: "/app/salaryPreparation",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            },
-        ]
-    },
-    {
-        title: "reports.title",
-        name: "reports",
-        fontIcon: <FontAwesomeIcon icon={faChartColumn} />,
-        to: "/app/report/pos-salesreport",
-        class: "d-flex",
-        permission: Permissions.MANAGE_REPORTS,
-        subMenu: [
-            {
-                title: "sales.title",
-                name: "Sales",
-                fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
-                to: "/app/report/pos-salesreport",
-                class: "d-flex",
-                permission: Permissions.MANAGE_REPORTS,
-                items: [
-                    {
-                        title: getFormattedMessage("monthlySales.title"),
-                        to: "/app/report/pos-salesreport",
-                    },
-                ],
-            },
-            {
-                title: "Purchase.title",
-                name: "Purchase",
-                fontIcon: <FontAwesomeIcon icon={faReceipt}></FontAwesomeIcon>,
-                to: "/app/report/pos-purchasereport",
-                class: "d-flex",
-                permission: Permissions.MANAGE_REPORTS,
-                items: [
-                    {
-                        title: getFormattedMessage("monthlyPurchase.title"),
-                        to: "/app/report/pos-purchasereport"
-                    }
-                ]
-            },
-            {
-                title: "stock.reports.title",
-                name: "Stock",
-                fontIcon: <FontAwesomeIcon icon={faLayerGroup} />,
-                to: "/app/report/closingStock",
-                class: "d-flex",
-                permission: Permissions.MANAGE_REPORTS,
-                items: [
-                    {
-                        title: getFormattedMessage("Stock"),
-                        to: "/app/report/closingStock",
-                    },
-                ],
-            },
-        ]
-    },
-
-    {
-        title: "setup.title",
-        name: "masterdata",
-        fontIcon: <FontAwesomeIcon icon={faGear} />,
-        to: "/app/products",
-        class: "d-flex",
-        is_submenu: "true",
-        permission: Permissions.MANAGE_PRODUCTS,
-        subPath: {
-            purchaseSubPath: "/app/purchases",
-            posSubpath: "/app/pos",
-        },
-        subMenu: [
-            {
-                title: "companyconfig.title",
-                name: "companyconfig",
-                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-                to: "/app/companyconfig",
-                class: "d-flex",
-                permission: Permissions.MANAGE_CUSTOMERS,
-            }
-        ],
-    },
-
-// Mark From Ram [06-08-2024]
-
-
-
-    // {
-    //     title: "inventory.title",
-    //     name: "masterdata",
-    //     fontIcon: <FontAwesomeIcon icon={faReceipt} />,
-    //     to: "/app/products",
-    //     class: "d-flex",
-    //     is_submenu: "true",
-    //     permission: Permissions.MANAGE_PRODUCTS,
-    //     subPath: {
-    //         purchaseSubPath: "/app/purchases",
-    //         posSubpath: "/app/pos",
-    //     },
-    //     subMenu: [
-    //         {
-    //             title: "Sales (POS)",
-    //             to: "/app/pos",
-    //             name: "purchase",
-    //             class: "d-flex",
-    //             fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
-    //             permission: Permissions.MANAGE_PRODUCTS,
-    //         },
-    //         {
-    //             title: "purchase.title",
-    //             to: "/app/purchases",
-    //             name: "purchase",
-    //             class: "d-flex",
-    //             fontIcon: <FontAwesomeIcon icon={faReceipt} />,
-    //             permission: Permissions.MANAGE_PRODUCTS,
-    //         },
-    //     ],
-    // },
-
-
-
-
-
-
-                                            // {
-                                            //     title: "masterdata.title",
-                                            //     name: "masterdata",
-                                            //     fontIcon: <FontAwesomeIcon icon={faBoxes} />,
-                                            //     to: "/app/products",
-                                            //     class: "d-flex",
-                                            //     is_submenu: "true",
-                                            //     permission: Permissions.MANAGE_PRODUCTS,
-                                            //     subPath: {
-                                            //         // productsSubPath: "/app/products",
-                                            //         barcodeSubPath: "/app/print/barcode",
-                                            //         monthlysalesSubPath: "/app/monthlysales",
-                                            //     },
-                                            //     subMenu: [
-            // MARK FROM RAM [01-08-2024]
-            // {
-            //     title: "empDepartment.title",
-            //     name: "empDepartment",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/empDepartment",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-            // {
-            //     title: "empDesignation.title",
-            //     name: "empDesignation",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/empDesignation",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-            // {
-            //     title: "PatRollProcess.title",
-            //     name: "salaryPreparation",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/salaryPreparation",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-            //MARK TO RAM [01-08-2024]
-            // {
-            //     title: "ledger.title",
-            //     name: "ledger",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/ledger",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-            // {
-            //     title: "supplier.title",
-            //     name: "supplier",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/supplier",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-                                        // {
-                                        //     title: "User.title",
-                                        //     name: "Users",
-                                        //     fontIcon: <FontAwesomeIcon icon={faUser} />,
-                                        //     to: "/app/users",
-                                        //     class: "d-flex",
-                                        //     permission: Permissions.MANAGE_UNITS,
-                                        //     items: [
-                                        //         {
-                                        //             title: getFormattedMessage("User.title"),
-                                        //             to: "/app/users",
-                                        //         },
-                                        //     ],
-                                        // },
-            // {
-            //     title: "products.title",
-            //     to: "/app/products",
-            //     name: "products",
-            //     class: "d-flex",
-            //     fontIcon: <FontAwesomeIcon icon={faBoxes} />,
-            //     permission: Permissions.MANAGE_PRODUCTS,
-            // },
-            // {
-            //     title: "priceList.title",
-            //     to: "/app/price-list",
-            //     name: "products",
-            //     class: "d-flex",
-            //     fontIcon: <FontAwesomeIcon icon={faClipboardList} />,
-            //     permission: Permissions.MANAGE_PRODUCTS,
-            // },
-            // {
-            //     title: "customers.title",
-            //     name: "customers",
-            //     fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-            //     to: "/app/customers",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_CUSTOMERS,
-            // },
-            // {
-            //     title: "TaxSetup.title",
-            //     name: "TaxSetup",
-            //     fontIcon: <FontAwesomeIcon icon={faPercent} />,
-            //     to: "/app/taxSetup",
-            //     class: "d-flex",
-            //     permission: Permissions.MANAGE_UNITS,
-            //     items: [
-            //         {
-            //             title: getFormattedMessage("TaxSetup.title"),
-            //             to: "/app/taxSetup",
-            //         },
-            //     ],
-            // },
 
 
             // {
@@ -479,9 +249,40 @@ export default [
             //     class: "d-flex",
             //     permission: Permissions.MANAGE_PRODUCTS,
             // },
-        //],
-    //},
-    
+        ],
+    },
+
+    {
+        title: "inventory.title",
+        name: "masterdata",
+        fontIcon: <FontAwesomeIcon icon={faReceipt} />,
+        to: "/app/products",
+        class: "d-flex",
+        is_submenu: "true",
+        permission: Permissions.MANAGE_PRODUCTS,
+        subPath: {
+            purchaseSubPath: "/app/purchases",
+            posSubpath: "/app/pos",
+        },
+        subMenu: [
+            {
+                title: "Sales (POS)",
+                to: "/app/pos",
+                name: "purchase",
+                class: "d-flex",
+                fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
+                permission: Permissions.MANAGE_PRODUCTS,
+            },
+            {
+                title: "purchase.title",
+                to: "/app/purchases",
+                name: "purchase",
+                class: "d-flex",
+                fontIcon: <FontAwesomeIcon icon={faReceipt} />,
+                permission: Permissions.MANAGE_PRODUCTS,
+            },
+        ],
+    },
     // {
     //     title: "learning.title",
     //     name: "learning",
@@ -496,64 +297,64 @@ export default [
     //         },
     //     ],
     // },
-    // {
-    //     title: "reports.title",
-    //     name: "reports",
-    //     fontIcon: <FontAwesomeIcon icon={faChartColumn} />,
-    //     to: "/app/report/pos-salesreport",
-    //     class: "d-flex",
-    //     permission: Permissions.MANAGE_REPORTS,
-    //     subMenu: [
-    //         // {
-    //         //     title: "products.title",
-    //         //     to: "/app/report/pos-salesreport",
-    //         //     name: "products",
-    //         //     class: "d-flex",
-    //         //     fontIcon: <FontAwesomeIcon icon={faBoxes} />,
-    //         //     permission: Permissions.MANAGE_PRODUCTS,
-    //         // },
-    //         {
-    //             title: "stock.reports.title",
-    //             name: "Stock",
-    //             fontIcon: <FontAwesomeIcon icon={faMapLocation} />,
-    //             to: "/app/report/closingStock",
-    //             class: "d-flex",
-    //             permission: Permissions.MANAGE_REPORTS,
-    //             items: [
-    //                 {
-    //                     title: getFormattedMessage("Stock"),
-    //                     to: "/app/report/closingStock",
-    //                 },
-    //             ],
-    //         },
-    //         {
-    //             title: "sales.title",
-    //             name: "Sales",
-    //             fontIcon: <FontAwesomeIcon icon={faMapLocation} />,
-    //             to: "/app/report/pos-salesreport",
-    //             class: "d-flex",
-    //             permission: Permissions.MANAGE_REPORTS,
-    //             items: [
-    //                 {
-    //                     title: getFormattedMessage("monthlySales.title"),
-    //                     to: "/app/report/pos-salesreport",
-    //                 },
-    //             ],
-    //         },
-    //         {
-    //             title: "Purchase.title",
-    //             name: "Purchase",
-    //             fontIcon: <FontAwesomeIcon icon={faMapLocation}></FontAwesomeIcon>,
-    //             to: "/app/report/pos-purchasereport",
-    //             class: "d-flex",
-    //             permission: Permissions.MANAGE_REPORTS,
-    //             items: [
-    //                 {
-    //                     title: getFormattedMessage("monthlyPurchase.title"),
-    //                     to: "/app/report/pos-purchasereport"
-    //                 }
-    //             ]
-    //         },
+    {
+        title: "reports.title",
+        name: "reports",
+        fontIcon: <FontAwesomeIcon icon={faChartColumn} />,
+        to: "/app/report/pos-salesreport",
+        class: "d-flex",
+        permission: Permissions.MANAGE_REPORTS,
+        subMenu: [
+            // {
+            //     title: "products.title",
+            //     to: "/app/report/pos-salesreport",
+            //     name: "products",
+            //     class: "d-flex",
+            //     fontIcon: <FontAwesomeIcon icon={faBoxes} />,
+            //     permission: Permissions.MANAGE_PRODUCTS,
+            // },
+            {
+                title: "stock.reports.title",
+                name: "Stock",
+                fontIcon: <FontAwesomeIcon icon={faMapLocation} />,
+                to: "/app/report/closingStock",
+                class: "d-flex",
+                permission: Permissions.MANAGE_REPORTS,
+                items: [
+                    {
+                        title: getFormattedMessage("Stock"),
+                        to: "/app/report/closingStock",
+                    },
+                ],
+            },
+            {
+                title: "sales.title",
+                name: "Sales",
+                fontIcon: <FontAwesomeIcon icon={faMapLocation} />,
+                to: "/app/report/pos-salesreport",
+                class: "d-flex",
+                permission: Permissions.MANAGE_REPORTS,
+                items: [
+                    {
+                        title: getFormattedMessage("monthlySales.title"),
+                        to: "/app/report/pos-salesreport",
+                    },
+                ],
+            },
+            {
+                title: "Purchase.title",
+                name: "Purchase",
+                fontIcon: <FontAwesomeIcon icon={faMapLocation}></FontAwesomeIcon>,
+                to: "/app/report/pos-purchasereport",
+                class: "d-flex",
+                permission: Permissions.MANAGE_REPORTS,
+                items: [
+                    {
+                        title: getFormattedMessage("monthlyPurchase.title"),
+                        to: "/app/report/pos-purchasereport"
+                    }
+                ]
+            },
             // {
             //     title: "ClosingStock.title",
             //     name: "ClosingStock",
@@ -568,31 +369,33 @@ export default [
             //         }
             //     ]
             // }
-        //]
-   // },
-    // {
-    //     title: "setup.title",
-    //     name: "masterdata",
-    //     fontIcon: <FontAwesomeIcon icon={faFile} />,
-    //     to: "/app/products",
-    //     class: "d-flex",
-    //     is_submenu: "true",
-    //     permission: Permissions.MANAGE_PRODUCTS,
-    //     subPath: {
-    //         purchaseSubPath: "/app/purchases",
-    //         posSubpath: "/app/pos",
-    //     },
-    //     subMenu: [
-    //         {
-    //             title: "companyconfig.title",
-    //             name: "companyconfig",
-    //             fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
-    //             to: "/app/companyconfig",
-    //             class: "d-flex",
-    //             permission: Permissions.MANAGE_CUSTOMERS,
-    //         }
-    //     ],
-    // },
+        ]
+    },
+    {
+        title: "setup.title",
+        name: "masterdata",
+        fontIcon: <FontAwesomeIcon icon={faFile} />,
+        to: "/app/products",
+        class: "d-flex",
+        is_submenu: "true",
+        permission: Permissions.MANAGE_PRODUCTS,
+        subPath: {
+            purchaseSubPath: "/app/purchases",
+            posSubpath: "/app/pos",
+        },
+        subMenu: [
+            {
+                title: "companyconfig.title",
+                name: "companyconfig",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/companyconfig",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            }
+            
+           
+        ],
+    },
 
 
 ];
