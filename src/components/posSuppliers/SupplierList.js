@@ -72,7 +72,14 @@ const SupplierList =(props) => {
                   ?.includes(value?.toLowerCase())
               )
             : possupplier;
-            setFilterPosSupplier(filtered_posSuppliers);
+            setFilterPosSupplier(filtered_posSuppliers); 
+
+
+
+
+
+
+            
       };
 
 
