@@ -13,7 +13,10 @@ export default (state = [], action) => {
         item.id === +action.payload.id ? action.payload : item
       );
     case taxActionType.DELETE_TAX:
-      return state.filter((item) => item.id !== action.payload);
+      return {
+        ...state,
+        taxSetup:state.taxSetup.filter(tax=>tax.taxId!==action.payload)
+      }
     default:
       return state;
   }

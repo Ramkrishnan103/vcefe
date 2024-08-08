@@ -18,14 +18,15 @@ import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 
 export const fetchDailyPurchase =
-    (filter = {}, isLoading = true) =>
+    (values,filter = {}, isLoading = true) =>
     async (dispatch) => {
         if (isLoading) {
             dispatch(setLoading(true));
         }
-        let url = apiBaseURL.DAILY_PURCHASE+ "?fromDate=" +"'"+ new Date().toLocaleDateString("fr-CA",{year:"numeric",month:"2-digit",day:"2-digit" })+"'" + 
-        "&toDate="+"'"+ new Date().toLocaleDateString("fr-CA",{year:"numeric",month:"2-digit",day:"2-digit" })+"'"+ "&warehouseId=0";
-       
+        // let url = apiBaseURL.DAILY_PURCHASE+ "?fromDate=" +"'"+ new Date().toLocaleDateString("fr-CA",{year:"numeric",month:"2-digit",day:"2-digit" })+"'" + 
+        // "&toDate="+"'"+ new Date().toLocaleDateString("fr-CA",{year:"numeric",month:"2-digit",day:"2-digit" })+"'"+ "&warehouseId=0";
+        let url=apiBaseURL.DAILY_PURCHASE+values;
+        console.log(url)
         console.log(url);
         // if (
         //     !_.isEmpty(filter) &&

@@ -83,7 +83,14 @@ const CompanyConfigForm = (props) => {
   // useEffect(() => {
   //   dispatch(fetchCompanyConfig(true));
   // });
- 
+  const [errors, setErrors] = useState({
+    companyname: '',
+   businesstype: '',
+    showpricein: '',
+    isActive:  "",
+    printingtype:""
+   
+});
 
   useEffect(() => {
     if (companyConfig) {
@@ -98,7 +105,7 @@ const CompanyConfigForm = (props) => {
         emailid: companyConfig?.attributes?.emailId || "",
         gstin: companyConfig?.attributes?.gstin || "",
         businesstype: companyConfig?.attributes?.businessType || "",
-        showpricein: companyConfig?.attributes?.showpricein==='0'?'Exclusive':'Inclusive' || "",
+        showpricein: companyConfig?.attributes?.showpricein==='0'?"Exclusive":"Inclusive" || "",
         isActive: companyConfig?.attributes?.allownegativestock==='True'?"Yes":"No" || "",
         companylogo: companyConfig?.attributes?.companyLogo || "",
         printingtype:companyConfig?.attributes?.printmodel||""
@@ -133,11 +140,18 @@ const CompanyConfigForm = (props) => {
         "companyconfig.input.isActive.validate.label"
       );
     }
-    if (!CompanyConfigValue["printingmodel"]) {
-      errors["printingmodel"] = getFormattedMessage(
+    if (!CompanyConfigValue["printingtype"]) {
+      errors["printingtype"] = getFormattedMessage(
         "companyconfig.input.printingmodel.validate.label"
       );
     }
+    else {
+      isValid = true;
+  }
+  
+      setErrors(errors);
+    return isValid;
+  };
     // if (!CompanyConfigValue["state"]) {
     //   errors["state"] = getFormattedMessage(
     //     "companyconfig.input.state.validate.label"
@@ -153,12 +167,7 @@ const CompanyConfigForm = (props) => {
     //     "companyconfig.input.emailId.validate.label"
     //   );
     // } 
-    else {
-      isValid = true;
-    }
-    //   setErrors(errors);
-    return isValid;
-  };
+   
 
   
 
@@ -180,7 +189,7 @@ const CompanyConfigForm = (props) => {
       currentAcTo: "2025",
       allownegativestock: data.isActive==="Yes"?true:false,
       businessType: data.businesstype,
-      showpricein: data.showpricein==="Exclusive"?0:1,
+      showpricein: data.showpricein==="Exclusive"?"0":"1",
       printmodel:data.printingtype
     };
     return payload;
@@ -195,9 +204,18 @@ const CompanyConfigForm = (props) => {
   const onSubmit = (event) => {
    
     event.preventDefault();
-    editCompanyConfig(prepareFormData(CompanyConfigValue));
+   
+    const valid = handleValidation();
+    if (
+         companyConfig &&
+         companyConfig.length !== 0
+        && valid){
+          editCompanyConfig(prepareFormData(CompanyConfigValue));
+        }
+        }
+    
     // console.log(editCompanyConfig(prepareFormData(CompanyConfigValue)))
-    // const valid = handleValidation();
+    // 
 
     // CompanyConfigValue.images = multipleFiles;
     // console.log("onSubmit :: multipleFiles", multipleFiles);
@@ -221,7 +239,7 @@ const CompanyConfigForm = (props) => {
         // );
       // }
     
-  };
+ 
 
  
   
@@ -258,7 +276,7 @@ const handleInputChange=(e)=>{
   console.log(CompanyConfigValue.businesstype )
 
   const handleShowPriceChange = (option) => {
-    setCompanyConfigValue((prev) => ({ ...prev, showpricein: option }));
+    setCompanyConfigValue((prev) => ({ ...prev, showpricein: option.label }));
     console.log("option selected",option);
   };
   const onChangeFiles = (file) => {
@@ -310,6 +328,8 @@ const handleInputChange=(e)=>{
                         className="form-control"
                         onChange={handleInputChange} ref={companyRef}
                       />
+                      <span
+                                    className='text-danger d-block fw-400 fs-small mt-2'>{errors['companyname'] ? errors['companyname'] : null}</span>
                     </div>
 
                     <div className="col-md-6 mb-3">
@@ -324,6 +344,7 @@ const handleInputChange=(e)=>{
                         type="text"
                         name="shortname"
                         id="shortname"
+                        disabled
                         value={CompanyConfigValue.shortname}
                         placeholder={placeholderText(
                           "globally.input.CompanyCode.placeholder.label"
@@ -443,7 +464,7 @@ const handleInputChange=(e)=>{
                     <div className="col-md-6 mb-4">
                       <label className="form-label">
                         {getFormattedMessage(
-                          "globally.input.RegistrationNo.label"
+                         "globally.input.Registrationno.label"
                         )}
                         
                       </label>
@@ -467,6 +488,7 @@ const handleInputChange=(e)=>{
                         
                       </label>  
                       <span className="required" /> 
+                     
                       <ReactSelect
                         value={dropBusiness.find(option => option.value === CompanyConfigValue.businesstype)} 
                         //  title={getFormattedMessage("warehouse.title")}
@@ -476,6 +498,8 @@ const handleInputChange=(e)=>{
                      data={dropBusiness} 
                         onChange={handleDropdownChange} 
                       />
+                       <span
+                                    className='text-danger d-block fw-400 fs-small mt-2'>{errors['businesstype'] ? errors['businesstype'] : null}</span>
                     </div>
                   </div>
                   <div className="row">
@@ -522,6 +546,8 @@ const handleInputChange=(e)=>{
                       data={showPricein}
                         onChange={handleShowPriceChange}
                       />
+                      <span
+                                    className='text-danger d-block fw-400 fs-small mt-2'>{errors['showpricein'] ? errors['showpricein'] : null}</span>
                     </div>
                     <div className="col-md-6 mb-4">
                   <label className="form-label">
@@ -537,6 +563,8 @@ const handleInputChange=(e)=>{
                       data={isActive}
                         onChange={handleActiveChange}
                       />
+                       <span
+                                    className='text-danger d-block fw-400 fs-small mt-2'>{errors['isActive'] ? errors['isActive'] : null}</span>
                     
                 </div>
                     
@@ -558,6 +586,8 @@ const handleInputChange=(e)=>{
                       data={printingType}
                         onChange={handlePrintingTypeChange}
                       />
+                       <span
+                                    className='text-danger d-block fw-400 fs-small mt-2'>{errors['printingtype'] ? errors['printingtype'] : null}</span>
                     </div>
                     </div>
                 </div>

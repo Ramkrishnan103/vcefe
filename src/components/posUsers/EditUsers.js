@@ -18,23 +18,21 @@ const EditUsers = (props) => {
 
     useEffect(() => {
         fetchUser(id);
-        editUser();
+        // editUser();
     }, [] );
 
     const itemsValue = users && users.length === 1 && users.map(user => ({
-       imageUrl: user.attributes.imageUrl,
-        firstName: user.attributes.firstName,
-        lastName: user.attributes.lastName,
-        userName: user.attributes.userName,
-        roleName: user.attributes.roleName,
-        email: user.attributes.email,
-        pwd:user.attributes.pwd,
-        mobileno: user.attributes.mobileNo,
-        address1:user.attributes.address1,
-        address2:user.attributes.address2,
-        isActive:user.attributes.isActive,
-        remarks :user.attributes.remarks,
-        id: user.id
+      
+        firstName: user?.attributes?.firstName,
+        lastName: user?.attributes?.lastName,
+        userName: user?.attributes?.userName,
+        roleName: user?.attributes?.roleName,
+        email: user?.attributes?.email,
+        pwd:user?.attributes?.pwd,
+        confirmPwd:user?.attributes?.pwd,
+        isActive:user?.attributes?.isActive,
+        remarks :user?.attributes?.remarks,
+        id: user?.id
     }));
 
     console.log(users)
@@ -42,11 +40,13 @@ const EditUsers = (props) => {
     return (
         <MasterLayout>
             <TopProgressBar />
-            <HeaderTitle title={getFormattedMessage('user.edit.title')} to='/app/users'/>
-            {users.length === 1 && <UsersForm singleUser={itemsValue} id={id} />}
+            {/* <HeaderTitle title={getFormattedMessage('user.edit.title')} to='/app/users'/> */}
+            
+            {users.length === 1 && <UsersForm singleUser={itemsValue} id={id}  title={getFormattedMessage( "user.edit.title")} to='/app/users'/>}
         </MasterLayout>
     );
 }
+
 
 const mapStateToProps = (state) => {
     const {users} = state;

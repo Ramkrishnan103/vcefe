@@ -257,6 +257,7 @@ const ReactDataTable = (props) => {
   const emptyStateProps = {
     isLoading: isLoading,
   };
+  
 
   return (
     <div className="data-table pt-0">
@@ -276,6 +277,7 @@ const ReactDataTable = (props) => {
         onChangeRowsPerPage={handlePerRowsChange}
         sortIcon={renderSortIcons(direction)}
         persistTableHead={false}
+        
       />
     </div>
   );

@@ -45,6 +45,7 @@ export const loginAction = (user, navigate, setLoading) => async (dispatch) => {
             localStorage.setItem(Tokens.ADMIN, 'DEFAULT');
             localStorage.setItem(Tokens.GET_PERMISSIONS, response.data.data.permissions);
             localStorage.setItem(Tokens.USER, response.data.data.user.email);
+            
             localStorage.setItem(Tokens.IMAGE, response.data.data.user.image_url);
             localStorage.setItem(Tokens.FIRST_NAME, response.data.data.user.first_name);
             localStorage.setItem(Tokens.LANGUAGE, response.data.data.user.language);
