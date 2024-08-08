@@ -40,7 +40,6 @@ const DailyPurchaseTab = (props) => {
     useEffect(() => {
         fetchFrontSetting();
     }, [warehouseValue]);
-    
 
     const itemsValue = dailyPurchase?.length >= 0 && dailyPurchase.map(dailypurchase => {
         return (
@@ -75,11 +74,6 @@ const DailyPurchaseTab = (props) => {
         console.log(values);
        
         fetchDailyPurchase(values,filter,true);
-        if (!fromDate.current.value || !tooDate.current.value || !paymode.current.value || !search.current.value) {
-          console.log("No records found!");
-          // <h3>getFormattedMessage("react-data-table.no-record")</h3>
-
-      }
         // setPayMode(paymode.current.value)
     }
 
@@ -108,7 +102,6 @@ const DailyPurchaseTab = (props) => {
       }).format(data.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0));
     };
     //   };
-    
   
      
       return (

@@ -12,16 +12,12 @@ import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome
 import ReactSelect from '../../../shared/select/reactSelect';
 import { fetchAcYear } from "../../../store/action/acYearAction";
 import { filter, stubString } from "lodash";
-import {jsPDF} from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
-// import { NULL } from 'sass';
+
+import { NULL } from 'sass';
 
 
 
 const MonthlyPurchaseTab = (props) => {
- 
   const {
     acYear,
     isLoading,
@@ -33,22 +29,20 @@ const MonthlyPurchaseTab = (props) => {
     fetchFrontSetting,
     warehouseValue,
     allConfigData,
-    fetchAcYear,companyConfig,fetchCompanyConfig
+    fetchAcYear
   } = props;
   // const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
   // const [isWarehouseValue, setIsWarehouseValue] = useState(false);
   const searchRef = useRef();
-  console.log("companyConfig",companyConfig)
   useEffect(() => {
     fetchFrontSetting();
   }, [warehouseValue]);
   console.log(acYear)
-  
+
   useEffect(() => {
     fetchAcYear();
-    fetchCompanyConfig()
   }, []);
-  console.log("companyConfig",companyConfig)
+
   useEffect(() => {
     if (searchRef.current) {
       searchRef.current.focus();
@@ -60,7 +54,7 @@ const MonthlyPurchaseTab = (props) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
   const [itemsRecord, setItemsRecord] = useState(false)
- 
+
   console.log(monthlyPurchase)
 
   const handleSearchChange = (e) => {
@@ -102,9 +96,9 @@ const MonthlyPurchaseTab = (props) => {
     let values =
       `?fromDate='${selectedYearRange.label.substr(0, 4)}-04-01'&toDate='${selectedYearRange.label.substr(5, 9)}-03-31'`
 
-    console.log("hi",values);
+    console.log(values);
     fetchMonthPurchaseparam(values, filter, true);
-  }, [fetchMonthPurchaseparam, selectedYearRange])
+  }, [])
 
 
 
@@ -136,63 +130,12 @@ const MonthlyPurchaseTab = (props) => {
 
 
   const acFrom = useRef();
-  const companyDetails = {
-    companyName: companyConfig?.companyName,
-    address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
-    phoneNumber: companyConfig?.attributes?.phoneNo
-  };
-
-  const reportDetails = {
-    title: "Purchase Report",
-    yearRange:selectedYearRange.label // Adjust dynamically if needed
-  };
-  
 
   const loadReport = () => {
     let acFrom1 = acFrom.current.value;
 
     console.log(acFrom1);
   };
-  const generatePurchaseReportPDF = (companyDetails, reportDetails, itemsValue) => {
-    const { companyName, address, phoneNumber } = companyDetails;
-    const { title, yearRange } = reportDetails;
-
-    const doc = new jsPDF();
-
-    // Add Company Name
-    doc.setFontSize(18);
-    doc.text(companyName, 105, 20, null, null, 'center');
-
-    // Add Address
-    doc.setFontSize(12);
-    doc.text(address, 105, 30, null, null, "center");
-
-    // Add Phone Number
-    doc.setFontSize(12);
-    doc.text(phoneNumber, 105, 35, null, null, "center");
-
-    const textY = 40; // Y-coordinate for the text
-    const lineOffset = 5; // Offset between the text and the line
-    const lineY = textY + lineOffset; // Y-coordinate for the line
-    
-    doc.setFontSize(14);
-    doc.text(`${title} ${yearRange}`, 10, textY, null, null, "left");
-    
-    // Set the line width and draw the line after the text
-    doc.setLineWidth(0.2); 
-    doc.line(10, lineY, 200, lineY);
-    
-    // Add Table
-    doc.autoTable({
-        startY: 50, // Adjust the start position of the table
-        head: [['Month', 'Purchase Value']],
-        body: itemsValue.map(item => [item.monthYear, item.purchaseValue]),
-        foot: [['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]],
-    });
-
-    // Save the PDF
-    doc.save('MonthlyPurchases.pdf');
-};
 
 
   // const onChange = (filter) => {
@@ -220,68 +163,6 @@ const MonthlyPurchaseTab = (props) => {
       maximumFractionDigits: 2,
     }).format(data.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0));
   };
-
-  
-  const printTable = () => {
-    // Generate the PDF document
-    const doc = generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue);
-    
-    // Create a Blob from the PDF document
-    const pdfBlob = doc.output('blob');
-    
-    // Create a URL for the Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    
-    // Open the Blob URL in a new tab
-    const printWindow = window.open(pdfUrl);
-    
-    if (printWindow) {
-        // Wait for the new window to load and then trigger print dialog
-        printWindow.onload = () => {
-            printWindow.print();
-        };
-    }
-};
-
-
-  const XLSX = require('xlsx');
-
-const generatePurchaseReportExcel = (companyDetails, reportDetails, itemsValue) => {
-    const { companyName, address, phoneNumber } = companyDetails;
-    const { title, yearRange } = reportDetails;
-
-    // Create a workbook and a worksheet
-    const workbook = XLSX.utils.book_new();
-    
-    // Prepare the data
-    const data = [
-        [companyName],
-        [address],
-        [phoneNumber],
-        [`${title} ${yearRange}`],
-        [],
-        ['Month', 'Purchase Value'],
-        ...itemsValue.map(item => [item.monthYear, item.purchaseValue]),
-        ['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]
-    ];
-    
-    // Create a worksheet
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-
-    // Write to file
-    XLSX.writeFile(workbook, 'MonthlyPurchases.xlsx');
-};
-const exportToExcel=()=>{
-  generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
-}
-
-  const exportToPDF = () => {
-   generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue)
-  };
-
 
   return (
     <div className="warehouse_purchase_report_table">
@@ -341,21 +222,18 @@ const exportToExcel=()=>{
               icon={faPrint}
               className="fa-2x search-icon"
               style={{ color: "black" }}
-             onClick={printTable}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
               icon={faFileExcel}
               className="fa-2x search-icon "
               style={{ color: "green", paddingLeft: "10px" }}
-              onClick={exportToExcel}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
               icon={faFilePdf}
               className="fa-2x search-icon"
               style={{ color: "red", paddingLeft: "10px" }}
-              onClick={exportToPDF}
             ></FontAwesomeIcon>
 
           </button>
@@ -412,8 +290,8 @@ const exportToExcel=()=>{
 
 
 const mapStateToProps = (state) => {
-  const { isLoading, totalRecord, monthlyPurchase, frontSetting, acYear ,companyConfig} = state;
-  return { isLoading, totalRecord, monthlyPurchase, frontSetting, acYear,companyConfig }
+  const { isLoading, totalRecord, monthlyPurchase, frontSetting, acYear } = state;
+  return { isLoading, totalRecord, monthlyPurchase, frontSetting, acYear }
 };
 
-export default connect(mapStateToProps, { fetchFrontSetting, fetchMonthPurchase, fetchMonthPurchaseparam, fetchAcYear,fetchCompanyConfig })(MonthlyPurchaseTab);
+export default connect(mapStateToProps, { fetchFrontSetting, fetchMonthPurchase, fetchMonthPurchaseparam, fetchAcYear })(MonthlyPurchaseTab);
