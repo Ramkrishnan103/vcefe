@@ -10,10 +10,9 @@ import Learn1 from "./components/learning/Learn1";
 import Suppliers from "./components/supplier/Suppliers";
 import CreateSupplier from "./components/supplier/CreateSupplier";
 import EditSupplier from "./components/supplier/EditSupplier";
-//Mark from Nila 31-7-24
-// import Customers from "./components/customer/Customers";
-// import CreateCustomer from "./components/customer/CreateCustomer";
-// import EditCustomer from "./components/customer/EditCustomer";
+import Customers from "./components/customer/Customers";
+import CreateCustomer from "./components/customer/CreateCustomer";
+import EditCustomer from "./components/customer/EditCustomer";
 import User from "./components/users/User";
 import Users from "./components/posUsers/Users";
 import CreateUser from "./components/users/CreateUser";
@@ -102,27 +101,20 @@ import UsersForm from "./components/posUsers/UsersForm";
 import CreateUsers from "./components/posUsers/CreateUsers";
 import EditUsers from "./components/posUsers/EditUsers";
 import Ledger from "./components/ledger/Ledger";
-
 import CreateLedger from "./components/ledger/CreateLedger";
 import EditLedger from "./components/ledger/EditLedger";
-import PosClosingStockReport from "./components/report/closingStockReport/PosClosingStockReport"
-
-import PosCustomer from "./components/PosCustomer/PosCustomer";
-import CreatePosCustomer from './components/PosCustomer/CreatePosCustomer'
-import PosCustomerForm from "./components/PosCustomer/PosCustomerForm"
-import EditPosCustomer from './components/PosCustomer/EditPosCustomer'
-import SalaryList from "./components/SalaryStructure/SalaryList";
-import CreateSalaryStructure from "./components/SalaryStructure/CreateSalaryStructure"
+import PosClosingStockReport from "./components/report/closingStockReport/PosClosingStockReport";
+import SupplierList from "./components/posSuppliers/SupplierList";
+import PosCreateSupplier from "./components/posSuppliers/PosCreateSupplier";
+import PosEditSupplier from "./components/posSuppliers/PosEditSupplier";
+import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
+import EmpDepartmentCreate from "./components/employeeDepartment/EmpDepartmentCreate";
+import EditEmpDepartment from "./components/employeeDepartment/EditEmpDepartment";
+import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
+//mark from ram [05-08-2024]
 import Salary from "./components/salaryPreparation/Salary";
 import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
-import Employees from "./components/Employees/Employees";
-import CreateEmployees from "./components/Employees/CreateEmployees";
-import EmployeeDetail from "./components/Employees/EmployeeDetail";
-import EditEmployees from "./components/Employees/EditEmployees";
-// import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
-// import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
-
-
+//mark to ram [05-08-2024]
 export const route = [
   {
     path: "dashboard",
@@ -214,44 +206,41 @@ export const route = [
     ele: <DailySales />,
     permission: Permissions.MANAGE_UNITS,
   },
-  {
+   {
     path: "product-groups",
     ele: <ProductGroups />,
     permission: Permissions.MANAGE_UNITS,
   },
-  {
-    path: "suppliers",
-    ele: <Suppliers />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  {
-    path: "suppliers/create",
-    ele: <CreateSupplier />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  {
-    path: "suppliers/edit/:id",
-    ele: <EditSupplier />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  //Mark from Nila 31-7-24
   // {
-  //   path: "customers",
-  //   ele: <Customers />,
-  //   permission: Permissions.MANAGE_CUSTOMERS,
+  //   path: "suppliers",
+  //   ele: <Suppliers />,
+  //   permission: Permissions.MANAGE_SUPPLIERS,
   // },
   // {
-  //   path: "customers/create",
-  //   ele: <CreateCustomer />,
-  //   permission: Permissions.MANAGE_CUSTOMERS,
+  //   path: "suppliers/create",
+  //   ele: <CreateSupplier />,
+  //   permission: Permissions.MANAGE_SUPPLIERS,
   // },
   // {
-  //   path: "customers/edit/:id",
-  //   ele: <EditCustomer />,
-  //   permission: Permissions.MANAGE_CUSTOMERS,
+  //   path: "suppliers/edit/:id",
+  //   ele: <EditSupplier />,
+  //   permission: Permissions.MANAGE_SUPPLIERS,
   // },
-  //Mark to Nila 31-7-24
-
+  {
+    path: "customers",
+    ele: <Customers />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path: "customers/create",
+    ele: <CreateCustomer />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path: "customers/edit/:id",
+    ele: <EditCustomer />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
   {
     path: "user",
     ele: <User />,
@@ -642,64 +631,45 @@ export const route = [
     ele: <PosClosingStockReport />,
     permission: Permissions.MANAGE_REPORTS,
   },
-  //29-7-24  Mark from Nila
   {
-    path: "posCustomer",
-    ele: <PosCustomer/>,
-    permission: "",
+    path:"supplier",
+    ele:<SupplierList/>,
+    permission:Permissions.MANAGE_CUSTOMERS,
   },
   {
-    path: "posCustomer/create",
-    ele: <CreatePosCustomer/>,
-    permission: Permissions.MANAGE_CUSTOMERS,
+    path:"suppliers/create",
+    ele:<PosCreateSupplier/>,
+    permission:Permissions.MANAGE_CUSTOMERS,
   },
   {
-    path: "posCustomer/edit/:id",
-    ele: <EditPosCustomer/>,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
-  {
-    path: "salary",
-    ele: <SalaryList/>,
-    permission: "",
-  },
-  {
-    path: "salary/create",
-    ele: <CreateSalaryStructure/>,
-    permission: Permissions.MANAGE_CUSTOMERS,
+    path:"suppliers/edit/:id",
+    ele:<PosEditSupplier/>,
+    permission:Permissions.MANAGE_CUSTOMERS,
   },
 
-  //Ram
-  {
-    path: "payroll",
-    ele: <Salary/>,
-    permission: "",
-  },
-  {
-    path: "salaryPreparationListPage",
-    ele: <SalaryPreparationListPage/>,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
-  {
-    path: "employees",
-    ele: <Employees />,
-    permission: Permissions.MANAGE_USER,
-  },
-  {
-    path: "employees/create",
-    ele: <CreateEmployees />,
-    permission: ""
-  },
-  {
-    path: "employees/edit/:id",
-    ele: <EditEmployees />,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
-  {
-    path: "employees/detail/:id",
-    ele: <EmployeeDetail />,
-    permission: Permissions.MANAGE_USER,
-  }
  
- 
+  {
+    path:"empDepartment",
+    ele:<EmpDepartment/>,
+    permission:Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path:"empDesignation",
+    ele:<EmpDesignation/>,
+    permission:Permissions.MANAGE_CUSTOMERS,
+  },
+  // MARK FROM RAM [05-08-2024]
+
+    {
+      path:"salaryPreparation",
+      ele:<Salary/>,
+      permission:Permissions.MANAGE_CUSTOMERS,
+    },
+    {
+      path:"salaryPreparationListPage",
+      ele:<SalaryPreparationListPage/>,
+      permission:Permissions.MANAGE_CUSTOMERS,
+    }
+  
+  //  MARK TO RAM [05-08-2024]
 ];

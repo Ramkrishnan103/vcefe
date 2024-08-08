@@ -3,9 +3,8 @@ import { apiBaseURL, frontSettingActionType, toastType } from '../../constants';
 import { addToast } from './toastAction';
 
 export const fetchFrontSetting = () => async ( dispatch ) => {
-    axiosApiWithout.get( apiBaseURL.FRONT_SETTING )
-        .then( ( response ) => {
-            console.log("response",response)
+    // axiosApiWithout.get( apiBaseURL.FRONT_SETTING )
+    //     .then( ( response ) => {
         let data = {
             "success": true,
             "data": {
@@ -30,10 +29,10 @@ export const fetchFrontSetting = () => async ( dispatch ) => {
             "message": "Setting value retrieved successfully."
         };
             dispatch( { type: frontSettingActionType.FETCH_FRONT_SETTING, payload: data.data } );
-        } )
-        .catch( ( { response } ) => {
-            dispatch( addToast(
-                { text: response.data.message, type: toastType.ERROR } ) );
-        } 
-        );
+        // } )
+        // .catch( ( { response } ) => {
+        //     dispatch( addToast(
+        //         { text: response.data.message, type: toastType.ERROR } ) );
+        // } 
+        // );
 }

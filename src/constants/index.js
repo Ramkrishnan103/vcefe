@@ -34,7 +34,6 @@ export const apiBaseURL = {
   QUOTATIONS: "/quotations",
   QUOTATIONS_DETAILS: "quotation-info",
   ADJUSTMENTS: "/adjustments",
-  EMPLOYEES: "/employee",
   SETTINGS: "/settings",
   CACHE_CLEAR: "/cache-clear",
   CHANGE_PASSWORD: "change-password",
@@ -123,8 +122,13 @@ export const apiBaseURL = {
   LEDGER: "/ledgers",
   CLOSINGSTOCKREPORT: "/closingStockReport",
 
-  //MARK FROM NILA 29-7-24
-SALARY:'/salaryConfig'
+  
+  EMPDEPARTMENT :"/empDepartment",
+  EMPDESIGNATION:"/empDesignation",
+
+   SALARYDETAILS :"/salaryDetails",
+   SALARY:"/salaryConfig"
+
 };
 
 export const closingStockReportActionType = {
@@ -423,6 +427,40 @@ export const ledgerActionType = {
   DELETE_LEDGER: "DELETE_LEDGER"
 };
 
+export const posSupplierActionType = {
+  FETCH_POS_SUPPLIER : "FETCH_POS_SUPPLIER",
+  FETCH_POS_SUPPLIERS : "FETCH_POS_SUPPLIERS",
+  EDIT_POS_SUPPLIERS :"EDIT_POS_SUPPLIERS",
+  ADD_POS_SUPPLIERS :"ADD_POS_SUPPLIERS",
+  DELETE_POS_SUPPLIERS :"DELETE_POS_SUPPLIERS"
+};
+
+
+export const empDepartmentActionType = {
+  FETCH_EMPDEPARTMENT:"FETCH_EMPDEPARTMENT",
+  ADD_EMPDEPARTMENT :"ADD_EMPDEPARTMENT",
+  FETCH_EMPDEPARTMENTS :"FETCH_EMPDEPARTMENTS",
+  EDIT_EMPDEPARTMENTS :"EDIT_EMPDEPARTMENTS",
+  DELETE_EMPDEPARTMENT :"DELETE_EMPDEPARTMENT"
+}
+
+export const empDesignationActionType = {
+  FETCH_EMPDESIGNATION:"FETCH_EMPDESIGNATION",
+  ADD_EMPDESIGNATION :"ADD_EMPDESIGNATION",
+  FETCH_EMPDESIGNATIONS:"FETCH_EMPDESIGNATIONS",
+  EDIT_EMPDESIGNATION :"EDIT_EMPDESIGNATION",
+  DELETE_EMPDESIGNATION :"DELETE_EMPDESIGNATION"
+}
+
+export const salaryDetailActionType  = {
+  FETCH_SALARYDEATILS :"FETCH_SALARYDEATILS"
+}
+
+export const salaryActionType  = {
+  FETCH_SALARY :"FETCH_SALARY"
+}
+
+
 export const todaySalePurchaseCountActionType = {
   TODAY_SALE_COUNT: "TODAY_SALE_COUNT",
 };
@@ -601,13 +639,6 @@ export const dateLabelSelector = {
   LAST_MONTH: "last_month",
   CUSTOM: "custom",
 };
-export const employeeActionType = {
-  FETCH_EMPLOYEES: "FETCH_EMPLOYEES",
-  // FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
-  ADD_EMPLOYEE: "ADD_EMPLOYEE",
-  EDIT_EMPLOYEE: "EDIT_EMPLOYEE",
-  DELETE_EMPLOYEE: "DELETE_EMPLOYEE",
-}
 
 export const dateFormat = {
   DEFAULT_MOMENT: "YYYY-MM-DD hh:mm:ss",
@@ -664,7 +695,6 @@ export const Permissions = {
   MANAGE_SETTING: "manage_setting",
   MANAGE_PURCHASE: "manage_purchase",
   MANAGE_PURCHASE_RETURN: "manage_purchase_return",
-  MANAGE_EMPLOYEES: "manage_employees",
   MANAGE_POS_SCREEN: "manage_pos_screen",
   MANAGE_SALE: "manage_sale",
   MANAGE_SALE_RETURN: "manage_sale_return",
@@ -715,13 +745,6 @@ export const posRegisterReportDetailsAction = {
 export const posCashPaymentActionType = {
   POS_CASH_PAYMENT: "POS_CASH_PAYMENT",
 };
-export const employeeFormData = {
-  FORM_DATA: "FORM_DATA",
-}
-export const singleEmployeeActionType = {
-  FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
-}
-
 
 export const settingsKey = {
   LANGUAGE: "language",
@@ -925,16 +948,3 @@ export const taxFilterActionType = {
 export const cartCalculation = {
   CART_CALCULATION: "CART_CALCULATION",
 }
-//Mark from Nila 29-7-24
-export const posCustomerActionType={
-  FETCH_CUSTOMER: "FETCH_CUSTOMER",
-  EDIT_CUSTOMER: "EDIT_CUSTOMER",
-  FETCH_CUSTOMERS: "FETCH_CUSTOMERS",
-  ADD_CUSTOMER: "ADD_CUSTOMER",
-  DELETE_CUSTOMER: "DELETE_CUSTOMER"
-}
-
-export const salaryActionType={
-  FETCH_SALARY:"FETCH_SALARY"
-}
-

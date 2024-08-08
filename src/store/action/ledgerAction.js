@@ -30,7 +30,7 @@ export const fetchLedger =
             .then((response) => {
                 dispatch({  
                     type: ledgerActionType.FETCH_LEDGER,
-                    payload: response?.data?.data,
+                    payload: response.data.data,
                 });
                 // dispatch(
                 //     setTotalRecord(
@@ -68,7 +68,7 @@ export const fetchLedger =
                 console.log(response)
                 dispatch({
                     type: ledgerActionType.FETCH_LEDGERS,
-                    payload: response?.data.data,
+                    payload: response.data.data,
                 });
                 if (isLoading) {
                     dispatch(setLoading(false));
@@ -84,8 +84,7 @@ export const fetchLedger =
             });
     };
 
-    // MARK RAM FROM [12-07-2024]
-
+    
  export const addLedger = (ledger,navigate) => async (dispatch) => {
     console.log(ledger)
         dispatch(setSavingButton(true));
@@ -165,7 +164,7 @@ export const editLedger =
 
     console.log("Ledger Id  => ",ledgerId)
     dispatch(setSavingButton(true));
-   const { ledgerName, altlanguage,underGroup,dob,mobileno1,mobileno2,regno, email, address,city,state,country,isactive,remarks,entryfrom,forSales} = ledgers;
+   const { ledgerName, altlanguage,underGroup,dob,mobileno1,mobileno2,regno, email, address,area,city,state,country,location,isactive,remarks,entryfrom,forSales} = ledgers;
     const data = {
         ledgerName,
         altlanguage,
@@ -176,9 +175,11 @@ export const editLedger =
         regno,
         email,
         address,
+        area,
         city,
         state,
         country,
+        location,
         isactive,
         remarks,
         entryfrom,

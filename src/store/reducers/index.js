@@ -8,11 +8,6 @@ import productCategoryReducers from "./productCategoryReducers";
 import roleReducer from "./roleReducer";
 import permissionReducer from "./permissionReducer";
 import warehouseReducer from "./warehouseReducrs";
-import employeeReducer from "./employeeReducer";
-// import employeeFormReducer from "./employeeFormReducer";
-// import employeeSingleReducer from "./employeeSingleReducer";
-// import empDepartmentReducer from "./empDepartmentReducer";
-// import empDesignationReducer from "./empDesignationReducer";
 import unitsReducers from "./unitsReducres";
 import taxSetupReducer from "./TaxSetupReducer";
 import supplierReducer from "./supplierReducer";
@@ -123,13 +118,20 @@ import brandFromReducers from "./brandFromReducers";
 import ledgerReducer from "./ledgerReducer";
 import recentSalesReducer from "./recentSalesReducer";
 import closingStockReportReducer from "./closingStockReportReducer";
-// import productGroupsReducres from "./productGroupsReducres";
-
-//Mark from Nila 30-7-2024
-import posCustomerReducer from "./posCustomerReducer";
+import PosSupplierReducer from "./PosSupplierReducer";
+import empDepartmentReducer from "./empDepartmentReducer";
+import empDesignationReducer from "./empDesignationReducer";
+import SalaryStructureReducer from "./SalaryStructureReducer";
+//import productGroupsReducres from "./productGroupsReducres";
 import salaryReducer from "./salaryReducer";
 
 export default combineReducers({
+
+     empDepartment : empDepartmentReducer,
+     empDesignation:empDesignationReducer,
+    salaryDetail:SalaryStructureReducer,
+    salary:salaryReducer,
+  posSupplier:PosSupplierReducer,
   companyConfig: companyConfigReducer,
   monthlySales: monthlySalesReducer,
   dailySales: dailySalesReducer,
@@ -248,14 +250,5 @@ export default combineReducers({
   brandForm: brandFromReducers,
   ledger: ledgerReducer,
   recentSales: recentSalesReducer,
-  closingStocks: closingStockReportReducer,
-  employee: employeeReducer,
- 
-  // employeeFormData: employeeFormReducer,
-  // singleEmployee: employeeSingleReducer,
- 
-  //Mark from Nila 30-7-2024
-  posCustomer:posCustomerReducer,
-  salary:salaryReducer,
-
+  closingStocks: closingStockReportReducer
 });

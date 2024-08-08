@@ -25,23 +25,23 @@ const LedgerForm = (props) => {
   // const [dropDownChange,setDropDownChange] =useState()
 
   const [ledgerValue, setLedgerValue] = useState({
-    ledgerName: singleLedger ? singleLedger[0].ledgerName :"",
-    alterLanguage: singleLedger ? singleLedger[0].alterLanguage :"",
-    underGroup: singleLedger ? singleLedger[0].underGroup :"",
-    dob: singleLedger ? singleLedger[0].dob === null ? null : moment(singleLedger[0].dob).format("YYYY-MM-DD") :null,
-    mobileNo1: singleLedger ? singleLedger[0].mobileNo1 : "",
-    mobileNo2: singleLedger ? singleLedger[0].mobileNo2 : "",
-    regNo: singleLedger ? singleLedger[0].regNo : "",
-    email: singleLedger ? singleLedger[0].email :"",
-    address: singleLedger ? singleLedger[0].address : "",
-    city: singleLedger ? singleLedger[0].city : "",
-    state: singleLedger ? singleLedger[0].state : "",
-    country: singleLedger ? singleLedger[0].country : "",
-    remarks: singleLedger ? singleLedger[0].remarks : "",
-    isActive: singleLedger ? singleLedger[0].isActive :true,
-    id: singleLedger ? singleLedger[0].id : '',
-    entryfrom: singleLedger ? singleLedger[0].entryFrom : '',
-    forSales: singleLedger ? singleLedger[0].forSales : ''
+    ledgerName: singleLedger ? singleLedger[0]?.ledgerName : "",
+    alterLanguage: singleLedger ? singleLedger[0]?.alterLanguage : "",
+    underGroup: singleLedger ? singleLedger[0]?.underGroup : "",
+    dob: singleLedger ? singleLedger[0]?.dob === null ? null : moment(singleLedger[0].dob).format("YYYY-MM-DD") : null,
+    mobileNo1: singleLedger ? singleLedger[0]?.mobileNo1 : "",
+    mobileNo2: singleLedger ? singleLedger[0]?.mobileNo2 : "",
+    regNo: singleLedger ? singleLedger[0]?.regNo : "",
+    email: singleLedger ? singleLedger[0]?.email : "",
+    address: singleLedger ? singleLedger[0]?.address : "",
+    city: singleLedger ? singleLedger[0]?.city : "",
+    state: singleLedger ? singleLedger[0]?.state : "",
+    country: singleLedger ? singleLedger[0]?.country : "",
+    remarks: singleLedger ? singleLedger[0]?.remarks : "",
+    isActive: singleLedger ? singleLedger[0]?.isActive : true,
+    id: singleLedger ? singleLedger[0]?.id : '',
+    entryfrom: singleLedger ? singleLedger[0]?.entryFrom : '',
+    forSales: singleLedger ? singleLedger[0]?.forSales : ''
   });
 
   console.log(ledgerValue.dob)
