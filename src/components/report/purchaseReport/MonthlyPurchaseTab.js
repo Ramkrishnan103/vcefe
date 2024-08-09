@@ -16,7 +16,6 @@ import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
-// import { NULL } from 'sass';
 
 
 
@@ -35,8 +34,7 @@ const MonthlyPurchaseTab = (props) => {
     allConfigData,
     fetchAcYear,companyConfig,fetchCompanyConfig
   } = props;
-  // const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
-  // const [isWarehouseValue, setIsWarehouseValue] = useState(false);
+ 
   const searchRef = useRef();
   console.log("companyConfig",companyConfig)
   useEffect(() => {
@@ -143,8 +141,8 @@ const MonthlyPurchaseTab = (props) => {
   };
 
   const reportDetails = {
-    title: "Purchase Report",
-    yearRange:selectedYearRange.label // Adjust dynamically if needed
+    title: " Monthly Purchase Report",
+    yearRange:selectedYearRange.label 
   };
   
 
@@ -160,71 +158,57 @@ const MonthlyPurchaseTab = (props) => {
     const doc = new jsPDF();
     let pageNumber = 1;
 
-    // Function to add the header
     const addHeader = () => {
         doc.setFontSize(18);
         doc.text(companyName, 105, 20, null, null, 'center');
-
         doc.setFontSize(12);
-        doc.text(address, 105, 30, null, null, "center");
-
+        doc.text(address, 105, 28, null, null, "center");
         doc.setFontSize(10);
         doc.text(phoneNumber, 105, 35, null, null, "center");
-
         doc.setLineWidth(0.2);
-        doc.line(10, 40, 200, 40);  // Adjust Y coordinate to ensure line is placed properly
+        doc.line(10, 42, 200, 40); 
     };
 
-    // Function to add the footer with page number
     const addFooter = () => {
         const pageCount = doc.internal.getNumberOfPages();
         doc.setFontSize(10);
-        doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');  // Adjust Y coordinate as needed
+        doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');  
     };
 
-    // Add first page
     addHeader();
-    
-    // Add Report Title and Year Range
-    doc.setFontSize(14);
-    doc.text(`${title} ${yearRange}`, 10, 50); // Adjust starting Y position for title
 
-    // Add Table
+    doc.setFontSize(14);
+    doc.text(`${title} ${yearRange}`, 10, 50); 
+
     doc.autoTable({
-        startY: 60, // Adjust the start position of the table
+        startY: 60,
+       
         head: [['Month', 'Purchase Value']],
         body: itemsValue.map(item => [item.monthYear, item.purchaseValue]),
         foot: [['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]],
-      //   headStyles: {
-      //     halign: 'left' // Align header text to the right
-      // },
-      // footStyles: {
-      //     halign: 'right' // Align footer text to the right
-      // }
-        columnStyles: {
-          0: { align: 'left' },  // Left align the first column (Month)
-          1: { align: 'right' }  // Right align the second column (Purchase Value)
+        headStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
         },
+        footStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
+        },
+        columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
+        },
+        margin: { top: 50 }, 
+        pageBreak: 'avoid',  
         didDrawPage: function (data) {
-            // Add footer to each page
             addFooter();
             pageNumber++;
-        },
-        margin: { top: 50 },
-        pageBreak: 'auto'
+        }
     });
 
-    // Save the PDF
     doc.save('MonthlyPurchases.pdf');
 };
 
-  // const onChange = (filter) => {
-  //     fetchMonthPurchase(filter, true);
-  // };
-
-  // const onExcelClick = () => {
-  //     setIsWarehouseValue(true);
-  // };
   const footers = [
     {
       name: getFormattedMessage("totalPurchase.title"),
@@ -246,20 +230,13 @@ const MonthlyPurchaseTab = (props) => {
 
   
   const printTable = () => {
-    // Generate the PDF document
+  
     const doc = generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue);
-    
-    // Create a Blob from the PDF document
     const pdfBlob = doc.output('blob');
-    
-    // Create a URL for the Blob
     const pdfUrl = URL.createObjectURL(pdfBlob);
-    
-    // Open the Blob URL in a new tab
     const printWindow = window.open(pdfUrl);
     
     if (printWindow) {
-        // Wait for the new window to load and then trigger print dialog
         printWindow.onload = () => {
             printWindow.print();
         };
@@ -268,33 +245,38 @@ const MonthlyPurchaseTab = (props) => {
 
 
   const XLSX = require('xlsx');
+  const fs = require('fs');
 
 const generatePurchaseReportExcel = (companyDetails, reportDetails, itemsValue) => {
     const { companyName, address, phoneNumber } = companyDetails;
     const { title, yearRange } = reportDetails;
-
-    // Create a workbook and a worksheet
     const workbook = XLSX.utils.book_new();
-    
-    // Prepare the data
-    const data = [
+    const worksheet = XLSX.utils.aoa_to_sheet([
         [companyName],
         [address],
         [phoneNumber],
+       [],
         [`${title} ${yearRange}`],
-        [],
-        ['Month', 'Purchase Value'],
-        ...itemsValue.map(item => [item.monthYear, item.purchaseValue]),
-        ['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]
-    ];
-    
-    // Create a worksheet
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
+        [],           
+        ['Month', 'Purchase Value']
+        
+    ]);
+  
+     itemsValue.forEach(item => {
+      XLSX.utils.sheet_add_aoa(worksheet, [[item.monthYear, item.purchaseValue]], { origin: -1 });
+  });
 
-    // Write to file
+  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2);
+  XLSX.utils.sheet_add_aoa(worksheet, [['Total', totalValue]], { origin: -1 });
+  worksheet['!cols'] = [{ wch: 20 }, { wch: 15 }];
+
+  ['A1', 'A2', 'A3', 'A5'].forEach(cell => {
+    if (worksheet[cell]) {
+        worksheet[cell].s = { alignment: { horizontal: "center" } };
+    }
+});
+   
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Monthly Purchases');
     XLSX.writeFile(workbook, 'MonthlyPurchases.xlsx');
 };
 const exportToExcel=()=>{
@@ -336,10 +318,6 @@ const exportToExcel=()=>{
 
               data={acYear}
               onChange={loadValues}
-
-            // addAcyearData={addAcyearData}
-            //   errors={errors["acYear"]}
-            // onChange={setAcYearValue}
             />
           </InputGroup>
 

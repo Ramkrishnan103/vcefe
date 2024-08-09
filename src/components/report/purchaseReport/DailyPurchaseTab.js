@@ -11,6 +11,12 @@ import { apiBaseURL } from '../../../constants';
 import loader from 'sass-loader';
 import { filter } from 'lodash';
 import CommonTable from '../../../shared/table/CommonTable';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import {jsPDF} from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
 
 import { fetchDailyPurchase } from '../../../store/action/dailyPurchaseAction';
 
@@ -24,19 +30,18 @@ const DailyPurchaseTab = (props) => {
         frontSetting,
         fetchFrontSetting,
         warehouseValue,
-        allConfigData
+        allConfigData,companyConfig
     } = props;
     const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
     const [isWarehouseValue, setIsWarehouseValue] = useState(false);
   //  const [selectPaymode,setPayMode]=useState("")
 
     console.log(dailyPurchase)
-
+    useEffect(() => {
+     
+      fetchCompanyConfig()
+    }, []);
     
-  
-    
-  
-
     useEffect(() => {
         fetchFrontSetting();
     }, [warehouseValue]);
@@ -45,7 +50,7 @@ const DailyPurchaseTab = (props) => {
     const itemsValue = dailyPurchase?.length >= 0 && dailyPurchase.map(dailypurchase => {
         return (
             {
-                Date:dailypurchase?.date === null ? null : moment( dailypurchase?.date).format("YYYY-MM-DD") ,
+                Date:dailypurchase?.date === null ? null : moment( dailypurchase?.date).format("DD-MM-YYYY") ,
                invNo: dailypurchase.attributes.invNo,
                supplierName:dailypurchase.attributes.supplierName,
                paymentMode:dailypurchase.attributes.paymentType,
@@ -56,13 +61,17 @@ const DailyPurchaseTab = (props) => {
     });
 
     console.log(itemsValue)
-
-    
+     
     const today=new Date();
+    console.log(today)
     const numOfDaysAdded=0;
     const date=today.setDate(today.getDate() + numOfDaysAdded);
+    console.log("date",date)
     const defaultValue=new Date(date).toISOString().split('T')[0];  // YYYY-MM-dd
+   console.log(defaultValue)
 
+   
+  
     const fromDate=useRef();
     const tooDate=useRef();
     const paymode=useRef();
@@ -77,10 +86,9 @@ const DailyPurchaseTab = (props) => {
         fetchDailyPurchase(values,filter,true);
         if (!fromDate.current.value || !tooDate.current.value || !paymode.current.value || !search.current.value) {
           console.log("No records found!");
-          // <h3>getFormattedMessage("react-data-table.no-record")</h3>
-
+         
       }
-        // setPayMode(paymode.current.value)
+       
     }
 
 
@@ -97,8 +105,6 @@ const DailyPurchaseTab = (props) => {
         }
       ];
       
-    //   const onExcelClick = () => {
-    //       setIsWarehouseValue(true);
     const totalPurchaseValue = (data) => {
       console.log("data",data)
       return new Intl.NumberFormat('en-IN', {
@@ -109,7 +115,143 @@ const DailyPurchaseTab = (props) => {
     };
     //   };
     
+    const companyDetails = {
+      companyName: companyConfig?.companyName,
+      address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
+      phoneNumber: companyConfig?.attributes?.phoneNo
+    };
+    const formatDate = (dateString) => {
+      return moment(dateString).format('DD-MM-YYYY');
+  };
+    const reportDetails = {
+      title: "Daily Purchase Report",
+      dayRange: `${formatDate(fromDate.current?.value)} - ${formatDate(tooDate.current?.value)}`
+
+  };
+
   
+    const generatePurchaseReportPDF = () => {
+      const { companyName, address, phoneNumber } = companyDetails;
+      const { title, dayRange } = reportDetails;
+    
+      const doc = new jsPDF();
+      let pageNumber = 1;
+    
+      const addHeader = () => {
+          doc.setFontSize(18);
+          doc.text(companyName, 105, 20, null, null, 'center');
+          doc.setFontSize(12);
+          doc.text(address, 105, 28, null, null, 'center');
+          doc.setFontSize(10);
+          doc.text(phoneNumber, 105, 35, null, null, 'center');
+          doc.setLineWidth(0.2);
+          doc.line(10, 40, 200, 40);
+      };
+    
+      const addFooter = () => {
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(10);
+          doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');
+      };
+    
+      addHeader();
+      doc.setFontSize(14);
+      doc.text(`${title} (${dayRange})`, 10, 50);
+    
+      doc.autoTable({
+          startY: 60,
+          head: [['Date', 'Inv No', 'Supplier Name', ...(paymode.current?.value === '' ? ['Payment Mode'] : []), 'Purchase Value']],
+          body: itemsValue.map(item => [
+              item.Date,
+              item.invNo,
+              item.supplierName,
+              ...(paymode.current?.value === '' ? [item.paymentMode] : []),
+              item.purchaseValue
+          ]),
+          foot: [['Total', '', '', '', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2)]],
+
+          
+          headStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'left' },
+            2: { halign: 'left' },
+            [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' }
+        },
+          columnStyles: {
+            0: { halign: 'left' },   
+            1: { halign: 'left' },   
+            2: { halign: 'left' },  
+            3: { halign: 'left' },   
+            [paymode.current?.value === '' ? 4 : 3]: { halign: 'right' }   
+        },
+        footStyles: {
+          0: { halign: 'left' }, 
+          1: { halign: 'left' },   
+          2: { halign: 'left' },  
+          [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' } 
+      },
+          didDrawPage: () => {
+              addFooter();
+              pageNumber++;
+          },
+          margin: { top: 50 },
+          pageBreak: 'auto'
+      });
+    
+      doc.save('DailyPurchases.pdf');
+  };
+
+   
+  const exportToPDF = () => {
+    generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue)
+   };
+   const printTable = () => {
+   
+    const doc = generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue);
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const printWindow = window.open(pdfUrl);
+    
+    if (printWindow) {
+        printWindow.onload = () => {
+            printWindow.print();
+        };
+    }
+};
+const XLSX = require('xlsx');
+const fs = require('fs');
+
+const generatePurchaseReportExcel = () => {
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet([
+      [companyDetails.companyName],
+      [companyDetails.address],
+      [companyDetails.phoneNumber],
+      [],
+      [`${reportDetails.title} (${reportDetails.dayRange})`],
+      [],
+      ['Date', 'Inv No', 'Supplier Name', ...(paymode.current?.value === '' ? ['Payment Mode'] : []), 'Purchase Value']
+  ]);
+
+  itemsValue.forEach(item => {
+      XLSX.utils.sheet_add_aoa(worksheet, [
+          [item.Date, item.invNo, item.supplierName, ...(paymode.current?.value === '' ? [item.paymentMode] : []), item.purchaseValue]
+      ], { origin: -1 });
+  });
+
+  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.purchaseValue), 0).toFixed(2);
+  XLSX.utils.sheet_add_aoa(worksheet, [['Total', '', '', '', totalValue]], { origin: -1 });
+
+  worksheet['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Purchases');
+  XLSX.writeFile(workbook, 'DailyPurchases.xlsx');
+};
+
+const exportToExcel=()=>{
+generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
+}
+
      
       return (
           <div className='warehouse_purchase_report_table'>
@@ -140,17 +282,48 @@ const DailyPurchaseTab = (props) => {
                   </div>
   
                   <div className='col-md-1'></div>
-  
+                    
                  
-                  <div className='col-md-2' style={{marginTop:"-30px"}}>
-                          <h4>Select Pay Mode</h4>
-                  
-                      <select className='w-100 p-3 flex-nowrap dropdown-side-btn- boder-0 form-control' ref={paymode} name='DropDownValue'  >
-                          <option value=''>All</option>
-                          <option value="Cash">Cash</option>
-                          <option value="Upi">Upi</option>
-                          <option value="Bank">Bank</option>
-                      </select>
+                  <div className='col-md-2 mx-auto ' >
+                 
+          <button
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              borderRadius: "10px",
+              width: "220px",
+              height: "60px",
+              gap: "13px",
+              background: "white",
+              
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faPrint}
+              className="fa-2x search-icon"
+              style={{ color: "black" }}
+             onClick={printTable}
+            ></FontAwesomeIcon>
+
+            <FontAwesomeIcon
+              icon={faFileExcel}
+              className="fa-2x search-icon "
+              style={{ color: "green", paddingLeft: "10px" }}
+              onClick={exportToExcel}
+            ></FontAwesomeIcon>
+
+            <FontAwesomeIcon
+              icon={faFilePdf}
+              className="fa-2x search-icon"
+              style={{ color: "red", paddingLeft: "10px" }}
+              onClick={exportToPDF}
+            ></FontAwesomeIcon>
+
+          </button>
+       
+                         
                   </div>
               </div>
              
@@ -160,28 +333,26 @@ const DailyPurchaseTab = (props) => {
                       <h4>Search</h4>
                   </div>
   
-                  <div className='col-md-7'>
+                  <div className='col-md-3'>
                        <input type='text' ref={search}  placeholder='Customer Name Or Mobile No Or Inv. No' className=' form-control rounded text-align-center  align-items-center mr-15 mb-5'></input>
                   </div>
-  
-                  <div className='col-md-1'></div>
-  
+                  <div className='col-md-2 mt-2 d-flex '>
+                  <h4 className="col me-1"> Select Pay Mode</h4>
+                  </div>
+                  <div className='col-md-3'>
+                  <select className='w-50 h-20 p-3 flex-nowrap dropdown-side-btn- boder-0 form-control' ref={paymode} name='DropDownValue'  >
+                      <option value=''>All</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Upi">Upi</option>
+                      <option value="Bank">Bank</option>
+                  </select>
+                  </div>
                   <div className='col-md-2'>
                       <button className=' form-control border-0 bg-success text-white' onClick={loadValues}   >Generate</button>
                   </div>
-              </div>
-              {/* <div className="row">
-               <div className="col-md-3">
-                <h4 style={{color:"green"}}>From Date={defaultValue}</h4>
-               </div>
-               <div className="col-md-3">
-                <h4 style={{color:"green"}}>To Date={defaultValue}</h4>
-               </div>
-               <div className="col-md-3">
-                <h4 style={{color:"green"}} >Payment type={selectPaymode?selectPaymode:"All"}</h4>
-               </div>
-
-              </div> */}
+  
+                 </div>
+            
  
   <div className="col-md-12">
        {itemsValue.length>0 && 
@@ -241,9 +412,9 @@ const DailyPurchaseTab = (props) => {
   
   const mapStateToProps = (state) => {
       const {fetchPurchases,
-        dailyPurchase,isLoading, totalRecord, frontSetting} = state;
+        dailyPurchase,isLoading, totalRecord, frontSetting,companyConfig} = state;
       return {fetchPurchases,
-        dailyPurchase,isLoading, totalRecord, frontSetting}
+        dailyPurchase,isLoading, totalRecord, frontSetting,companyConfig}
   };
   
-  export default connect(mapStateToProps, {fetchFrontSetting, fetchDailyPurchase})(DailyPurchaseTab);
+  export default connect(mapStateToProps, {fetchFrontSetting, fetchDailyPurchase,fetchCompanyConfig})(DailyPurchaseTab);

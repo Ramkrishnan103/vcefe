@@ -5,6 +5,8 @@ import { fetchDailySales } from '../../../store/action/dailySalesAction';
 import { fetchFrontSetting } from '../../../store/action/frontSettingAction';
 import { saleExcelAction } from '../../../store/action/salesExcelAction';
 import { getFormattedMessage, placeholderText } from '../../../shared/sharedMethod';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import ReactDataTable from '../../../shared/table/ReactDataTable';
 import { InputGroup } from 'react-bootstrap';
 import ReactSelect from 'react-select';
@@ -13,6 +15,10 @@ import { apiBaseURL } from '../../../constants';
 import loader from 'sass-loader';
 import { filter } from 'lodash';
 import CommonTable from '../../../shared/table/CommonTable';
+import {jsPDF} from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
 
 // import "../../assets/css/frontend.css";
 
@@ -26,31 +32,36 @@ const DailySalesTab = (props) => {
         fetchFrontSetting,
         warehouseValue,
         saleExcelAction, allConfigData
+        ,companyConfig
     } = props;
     const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
     const [isWarehouseValue, setIsWarehouseValue] = useState(false);
 
-    console.log(dailySales)
-
+    console.log("dailySales",dailySales)
+    useEffect(() => {
+     
+      fetchCompanyConfig()
+    }, []);
     useEffect(() => {
         fetchFrontSetting();
     }, [warehouseValue]);
 
     const itemsValue = dailySales?.length >= 0 && dailySales.map(dailysale => {
+      
         return (
             {
-                date:dailysale.date=== null ? null : moment( dailysale.date).format("YYYY-MM-DD"),
-                invno:dailysale.attributes.invNo,
-                // counterName:dailysale.attributes.counterName,
+                Date:dailysale?.date=== null ? null : moment( dailysale.date).format("DD-MM-YYYY"),
+                invNo:dailysale.attributes.invNo,
+              
                 customerName: dailysale.attributes.customerName,
-                paymentType: dailysale.attributes.paymentType,
+                paymentMode: dailysale.attributes.paymentType,
                 address:dailysale.attributes.customerAddress,
                 salesValue:dailysale.attributes.salesValue,
             }
         )
     });
 
-    console.log(itemsValue)
+    console.log("itemsValue",itemsValue)
 
    
 
@@ -95,12 +106,147 @@ const DailySalesTab = (props) => {
         + "&counterId=0&paymentType="+paymode.current.value+"&particular="+search.current.value
         console.log(values);
         fetchDailySales(values,filter,true);
-        // setSelectPayMode(paymode.current.value);
-        // setFromDate1(fromDate.current.value);
-        // setToDate(tooDate.current.value);
+        
     }
+    const companyDetails = {
+      companyName: companyConfig?.companyName,
+      address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
+      phoneNumber: companyConfig?.attributes?.phoneNo
+    };
+    const formatDate = (dateString) => {
+      return moment(dateString).format('DD-MM-YYYY');
+  };
+  const reportDetails = {
+    title: "Daily Sales Report",
+    dayRange: `${formatDate(fromDate.current?.value)} - ${formatDate(tooDate.current?.value)}`
 
-// console.log("fromDate =>" ,fromDate1)
+};
+const generateSalesReportPDF = () => {
+  const { companyName, address, phoneNumber } = companyDetails;
+  const { title, dayRange } = reportDetails;
+
+  const doc = new jsPDF();
+  let pageNumber = 1;
+
+  const addHeader = () => {
+      doc.setFontSize(18);
+      doc.text(companyName, 105, 20, null, null, 'center');
+      doc.setFontSize(12);
+      doc.text(address, 105, 28, null, null, 'center');
+      doc.setFontSize(10);
+      doc.text(phoneNumber, 105, 35, null, null, 'center');
+      doc.setLineWidth(0.2);
+      doc.line(10, 40, 200, 40);
+  };
+
+  const addFooter = () => {
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(10);
+      doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');
+  };
+
+  addHeader();
+  doc.setFontSize(14);
+  doc.text(`${title} (${dayRange})`, 10, 50);
+
+  doc.autoTable({
+      startY: 60,
+      head: [['Date', 'Inv No', 'Customer Name', ...(paymode.current?.value === '' ? ['Payment Mode'] : []), 'Sales Value']],
+      body: itemsValue.map(item => [
+          item.Date,
+          item.invNo,
+          item.customerName,
+          ...(paymode.current?.value === '' ? [item.paymentMode] : []),
+          item.salesValue
+      ]),
+      foot: [['Total', '', '', '', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0).toFixed(2)]],
+
+      
+      headStyles: {
+        0: { halign: 'left' },
+        1: { halign: 'left' },
+        2: { halign: 'left' },
+        [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' }
+    },
+      columnStyles: {
+        0: { halign: 'left' },   // Align Date to the left
+        1: { halign: 'left' },   // Align Inv No to the left
+        2: { halign: 'left' },   // Align Supplier Name to the left
+        3: { halign: 'left' },   // Align Payment Mode to the left (if included)
+        [paymode.current?.value === '' ? 4 : 3]: { halign: 'right' }   // Align Purchase Value to the right
+    },
+    footStyles: {
+      0: { halign: 'left' },   // Total
+      1: { halign: 'left' },   // Empty
+      2: { halign: 'left' },   // Empty
+      [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' } // Total Value
+  },
+      didDrawPage: () => {
+          addFooter();
+          pageNumber++;
+      },
+      margin: { top: 50 },
+      pageBreak: 'auto'
+  });
+
+  doc.save('DailySales.pdf');
+};
+const exportToPDF = () => {
+  generateSalesReportPDF(companyDetails, reportDetails, itemsValue)
+ };
+ const printTable = () => {
+  // Generate the PDF document
+  const doc = generateSalesReportPDF(companyDetails, reportDetails, itemsValue);
+  
+
+  const pdfBlob = doc.output('blob');
+  
+ 
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  
+ 
+  const printWindow = window.open(pdfUrl);
+  
+  if (printWindow) {
+      
+      printWindow.onload = () => {
+          printWindow.print();
+      };
+  }
+};
+const XLSX = require('xlsx');
+const fs = require('fs');
+
+const generateSalesReportExcel = () => {
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet([
+      [companyDetails.companyName],
+      [companyDetails.address],
+      [companyDetails.phoneNumber],
+      [],
+      [`${reportDetails.title} (${reportDetails.dayRange})`],
+      [],
+      ['Date', 'Inv No', 'Customer Name', ...(paymode.current?.value === '' ? ['Payment Mode'] : []), 'Sales Value']
+  ]);
+
+  itemsValue.forEach(item => {
+      XLSX.utils.sheet_add_aoa(worksheet, [
+          [item.Date, item.invNo, item.customerName, ...(paymode.current?.value === '' ? [item.paymentMode] : []), item.salesValue]
+      ], { origin: -1 });
+  });
+
+  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0).toFixed(2);
+  XLSX.utils.sheet_add_aoa(worksheet, [['Total', '', '', '', totalValue]], { origin: -1 });
+
+  worksheet['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Sales');
+  XLSX.writeFile(workbook, 'DailySales.xlsx');
+};
+
+const exportToExcel=()=>{
+  generateSalesReportExcel (companyDetails, reportDetails, itemsValue)
+  }
 
     const onExcelClick = () => {
         setIsWarehouseValue(true);
@@ -108,7 +254,7 @@ const DailySalesTab = (props) => {
 
     return (
         <div className='warehouse_sale_report_table'>
-
+ 
              <div className='row'>
                 <div className='col-md-2'> 
                         <h4 className='mt-2'>From Date</h4>
@@ -116,7 +262,7 @@ const DailySalesTab = (props) => {
 
                  <div className='col-md-2'>
                         <input id1='dateInput' type='date' ref={fromDate}  defaultValue={defaultValue}
-                  className=' form-control rounded text-align-center ml-2 align-item-center mr-15 mb-5' sty></input>
+                  className=' form-control rounded text-align-center ml-2 align-item-center mr-15 mb-5' ></input>
                 </div>
 
                 <div className='col-md-1'></div>
@@ -130,12 +276,59 @@ const DailySalesTab = (props) => {
                 </div>
 
                 <div className='col-md-1'></div>
+                <div className='col-md-2 mx-auto ' >
+                <button
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              borderRadius: "10px",
+              width: "220px",
+              height: "60px",
+              gap: "13px",
+              background: "white",
+              
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faPrint}
+              className="fa-2x search-icon"
+              style={{ color: "black" }}
+             onClick={printTable}
+            ></FontAwesomeIcon>
 
-               
-                <div className='col-md-2' style={{marginTop:"-30px"}}>
-                        <h4 >Select Pay Mode</h4>
-             
-                    <select className='w-100 p-3 flex-nowrap dropdown-side-btn- boder-0 form-control ml-2' ref={paymode}
+            <FontAwesomeIcon
+              icon={faFileExcel}
+              className="fa-2x search-icon "
+              style={{ color: "green", paddingLeft: "10px" }}
+              onClick={exportToExcel}
+            ></FontAwesomeIcon>
+
+            <FontAwesomeIcon
+              icon={faFilePdf}
+              className="fa-2x search-icon"
+              style={{ color: "red", paddingLeft: "10px" }}
+              onClick={exportToPDF}
+            ></FontAwesomeIcon>
+
+          </button>
+        </div>
+        </div>
+        <div className='row'>
+  
+  <div className='col-md-2 mt-2'>
+      <h4>Search</h4>
+  </div>
+  
+  <div className='col-md-3'>
+                     <input type='text' ref={search}  placeholder='Customer Name Or Mobile No Or Inv. No' className=' form-control rounded text-align-center  align-items-center mr-15 mb-5'></input>
+                </div>
+                <div className='col-md-2 mt-2 d-flex ' >
+                        <h4 className="col me-1">Select Pay Mode</h4>
+                        </div>
+                        <div className='col-md-3'>
+                    <select className='w-50 h-20 p-3 flex-nowrap dropdown-side-btn- boder-0 form-control ' ref={paymode}
                      name='DropDownValue' >
                         <option value=''>All</option>
                         <option value='Cash'>Cash</option>
@@ -143,19 +336,11 @@ const DailySalesTab = (props) => {
                         <option value='Bank'>Bank</option>
                     </select>
                 </div>
-            </div>  
-            <div className='row'>
+             
+           
 
-                <div className='col-md-2 mt-2'>
-                    <h4>Search</h4>
-                </div>
 
-                <div className='col-md-7'>
-                     <input type='text' ref={search}  placeholder='Customer Name Or Mobile No Or Inv. No' className=' form-control rounded text-align-center  align-items-center mr-15 mb-5'></input>
-                </div>
-
-                <div className='col-md-1'></div>
-
+               
                 <div className='col-md-2'>
                     <button className=' form-control border-0 bg-success text-white' onClick={loadValues}>Generate</button>
                 </div>
@@ -173,7 +358,7 @@ const DailySalesTab = (props) => {
         </div>
 </div> */}
 
-<div className="row">
+
 
 <div className="col-md-12">
        {itemsValue.length>0 && 
@@ -198,11 +383,11 @@ const DailySalesTab = (props) => {
   <tbody>
     {itemsValue.map((month, index) => (
       <tr key={index}>
-        <td >{month.date}</td>
-        <td >{month.invno}</td>
+        <td >{month.Date}</td>
+        <td >{month.invNo}</td>
         <td >{month.customerName}</td>
         { paymode.current.value=='' &&
-        <td >{month.paymentType}</td>
+        <td >{month.paymentMode}</td>
         }
         <td >{month.address}</td>
         <td className="salesvalue">{
@@ -233,13 +418,13 @@ const DailySalesTab = (props) => {
 </div> 
 
                         
-        </div>
+      
     )
 };
 
 const mapStateToProps = (state) => {
-    const {dailySales,isLoading, totalRecord, frontSetting} = state;
-    return {dailySales,isLoading, totalRecord, frontSetting}
+    const {dailySales,isLoading, totalRecord, frontSetting,companyConfig} = state;
+    return {dailySales,isLoading, totalRecord, frontSetting,companyConfig}
 };
 
-export default connect(mapStateToProps, {fetchFrontSetting, fetchDailySales, saleExcelAction})(DailySalesTab);
+export default connect(mapStateToProps, {fetchFrontSetting, fetchDailySales, saleExcelAction,fetchCompanyConfig})(DailySalesTab);

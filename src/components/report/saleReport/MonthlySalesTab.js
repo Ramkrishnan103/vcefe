@@ -34,6 +34,10 @@ import { color } from "faker/lib/locales/az/commerce";
 import Footer from "../../footer/Footer";
 import CommonTable from "../../../shared/table/CommonTable";
 // import "./assets/css/frontend.css"
+import {jsPDF} from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
 
 const MonthlySalesTab = (props) => {
   const {
@@ -50,6 +54,7 @@ const MonthlySalesTab = (props) => {
     allConfigData,
     acYear,
     fetchAcYear,
+    companyConfig,fetchCompanyConfig
   } = props;
   const currencySymbol =
     frontSetting && frontSetting.value && frontSetting.value.currency_symbol;
@@ -127,6 +132,7 @@ const MonthlySalesTab = (props) => {
 
   useEffect(() => {
     fetchAcYear();
+    fetchCompanyConfig()
   }, []);
 
   const [isClearDropdown, setIsClearDropdown] = useState(true);
@@ -189,15 +195,7 @@ console.log("selectedYear",selectedYearRange)
   console.log(values);  
   fetchMonthSalesparam(values, filter, true);
   },[])
-
- 
-  useEffect(() => {
-    fetchAcYear();
-  }, []);
-
-  
-
-  const totalSalesValue = (data) => {
+const totalSalesValue = (data) => {
     console.log("data",data)
     return new Intl.NumberFormat('en-IN', {
       style: 'decimal',
@@ -205,14 +203,138 @@ console.log("selectedYear",selectedYearRange)
       maximumFractionDigits: 2,
     }).format(data.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0));
   };
+  const companyDetails = {
+    companyName: companyConfig?.companyName,
+    address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
+    phoneNumber: companyConfig?.attributes?.phoneNo
+  };
+  const reportDetails = {
+    title: " Monthly Sales Report",
+    yearRange:selectedYearRange.label // 
+  };
+  const generateSalesReportPDF = (companyDetails, reportDetails, itemsValue) => {
+    const { companyName, address, phoneNumber } = companyDetails;
+    const { title, yearRange } = reportDetails;
+
+    const doc = new jsPDF();
+    let pageNumber = 1;
+
+    const addHeader = () => {
+        doc.setFontSize(18);
+        doc.text(companyName, 105, 20, null, null, 'center');
+        doc.setFontSize(12);
+        doc.text(address, 105, 28, null, null, "center");
+        doc.setFontSize(10);
+        doc.text(phoneNumber, 105, 35, null, null, "center");
+        doc.setLineWidth(0.2);
+        doc.line(10, 42, 200, 40); 
+    };
+
+    const addFooter = () => {
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(10);
+        doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');  
+    };
+
+    addHeader();
+
+    doc.setFontSize(14);
+    doc.text(`${title} ${yearRange}`, 10, 50); 
+
+    doc.autoTable({
+        startY: 60,
+       
+        head: [['Month','Sales Value']],
+        body: itemsValue.map(item => [item.monthYear, item.salesValue]),
+        foot: [['Total', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0).toFixed(2)]],
+        headStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
+        },
+        footStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
+        },
+        columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'right' }
+        },
+        margin: { top: 50 }, 
+        pageBreak: 'avoid', 
+        didDrawPage: function (data) {
+            addFooter();
+            pageNumber++;
+        }
+    });
+
+    doc.save('MonthlySave.pdf');
+};
+const printTable = () => {
+ 
+  const doc = generateSalesReportPDF(companyDetails, reportDetails, itemsValue);
+  
+  
+  const pdfBlob = doc.output('blob');
+  
+ 
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  
+  
+  const printWindow = window.open(pdfUrl);
+  
+  if (printWindow) {
+      
+      printWindow.onload = () => {
+          printWindow.print();
+      };
+  }
+};
+const XLSX = require('xlsx');
+  const fs = require('fs');
+
+const generateSalesReportExcel = (companyDetails, reportDetails, itemsValue) => {
+    const { companyName, address, phoneNumber } = companyDetails;
+    const { title, yearRange } = reportDetails;
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet([
+        [companyName],
+        [address],
+        [phoneNumber],
+       [],
+        [`${title} ${yearRange}`],
+        [],             
+        ['Month', 'Sales Value'] 
+    ]);
+    
+     itemsValue.forEach(item => {
+      XLSX.utils.sheet_add_aoa(worksheet, [[item.monthYear, item.saleValue]], { origin: -1 });
+  });
+  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.saleValue), 0).toFixed(2);
+  XLSX.utils.sheet_add_aoa(worksheet, [['Total', totalValue]], { origin: -1 });
+
+  worksheet['!cols'] = [{ wch: 20 }, { wch: 15 }];
+
+  ['A1', 'A2', 'A3', 'A5'].forEach(cell => {
+    if (worksheet[cell]) {
+        worksheet[cell].s = { alignment: { horizontal: "center" } };
+    }
+});
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Monthly Sales');
+    XLSX.writeFile(workbook, 'MonthlySales.xlsx');
+};
+const exportToExcel=()=>{
+  generateSalesReportExcel (companyDetails, reportDetails, itemsValue)
+}
+
+  const exportToPDF = () => {
+   generateSalesReportPDF(companyDetails, reportDetails, itemsValue)
+  };
   
 
   return (
     <div className="warehouse_sale_report_table">
-     
-      {/* <br></br> */}
-
-      <div className="row">
+    <div className="row">
         <div className="col-md-3">
           <input
             className="form-control wd-100"
@@ -235,8 +357,7 @@ console.log("selectedYear",selectedYearRange)
         </div>
 
         <div className="col-md-3">
-          {/* <select className='w-100 h-100  rounded text-align-center border-0 align-items-center '>
-           */}
+         
           <InputGroup className="flex-nowrap dropdown-side-btn text-black">
             <ReactSelect
               className="position-relative"
@@ -271,6 +392,7 @@ console.log("selectedYear",selectedYearRange)
               icon={faPrint}
               className="fa-2x search-icon"
               style={{ color: "black" }}
+              onClick={printTable}
             ></FontAwesomeIcon>
           
          
@@ -278,6 +400,7 @@ console.log("selectedYear",selectedYearRange)
               icon={faFileExcel}
               className="fa-2x search-icon "
               style={{ color: "green",paddingLeft:"10px"}}
+              onClick={exportToExcel}
             ></FontAwesomeIcon>
          
             
@@ -286,6 +409,7 @@ console.log("selectedYear",selectedYearRange)
               icon={faFilePdf}
               className="fa-2x search-icon"
               style={{ color: "red" ,paddingLeft:"10px"}}
+              onClick={exportToPDF}
             ></FontAwesomeIcon>
 
           </button>
@@ -346,8 +470,8 @@ console.log("selectedYear",selectedYearRange)
 };
 
 const mapStateToProps = (state) => {
-  const { isLoading, totalRecord, monthlySales, frontSetting, acYear } = state;
-  return { isLoading, totalRecord, monthlySales, frontSetting, acYear };
+  const { isLoading, totalRecord, monthlySales, frontSetting, acYear,companyConfig} = state;
+  return { isLoading, totalRecord, monthlySales, frontSetting, acYear,companyConfig };
 };
 
 export default connect(mapStateToProps, {
@@ -355,4 +479,5 @@ export default connect(mapStateToProps, {
   saleExcelAction,
   fetchAcYear,
   fetchMonthSalesparam,
+  fetchCompanyConfig
 })(MonthlySalesTab);

@@ -15,7 +15,8 @@ import TodaySalePurchaseCount from '../../dashboard/TodaySalePurchaseCount';
 import { fetchDailyPurchase } from '../../../store/action/dailyPurchaseAction';
 import MonthlyPurchaseTab from './MonthlyPurchaseTab';
 import DailyPurchaseTab from './DailyPurchaseTab';
-
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 const PosPurchaseReport=(props) => {
     const { monthlyPosPurchase, fetchMonthPurchase,fetchDailyPurchase,dailypospurchase,monthlyPurchaseReportData, allConfigData } = props;
     const [monthlyPurchaseValue, setmonthlyPurchaseValue ] = useState( { label: getFormattedMessage( "unit.filter.all.label" ), value: null } );
@@ -71,6 +72,7 @@ return (
             </Tab>
             
         </Tabs>
+
     </MasterLayout>
     </div>
     
