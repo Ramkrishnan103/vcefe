@@ -9,6 +9,7 @@ import TabTitle from '../../../shared/tab-title/TabTitle';
 import { fetchClosingStockReport } from '../../../store/action/ClsoingStockReportAction';
 import ClosingStockReport from './ClosingStockReport';
 
+
 const PosClosingStockReport = ( props ) => {
     const { fetchClosingStockReport, posClsoingstock,closingStocks,allConfigData } = props;
     const [closingStockValue, setclosingStockValue ] = useState( { label: getFormattedMessage( "unit.filter.all.label" ), value: null } );
@@ -23,9 +24,10 @@ const PosClosingStockReport = ( props ) => {
     const newArray = [ newFirstElement ].concat( array )
 
     useEffect(() => {
+        
         fetchClosingStockReport() ;
     },[])
-
+   
     return (
         
 

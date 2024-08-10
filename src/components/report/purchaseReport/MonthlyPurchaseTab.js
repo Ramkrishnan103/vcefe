@@ -206,7 +206,21 @@ const MonthlyPurchaseTab = (props) => {
         }
     });
 
-    doc.save('MonthlyPurchases.pdf');
+    const now = new Date();
+    const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Kolkata' };
+    const optionsTime = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true, 
+        timeZone: 'Asia/Kolkata' 
+    };
+    
+    const dateString = now.toLocaleDateString('en-GB', optionsDate).replace(/\//g, '-');
+    const timeString = now.toLocaleTimeString('en-GB', optionsTime).replace(/:/g, '-');
+    const filename = `Monthly_Purchase_${dateString}_${timeString}.pdf`;
+
+    doc.save(filename);
 };
 
   const footers = [
@@ -231,16 +245,46 @@ const MonthlyPurchaseTab = (props) => {
   
   const printTable = () => {
   
-    const doc = generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue);
-    const pdfBlob = doc.output('blob');
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    const printWindow = window.open(pdfUrl);
-    
-    if (printWindow) {
-        printWindow.onload = () => {
-            printWindow.print();
-        };
-    }
+  
+   const printWindow=window.open('','','height=600,width=800');
+   printWindow.document.write('<div className="company-info">');
+   printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
+   printWindow.document.write(`<p>${companyDetails.address}</p>`);
+   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
+   printWindow.document.write('</div>');
+   printWindow.document.write('<hr>');
+  
+   // Add report details
+   printWindow.document.write('<div className="report-info">');
+   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
+   printWindow.document.write(`<p>${reportDetails.yearRange}</p>`);
+   printWindow.document.write('</div>');
+
+   const tableContent=document.querySelector('.table-container').outerHTML;
+   printWindow.document.write('<html><head><title>Print</title>');
+   printWindow.document.write('<style>');
+    printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+    printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
+    printWindow.document.write('th { background-color: #f2f2f2; }');
+    printWindow.document.write('.purchase-value { text-align: right; }');
+    printWindow.document.write('@media print { .no-print { display: none; } }');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body >');
+    printWindow.document.write('<h1>Monthly Purchase Report</h1>'); // Add headers or other content here
+    printWindow.document.write(tableContent);
+    printWindow.document.write('</body></html>');
+
+   
+  
+    // Close the document to trigger the print dialog
+    printWindow.document.close();
+    printWindow.focus(); // Ensure the new window is in focus
+  
+    // Trigger the print dialog
+    printWindow.onload = () => {
+      printWindow.print();
+  };
+
 };
 
 
@@ -385,7 +429,7 @@ const exportToExcel=()=>{
                   {(itemsRecord ? filteredItems : itemsValue).map((month, index) => (
                     <tr key={index}>
                       <td >{month.monthYear}</td>
-                      <td className="purchaseValue">{new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(month.purchaseValue).toFixed(2))}</td>
+                      <td style={{textAlign:"right"}}className="purchaseValue">{new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(month.purchaseValue).toFixed(2))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -396,7 +440,7 @@ const exportToExcel=()=>{
                     {footers.map((footer) => (
                       <th>{footer.name}</th>
                     ))}
-                    <th >{totalPurchaseValue(itemsRecord ? filteredItems : itemsValue)}</th>
+                    <th style={{textAlign:"right"}}>{totalPurchaseValue(itemsRecord ? filteredItems : itemsValue)}</th>
                   </tr>
                 </tfoot>
               </table>

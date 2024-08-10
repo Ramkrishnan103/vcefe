@@ -267,49 +267,83 @@ const totalSalesValue = (data) => {
         }
     });
 
-    doc.save('MonthlySave.pdf');
+    const now = new Date();
+    const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Kolkata' };
+    const optionsTime = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true, 
+        timeZone: 'Asia/Kolkata' 
+    };
+    
+    const dateString = now.toLocaleDateString('en-GB', optionsDate).replace(/\//g, '-');
+    const timeString = now.toLocaleTimeString('en-GB', optionsTime).replace(/:/g, '-');
+    const filename = `Monthly_Sales_${dateString}_${timeString}.pdf`;
+
+    doc.save(filename);
 };
 const printTable = () => {
+  
+  const printWindow=window.open('','','height=600,width=800');
+  printWindow.document.write('<div className="company-info">');
+   printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
+   printWindow.document.write(`<p>${companyDetails.address}</p>`);
+   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
+   printWindow.document.write('</div>');
+   printWindow.document.write('<hr>');
+  
+   // Add report details
+   printWindow.document.write('<div className="report-info">');
+   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
+   printWindow.document.write(`<p>${reportDetails.yearRange}</p>`);
+   printWindow.document.write('</div>');
+
+  const tableContent=document.querySelector('.table-container').outerHTML;
+  printWindow.document.write('<html><head><title>Print</title>');
+  printWindow.document.write('<style>');
+   printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+   printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
+   printWindow.document.write('th { background-color: #f2f2f2; }');
+   printWindow.document.write('.salesValue { text-align: right; }');
+   printWindow.document.write('@media print { .no-print { display: none; } }');
+   printWindow.document.write('</style>');
+   printWindow.document.write('</head><body >');
+   printWindow.document.write('<h1>Monthly Sales Report</h1>'); // Add headers or other content here
+   printWindow.document.write(tableContent);
+   printWindow.document.write('</body></html>');
  
-  const doc = generateSalesReportPDF(companyDetails, reportDetails, itemsValue);
-  
-  
-  const pdfBlob = doc.output('blob');
-  
+   
+   printWindow.document.close();
+   printWindow.focus(); 
  
-  const pdfUrl = URL.createObjectURL(pdfBlob);
   
-  
-  const printWindow = window.open(pdfUrl);
-  
-  if (printWindow) {
-      
-      printWindow.onload = () => {
-          printWindow.print();
-      };
-  }
+   printWindow.onload = () => {
+     printWindow.print();
+ };
+
 };
+
 const XLSX = require('xlsx');
   const fs = require('fs');
 
-const generateSalesReportExcel = (companyDetails, reportDetails, itemsValue) => {
-    const { companyName, address, phoneNumber } = companyDetails;
-    const { title, yearRange } = reportDetails;
+const generateSalesReportExcel = () => {
+   
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet([
-        [companyName],
-        [address],
-        [phoneNumber],
+        [companyDetails.companyName],
+        [companyDetails.address],
+        [companyDetails.phoneNumber],
        [],
-        [`${title} ${yearRange}`],
+       [`${reportDetails.title} (${reportDetails.yearRange})`],
         [],             
         ['Month', 'Sales Value'] 
     ]);
     
      itemsValue.forEach(item => {
-      XLSX.utils.sheet_add_aoa(worksheet, [[item.monthYear, item.saleValue]], { origin: -1 });
+      XLSX.utils.sheet_add_aoa(worksheet, [[item.monthYear, item.salesValue]], { origin: -1 });
   });
-  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.saleValue), 0).toFixed(2);
+  const totalValue = itemsValue.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0).toFixed(2);
   XLSX.utils.sheet_add_aoa(worksheet, [['Total', totalValue]], { origin: -1 });
 
   worksheet['!cols'] = [{ wch: 20 }, { wch: 15 }];
@@ -319,6 +353,7 @@ const generateSalesReportExcel = (companyDetails, reportDetails, itemsValue) => 
         worksheet[cell].s = { alignment: { horizontal: "center" } };
     }
 });
+
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Monthly Sales');
     XLSX.writeFile(workbook, 'MonthlySales.xlsx');
@@ -455,7 +490,7 @@ const exportToExcel=()=>{
       {footers.map((footer) => (
         <th>{footer.name}</th>
       ))}
-      <th >{totalSalesValue(isFiltered ? filteredItems : itemsValue)}</th>
+      <th style={{textAlign:'right'}} >{totalSalesValue(isFiltered ? filteredItems : itemsValue)}</th>
     </tr>
   </tfoot>
   </table>

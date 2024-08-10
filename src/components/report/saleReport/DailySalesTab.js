@@ -189,35 +189,71 @@ const generateSalesReportPDF = () => {
       pageBreak: 'auto'
   });
 
-  doc.save('DailySales.pdf');
+  const now = new Date();
+  const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Kolkata' };
+  const optionsTime = { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit', 
+      hour12: true, 
+      timeZone: 'Asia/Kolkata' 
+  };
+  
+  const dateString = now.toLocaleDateString('en-GB', optionsDate).replace(/\//g, '-');
+  const timeString = now.toLocaleTimeString('en-GB', optionsTime).replace(/:/g, '-');
+  const filename = `Daily_Sales_${dateString}_${timeString}.pdf`;
+
+  doc.save(filename);
 };
 const exportToPDF = () => {
   generateSalesReportPDF(companyDetails, reportDetails, itemsValue)
  };
  const printTable = () => {
-  // Generate the PDF document
-  const doc = generateSalesReportPDF(companyDetails, reportDetails, itemsValue);
   
+  const printWindow=window.open('','','height=600,width=800');
+  printWindow.document.write('<div className="company-info">');
+   printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
+   printWindow.document.write(`<p>${companyDetails.address}</p>`);
+   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
+   printWindow.document.write('</div>');
+   printWindow.document.write('<hr>');
+  
+   // Add report details
+   printWindow.document.write('<div className="report-info">');
+   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
+   printWindow.document.write(`<p>${reportDetails.dayRange}</p>`);
+   printWindow.document.write('</div>');
 
-  const pdfBlob = doc.output('blob');
-  
+  const tableContent=document.querySelector('.table-container').outerHTML;
+  printWindow.document.write('<html><head><title>Print</title>');
+  printWindow.document.write('<style>');
+   printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+   printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
+   printWindow.document.write('th { background-color: #f2f2f2; }');
+   printWindow.document.write('.salesValue { text-align: right; }');
+   printWindow.document.write('@media print { .no-print { display: none; } }');
+   printWindow.document.write('</style>');
+   printWindow.document.write('</head><body >');
+   printWindow.document.write('<h1>Daily Sales Report</h1>'); // Add headers or other content here
+   printWindow.document.write(tableContent);
+   printWindow.document.write('</body></html>');
  
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-  
+   // Close the document to trigger the print dialog
+   printWindow.document.close();
+   printWindow.focus(); // Ensure the new window is in focus
  
-  const printWindow = window.open(pdfUrl);
-  
-  if (printWindow) {
-      
-      printWindow.onload = () => {
-          printWindow.print();
-      };
-  }
+   // Trigger the print dialog
+   printWindow.onload = () => {
+     printWindow.print();
+ };
+
 };
+
 const XLSX = require('xlsx');
 const fs = require('fs');
 
 const generateSalesReportExcel = () => {
+  
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet([
       [companyDetails.companyName],
@@ -408,7 +444,7 @@ const exportToExcel=()=>{
       {footers.map((footer) => (
         <th colSpan="4">{footer.name}</th>
       ))}
-      <th colSpan="5">{totalSalesValue(itemsValue)}</th>
+      <th colSpan="5" style={{textAlign:"right"}}>{totalSalesValue(itemsValue)}</th>
     </tr>
   </tfoot>
   </table>
