@@ -286,6 +286,14 @@ const totalSalesValue = (data) => {
 const printTable = () => {
   
   const printWindow=window.open('','','height=600,width=800');
+  printWindow.document.write('<style>');
+  printWindow.document.write('.company-info {');
+  printWindow.document.write('  text-align: center;');
+  printWindow.document.write('  margin: 0 auto;');
+  printWindow.document.write('  padding: 20px;');
+  printWindow.document.write('  max-width: 600px;'); // Adjust the max-width as needed
+  printWindow.document.write('}');
+  printWindow.document.write('</style>');
   printWindow.document.write('<div className="company-info">');
    printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
    printWindow.document.write(`<p>${companyDetails.address}</p>`);

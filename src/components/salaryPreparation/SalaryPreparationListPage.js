@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import React from 'react'
 import { useMemo } from 'react';
-// import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
+
    
 
 // export type Salary={

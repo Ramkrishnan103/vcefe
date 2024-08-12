@@ -16,7 +16,7 @@ import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
-
+import { useNavigate } from "react-router";
 
 
 const MonthlyPurchaseTab = (props) => {
@@ -34,7 +34,7 @@ const MonthlyPurchaseTab = (props) => {
     allConfigData,
     fetchAcYear,companyConfig,fetchCompanyConfig
   } = props;
- 
+  const navigate =useNavigate();
   const searchRef = useRef();
   console.log("companyConfig",companyConfig)
   useEffect(() => {
@@ -247,6 +247,24 @@ const MonthlyPurchaseTab = (props) => {
   
   
    const printWindow=window.open('','','height=600,width=800');
+   printWindow.document.write('<style>');
+   printWindow.document.write('body {');
+   printWindow.document.write('  margin: 0;');
+   printWindow.document.write('  padding: 0;');
+   printWindow.document.write('  display: flex;');
+   printWindow.document.write('  justify-content: center;');
+   printWindow.document.write('  align-items: center;');
+   printWindow.document.write('  min-height: 100vh;'); // Ensure the body takes up at least the full height of the viewport
+   printWindow.document.write('}');
+   printWindow.document.write('.company-info {');
+   printWindow.document.write('  text-align: center;');
+   printWindow.document.write('  margin: 20px auto;');
+   printWindow.document.write('  padding: 20px;');
+   printWindow.document.write('  max-width: 600px;'); // Adjust the max-width as needed
+   printWindow.document.write('  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'); // Optional: Add some shadow for better visibility
+   printWindow.document.write('}');
+   printWindow.document.write('</style>');
+   
    printWindow.document.write('<div className="company-info">');
    printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
    printWindow.document.write(`<p>${companyDetails.address}</p>`);
@@ -330,6 +348,10 @@ const exportToExcel=()=>{
   const exportToPDF = () => {
    generatePurchaseReportPDF(companyDetails, reportDetails, itemsValue)
   };
+  const paySlipClick=()=>{
+    navigate('/app/paySlip')
+    
+  }
 
 
   return (
@@ -402,8 +424,16 @@ const exportToExcel=()=>{
               style={{ color: "red", paddingLeft: "10px" }}
               onClick={exportToPDF}
             ></FontAwesomeIcon>
+ <button
+        className="btn btn-success me-3 d-flex"
+        onClick={paySlipClick}
+      >
+        Pay Slip
+      </button>
 
           </button>
+        
+         
         </div>
 
       </div>

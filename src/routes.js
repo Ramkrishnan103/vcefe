@@ -119,8 +119,10 @@ import Employees from "./components/Employees/Employees";
 import CreateEmployees from "./components/Employees/CreateEmployees";
 import EmployeeDetail from "./components/Employees/EmployeeDetail";
 import EditEmployees from "./components/Employees/EditEmployees";
+import PaySlip from "./components/report/purchaseReport/PaySlip";
 // import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
 // import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
+
 
 
 export const route = [
@@ -698,6 +700,12 @@ export const route = [
   {
     path: "employees/detail/:id",
     ele: <EmployeeDetail />,
+    permission: Permissions.MANAGE_USER,
+  },
+  // Nila 12-8-24
+  {
+    path: "paySlip",
+    ele: <PaySlip />,
     permission: Permissions.MANAGE_USER,
   }
  
