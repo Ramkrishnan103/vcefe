@@ -669,6 +669,11 @@ export const route = [
       path:"salaryPreparationListPage",
       ele:<SalaryPreparationListPage/>,
       permission:Permissions.MANAGE_CUSTOMERS,
+    },
+    {
+      path:"salaryPreparationListPage/edit/:id",
+      ele:<SalaryPreparationListPage/>,
+      permission:Permissions.MANAGE_CUSTOMERS,
     }
   
   //  MARK TO RAM [05-08-2024]

@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import ReactDataTable from "../../shared/table/ReactDataTable";
 import { getFormattedMessage, placeholderText } from "../../shared/sharedMethod";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ReactSelect from "../../shared/select/reactSelect";
 import { Button, Form } from "react-bootstrap";
 
@@ -15,7 +15,7 @@ const  SalaryPreparationListPage = (props) => {
 
   const to='/app/salaryPreparation';
 
-const itemsValue = [];
+// const itemsValue = [];
 
 const navigate = useNavigate();
 
@@ -23,7 +23,9 @@ const loadClick = () => {
     navigate("/app/salaryPreparation")
 }
 
+const singleSalaryPreparation =useLocation();
 
+console.log("Single Items =>",singleSalaryPreparation.state?.item)
 
     return(
         <div>
@@ -34,14 +36,21 @@ const loadClick = () => {
 <div className="d-md-flex align-items-center justify-content-between mb-5">
       {<h1 className="mb-0 create-title">Salary Preparation</h1> }
       <div className="text-end mt-4 mt-md-0">
-        <Link to={to} className="btn btn-primary me-3 save-btn"
-        style={{width:"110px"}} >
-         {getFormattedMessage("globally.save-btn")}
-       </Link>
+      {singleSalaryPreparation.state?.item ? (
+          <button  className="btn btn-primary me-3 save-btn"
+           style={{width:"120px"}} onClick={loadClick}>
+            {getFormattedMessage("globally.UPDATE-btn")}
+          </button>
+        ) : 
+        <button className="btn btn-primary me-3 save-btn"
+        style={{width:"120px"}} onClick={loadClick} >
+         {getFormattedMessage("globally.SAVE-btn")}
+       </button>
+        }
         {to ? (
-          <Link to={to} className="btn btn-outline-primary back-btn">
+          <button  className="btn btn-outline-primary back-btn" onClick={loadClick}>
             {getFormattedMessage("globally.back-btn")}
-          </Link>
+          </button>
         ) : null}
       </div>
 </div>

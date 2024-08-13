@@ -106,6 +106,7 @@ const PosSalesReport = ( props ) => {
                         {key === 'sales-return' && <ProductSalesTab allConfigData={allConfigData}  productSalesValue={productSalesValue  } />}
                     </div>
                 </Tab>
+                
 
             </Tabs>
         </MasterLayout>

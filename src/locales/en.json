@@ -1095,6 +1095,8 @@
   "globally.SAVE-btn":"SAVE",
   "globally.UPDATE-btn":"UPDATE",
   "globally.input.isActive.?.label":"is Active.?",
-  "Listsupplier.title":"List Of Suppliers"
+  "Listsupplier.title":"List Of Suppliers",
+
+  "salaryDetails.title" :"Salary Details"
 
 }
