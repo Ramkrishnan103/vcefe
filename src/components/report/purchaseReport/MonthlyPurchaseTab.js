@@ -350,7 +350,7 @@ const exportToExcel=()=>{
   };
   const paySlipClick=()=>{
     navigate('/app/paySlip')
-    
+  
   }
 
 

@@ -123,7 +123,7 @@ import PaySlip from "./components/report/purchaseReport/PaySlip";
 // import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
 // import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
 
-
+import PayrollReports from './components/report/payroll/PayrollReports'
 
 export const route = [
   {
@@ -216,6 +216,14 @@ export const route = [
     ele: <DailySales />,
     permission: Permissions.MANAGE_UNITS,
   },
+
+  //Mark by Nila 15/8/24
+  {
+    path: "report/payroll",
+    ele: <PayrollReports />,
+    permission: Permissions.MANAGE_REPORTS,
+  },
+ 
   {
     path: "product-groups",
     ele: <ProductGroups />,

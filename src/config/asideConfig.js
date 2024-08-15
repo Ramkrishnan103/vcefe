@@ -355,6 +355,22 @@ export default [
                     }
                 ]
             },
+
+            //Mark by NILA 15/8/24
+            {
+                title: "payroll.title",
+                name: "Payroll",
+                fontIcon: <FontAwesomeIcon icon={faMapLocation}></FontAwesomeIcon>,
+                to: "/app/report/payroll",
+                class: "d-flex",
+                permission: Permissions.MANAGE_REPORTS,
+                items: [
+                    {
+                        title: getFormattedMessage("payroll.title"),
+                        to: "/app/report/payroll"
+                    }
+                ]
+            },
             // {
             //     title: "ClosingStock.title",
             //     name: "ClosingStock",
