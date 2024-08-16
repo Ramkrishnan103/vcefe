@@ -1997,7 +1997,7 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 
 /* General header styling */
 
-.tabulator .tabulator-col{
+.payroll-container .tabulator-col{
   height:70px;
   background-color:#0d6efd !important;
   color: white;
@@ -2006,21 +2006,21 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   
 }
 
-.tabulator .tabulator-cell.amount-cell {
+.payroll-container .tabulator-cell.amount-cell {
   text-align: right !important; /* Align text to the right */
 }
-.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+.payroll-container .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
   padding-top: 10px;
   text-align:center;
 }
 
-.tabulator .tabulator-tabulator{
+.payroll-container .tabulator-tabulator{
   border:none!important;
 }
 .payrolltabs button{
   color:#000 !important;
 }
-.tabulator .tabulator-footer .tabulator-footer-contents {
+.payroll-container .tabulator-footer .tabulator-footer-contents {
   padding:5px 0 5px !important;
 }
  
