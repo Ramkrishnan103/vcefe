@@ -1978,3 +1978,55 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 .purchaseValue{
   text-align: right;
 }
+/* MARK TO NILA [27-07-2024] */
+
+/* tableStyles.css */
+
+/* Apply Bootstrap font family to table headers and cells */
+
+.custom-bg-color {
+  background-color: rgb(99, 166, 77) !important;
+  color:"black";
+}
+.custom-bg-color:hover {
+  color: white !important; /* Background color on hover */
+  
+}
+
+/* customStyles.css */
+
+/* General header styling */
+
+.tabulator .tabulator-col{
+  height:70px;
+  background-color:#0d6efd !important;
+  color: white;
+  font-weight: 600;
+ 
+  
+}
+
+.tabulator .tabulator-cell.amount-cell {
+  text-align: right !important; /* Align text to the right */
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+  padding-top: 10px;
+  text-align:center;
+}
+
+.tabulator .tabulator-tabulator{
+  border:none!important;
+}
+.payrolltabs button{
+  color:#000 !important;
+}
+.tabulator .tabulator-footer .tabulator-footer-contents {
+  padding:5px 0 5px !important;
+}
+ 
+
+.payrolltabs .active{
+  color:white !important;
+}
+
+

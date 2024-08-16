@@ -124,6 +124,10 @@ import PaySlip from "./components/report/purchaseReport/PaySlip";
 // import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
 
 import PayrollReports from './components/report/payroll/PayrollReports'
+import PayrollSummary from "./components/report/payroll/PayrollSummary";
+import PayrollDetailed from "./components/report/payroll/PayrollDetailed";
+import EmployeeSummary from "./components/report/payroll/EmployeeSummary";
+
 
 export const route = [
   {
@@ -221,6 +225,21 @@ export const route = [
   {
     path: "report/payroll",
     ele: <PayrollReports />,
+    permission: Permissions.MANAGE_REPORTS,
+  },
+  {
+    path: "PayrollSummary",
+    ele: <PayrollSummary />,
+    permission: Permissions.MANAGE_REPORTS,
+  },
+  {
+    path: "PayrollDetailed",
+    ele: <PayrollDetailed />,
+    permission: Permissions.MANAGE_REPORTS,
+  },
+  {
+    path: "EmployeeSummary",
+    ele: <EmployeeSummary />,
     permission: Permissions.MANAGE_REPORTS,
   },
  
