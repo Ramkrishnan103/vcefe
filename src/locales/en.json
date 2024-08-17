@@ -1097,6 +1097,13 @@
   "globally.input.isActive.?.label":"is Active.?",
   "Listsupplier.title":"List Of Suppliers",
 
-  "salaryDetails.title" :"Salary Details"
+  "salaryDetails.title" :"Salary Details",
+
+
+  "payroll.title":"Payroll Reports",
+ "payrollSummary.title":"Payroll Summary",
+ "payrollDetail.title":"Payroll Detailed",
+ "employeeSummary.title":"Employee Summary"
+
 
 }

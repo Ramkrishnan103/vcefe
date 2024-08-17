@@ -265,6 +265,20 @@ export default [
                     },
                 ],
             },
+            {
+                title: "payroll.title",
+                name: "Payroll",
+                fontIcon: <FontAwesomeIcon icon={faMapLocation}></FontAwesomeIcon>,
+                to: "/app/report/payroll",
+                class: "d-flex",
+                permission: Permissions.MANAGE_REPORTS,
+                items: [
+                    {
+                        title: getFormattedMessage("payroll.title"),
+                        to: "/app/report/payroll"
+                    }
+                ]
+            },
         ]
     },
 

@@ -127,7 +127,13 @@ export const apiBaseURL = {
   EMPDESIGNATION:"/empDesignation",
 
    SALARYDETAILS :"/salaryDetails",
-   SALARY:"/salaryConfig"
+   SALARY:"/salaryConfig",
+
+   // MARK FROM RAM[17-08-2024]
+
+   PAYROLLDETAILS:"/payrollDetails",
+
+   // MARK TO RAM [17-08-2024]
 
 };
 
@@ -452,7 +458,6 @@ export const empDesignationActionType = {
   DELETE_EMPDESIGNATION :"DELETE_EMPDESIGNATION"
 }
 
-// MARK FROM RAM [13-08-2024]
 
 export const salaryDetailActionType  = {
   FETCH_SALARYDEATILS :"FETCH_SALARYDEATILS",
@@ -460,7 +465,6 @@ export const salaryDetailActionType  = {
   DELETE_SALARYDETIALS:"DELETE_SALARYDETIALS"
 }
 
-// MARK TO RAM [13-08-2024]
 
 export const salaryActionType  = {
   FETCH_SALARY :"FETCH_SALARY"
@@ -569,6 +573,13 @@ export const supplierReportActionType = {
   FETCH_SUPPLIER_PURCHASE_RETURN: "FETCH_SUPPLIER_PURCHASE_RETURN",
   FETCH_SUPPLIER_WIDGET_DATA: "FETCH_SUPPLIER_WIDGET_DATA",
 };
+
+// MARK FROM RAM[17-08-2024]
+
+export const payrollReportDetails = {
+  FETCH_PAYROLL_DETAILS :"FETCH_PAYROLL_DETAILS"
+}
+// MARK TO RAM[17-08-2024]
 
 export const customerReportActionType = {
   FETCH_CUSTOMER_WIDGET_DATA: "FETCH_CUSTOMER_WIDGET_DATA",

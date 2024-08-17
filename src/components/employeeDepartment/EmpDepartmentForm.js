@@ -88,7 +88,7 @@ console.log("Data =>" ,data)
     if (singleEmpDepartment) {
       if (!disabled && valid) {
         console.log("Hiii")
-        handleClose(!show)
+        // handleClose(!show)
         editEmpDepartment(singleEmpDepartment.departmentId, prepareFormData(empDepartmentValue),handleClose);
         // handleClose
         // clearField(false);
@@ -97,7 +97,7 @@ console.log("Data =>" ,data)
     else {
       if (valid) {
         // setLedgerValue( ledgerValue );
-        handleClose(!show)
+        //handleClose(!show)
         addEmpDepartmentData(prepareFormData(empDepartmentValue),handleClose);
        
         // clearField(false);

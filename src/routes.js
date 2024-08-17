@@ -111,10 +111,17 @@ import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
 import EmpDepartmentCreate from "./components/employeeDepartment/EmpDepartmentCreate";
 import EditEmpDepartment from "./components/employeeDepartment/EditEmpDepartment";
 import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
-//mark from ram [05-08-2024]
+
 import Salary from "./components/salaryPreparation/Salary";
 import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
-//mark to ram [05-08-2024]
+//MARK  FROM  RAM [17-08-2024]
+// import PaySlip from "./components/report/purchaseReport/PaySlip";
+import PayrollReports from './components/report/payroll/PayrollReports'
+import PayrollSummary from "./components/report/payroll/PayrollSummary";
+import PayrollDetailed from "./components/report/payroll/PayrollDetailed";
+import EmployeeSummary from "./components/report/payroll/EmployeeSummary";
+
+//MARK  TO RAM [17-08-2024]
 export const route = [
   {
     path: "dashboard",
@@ -658,8 +665,6 @@ export const route = [
     ele:<EmpDesignation/>,
     permission:Permissions.MANAGE_CUSTOMERS,
   },
-  // MARK FROM RAM [05-08-2024]
-
     {
       path:"salaryPreparation",
       ele:<Salary/>,
@@ -674,7 +679,37 @@ export const route = [
       path:"salaryPreparationListPage/edit/:id",
       ele:<SalaryPreparationListPage/>,
       permission:Permissions.MANAGE_CUSTOMERS,
-    }
+    },
+
+    //  MARK FROM RAM [17-08-2024]
+
+    // {
+    //   path: "paySlip",
+    //   ele: <PaySlip/>,
+    //   permission: Permissions.MANAGE_USER,
+    // }
+
+
+    {
+      path: "report/payroll",
+      ele: <PayrollReports />,
+      permission: Permissions.MANAGE_REPORTS,
+    },
+    {
+      path: "PayrollSummary",
+      ele: <PayrollSummary />,
+      permission: Permissions.MANAGE_REPORTS,
+    },
+    {
+      path: "PayrollDetailed",
+      ele: <PayrollDetailed />,
+      permission: Permissions.MANAGE_REPORTS,
+    },
+    {
+      path: "EmployeeSummary",
+      ele: <EmployeeSummary />,
+      permission: Permissions.MANAGE_REPORTS,
+    },
+    // MARK TO RAM [17-08-2024]
   
-  //  MARK TO RAM [05-08-2024]
 ];

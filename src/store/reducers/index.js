@@ -124,8 +124,15 @@ import empDesignationReducer from "./empDesignationReducer";
 import SalaryStructureReducer from "./SalaryStructureReducer";
 //import productGroupsReducres from "./productGroupsReducres";
 import salaryReducer from "./salaryReducer";
+import payrollReportDetailsReducer from "./payrollReportDetailsReducer";
 
 export default combineReducers({
+
+  // MARK FROM RAM [17-08-2024]
+
+  payrollReportDetails : payrollReportDetailsReducer,
+
+  // MARK TO RAM [17-08-2024]
 
      empDepartment : empDepartmentReducer,
      empDesignation:empDesignationReducer,

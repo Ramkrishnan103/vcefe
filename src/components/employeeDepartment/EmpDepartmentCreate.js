@@ -18,7 +18,7 @@ const EmpDepartmentCreate =  (props) => {
     const navigate =useNavigate();
 
     const addEmpDepartmentData = (formValue) => {
-        addEmpDepartment(formValue, navigate, Filters.OBJ);
+        addEmpDepartment(formValue, handleClose, Filters.OBJ);
     }
    
 

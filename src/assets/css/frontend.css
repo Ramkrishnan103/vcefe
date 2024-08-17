@@ -1970,10 +1970,58 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 
 /* WIDGET BACK GROUND COLOR CHANGE SALES AND PURCHASE  */
 
-/* MARK TO RAM [27-07-2024] */
-
-
 
 .purchaseValue{
   text-align: right;
 }
+
+
+/* MARK FROM RAM [17-08-2024] */
+
+
+.custom-bg-color {
+  background-color: rgb(99, 166, 77) !important;
+  color:"black";
+}
+.custom-bg-color:hover {
+  color: white !important; /* Background color on hover */
+  
+}
+
+/* customStyles.css */
+
+/* General header styling */
+
+.payroll-container .tabulator-col{
+  height:70px;
+  background-color:#0d6efd !important;
+  color: white;
+  font-weight: 600;
+ 
+  
+}
+
+.payroll-container .tabulator-cell.amount-cell {
+  text-align: right !important; /* Align text to the right */
+}
+.payroll-container .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+  padding-top: 10px;
+  text-align:center;
+}
+
+.payroll-container .tabulator-tabulator{
+  border:none!important;
+}
+.payrolltabs button{
+  color:#000 !important;
+}
+.payroll-container .tabulator-footer .tabulator-footer-contents {
+  padding:5px 0 5px !important;
+}
+ 
+
+.payrolltabs .active{
+  color:white !important;
+}
+
+/* MARK TO RAM [17-08-2024] */
