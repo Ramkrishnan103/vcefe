@@ -6,10 +6,11 @@ import { getFormattedMessage, placeholderText } from "../../shared/sharedMethod"
 import { useState } from "react"
 import ReactSelect from "../../shared/select/reactSelect"
 import { useNavigate } from "react-router"
-import { connect } from "react-redux"
+import { connect, useDispatch } from "react-redux"
 import { editSuppliers } from "../../store/action/PosSupplierAction"
 import { Link } from "react-router-dom"
 import * as EmailValidator from "email-validator";
+import { addToast } from "../../store/action/toastAction"
 
 const PosSupplierForm = (props) => {
 
@@ -31,8 +32,8 @@ const [supplierValue,setSupplierValue] = useState (
         location: singleSupplier ? singleSupplier[0]?.location : "Local State",
         regNo: singleSupplier ? singleSupplier[0]?.gstNo : "",
         email: singleSupplier ? singleSupplier[0]?.email : "",
-        mobileNo1: singleSupplier ? singleSupplier[0]?.mobileNo : "",
-        mobileNo2: singleSupplier ? singleSupplier[0]?.mobileNo : "",
+        mobileNo1: singleSupplier ? singleSupplier[0]?.mobileNo  : "",
+        mobileNo2: singleSupplier ? singleSupplier[0]?.mobileNo2 : "",
         isActive :singleSupplier ? singleSupplier[0]?.isActive :true,
        
     }
@@ -145,6 +146,8 @@ console.log("Data =>" ,data)
     return formData;
   }
 
+  const dispatch =useDispatch();
+
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
@@ -236,6 +239,7 @@ console.log("Data =>" ,data)
                 //   "globally.input.remarks.placeholder.label"
                 // )}
                  onChange={(e) => handleInputChange(e)}
+                 
               />
               <label className="form-label mt-1">
                 {getFormattedMessage("globally.input.isActive.?.label")}
@@ -262,6 +266,7 @@ console.log("Data =>" ,data)
                 autoComplete="off"
                 className="form-control"
                 onChange={(e) => onChangeInput(e)}
+                autoFocus
               />
               <span className="text-danger d-block fw-400 fs-small mt-2">
                 {errors["ledgerName"] ? errors["ledgerName"] : null}

@@ -81,7 +81,7 @@ export const fetchEmpDesignation =
                             type: toastType?.ERROR,
                         })
                     );
-                    handleClose(true)
+                    // handleClose(true)
                    
                   }
     
@@ -160,7 +160,7 @@ export const fetchEmpDesignation =
                     text: getFormattedMessage("Data.success.update.message"),
                   })
                 );
-               
+                handleClose(false);
               }
               else{
                 dispatch(
@@ -169,12 +169,12 @@ export const fetchEmpDesignation =
                
               }
              
-              dispatch({
-                  type: empDesignationActionType.EDIT_EMPDESIGNATION,
-                  payload: response?.data?.data,
-              });
+              // dispatch({
+              //     type: empDesignationActionType.EDIT_EMPDESIGNATION,
+              //     payload: response?.data?.data,
+              // });
     
-              handleClose(false);
+            
               dispatch(fetchEmpDesignation());
               dispatch(setSavingButton(false));
              dispatch(addInToTotalRecord(1));

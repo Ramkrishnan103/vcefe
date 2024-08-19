@@ -135,13 +135,13 @@ const UnitsForm = (props) => {
     if (singleUnit && valid) {
       if (!disabled) {
         editUnit(singleUnit.unitid, prepareFormData(unitValue), handleClose);
-        clearField(false);
+        // clearField(false);
       }
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductData(prepareFormData(unitValue));
-        clearField(false);
+        addProductData(prepareFormData(unitValue),handleClose);
+        // clearField(false);
       }
     }
   };

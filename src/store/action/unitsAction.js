@@ -94,7 +94,7 @@ export const fetchUnit = (unitid, singleUnit) => async (dispatch) => {
     });
 };
 
-export const addUnit = (units) => async (dispatch) => {
+export const addUnit = (units,handleClose) => async (dispatch) => {
   await apiConfig
     .post(apiBaseURL.UNITS, units)
     .then((response) => {
@@ -117,6 +117,7 @@ export const addUnit = (units) => async (dispatch) => {
             text: getFormattedMessage("unit.success.create.message"),
           })
         );
+        handleClose(false)
       }
 
       dispatch(addInToTotalRecord(1));
@@ -133,18 +134,20 @@ export const editUnit = (unitid, units, handleClose) => async (dispatch) => {
   apiConfig
     .post(apiBaseURL.UNITS, units)
     .then((response) => {
-      dispatch(fetchUnits());
       // dispatch({
       //     type: unitsActionType.EDIT_UNIT,
       //     payload: response.data.data,
       // });
-      handleClose(false);
+     // handleClose(false);
       if (response?.data?.success == true) {
         dispatch(
           addToast({
             text: getFormattedMessage("unit.success.edit.message"),
           })
         );
+        handleClose(false)
+      dispatch(fetchUnits());
+
       } else {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.ERROR })

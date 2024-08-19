@@ -105,7 +105,7 @@ const TaxSetup = (props) => {
         // ButtonValue={getFormattedMessage("product.create.title")}
         title={getFormattedMessage("TaxSetup.title")}
         // buttonImport={true}
-        totalRows={totalRecord}
+        totalRows={itemsValue?.length}
        to="/app/taxSetup"
       />
       <EditTaxSetup

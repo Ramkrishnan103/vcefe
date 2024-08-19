@@ -78,13 +78,13 @@ const ProductGroupsForm = (props) => {
           prepareFormData(unitValue),
           handleClose
         );
-        clearField(false);
+       // clearField(false);
       }
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductGroup(prepareFormData(unitValue));
-        clearField(false);
+        addProductGroup(prepareFormData(unitValue),handleClose);
+        //clearField(false);
       }
     }
   };
@@ -95,7 +95,7 @@ const ProductGroupsForm = (props) => {
       name: "",
     });
     setErrors("");
-    handleClose ? handleClose(false) : hide(false);
+   // handleClose ? handleClose(false) : hide(false);
   };
 
   return (

@@ -66,6 +66,12 @@ const TaxSetupForm = (props) => {
        
       );
     }
+    else if (!taxsetupValue["taxPercentage"].trim()) {
+      errorss["taxPercentage"] = getFormattedMessage(
+        "globally.input.taxPercentageerr.label"
+       
+      );
+    }
     else {
       isValid = true;
     }
@@ -117,7 +123,7 @@ const TaxSetupForm = (props) => {
       if (!disabled && valid) {
         editTaxSetup(singleTaxSetup.taxId,prepareFormData(taxsetupValue), handleClose );
         console.log("lasskanww")
-        clearField(false);
+       // clearField(false);
       }
     } else {
       if (valid) {
@@ -125,7 +131,7 @@ const TaxSetupForm = (props) => {
          console.log(!show)
 
         addTaxSetup(prepareFormData(taxsetupValue),handleClose);
-        clearField(false);
+        //clearField(false);
        
       }
     }
@@ -167,7 +173,7 @@ const TaxSetupForm = (props) => {
           <div className="row">
             <div className="col-md-12 mb-3">
               <label className="form-label">
-                {getFormattedMessage("globally.input.taxpercentage.label")}:{" "}
+                {getFormattedMessage("globally.input.taxpercentage.label")}{" "}
               </label>
               <span className="required" />
               <input
@@ -190,7 +196,7 @@ const TaxSetupForm = (props) => {
             </div>
             <div className="col-md-12 mb-3">
               <label className="form-label">
-                {getFormattedMessage("globally.input.taxname.label")}:{" "}
+                {getFormattedMessage("globally.input.taxname.label")}{" "}
               </label>
               <span className="required" />
               <input

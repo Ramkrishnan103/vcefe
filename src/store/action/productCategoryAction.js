@@ -87,7 +87,7 @@ export const fetchProductCategory =
       });
   };
 
-export const addProductCategory = (products) => async (dispatch) => {
+export const addProductCategory = (products,handleClose) => async (dispatch) => {
   await apiConfig
     .post(apiBaseURL.PRODUCTS_CATEGORIES, products)
     .then((response) => {
@@ -95,6 +95,7 @@ export const addProductCategory = (products) => async (dispatch) => {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.SUCCESS })
         );
+        handleClose(false)
         dispatch(fetchProductCategories());
       }
       // else {
@@ -135,7 +136,7 @@ export const editProductCategory =
         //     type: productCategoriesActionType.EDIT_PRODUCT_CATEGORIES,
         //     payload: response.data.data,
         // });
-        handleClose(false);
+      //  handleClose(false);
         if (response?.data?.success == true) {
 
         dispatch(
@@ -143,6 +144,7 @@ export const editProductCategory =
             text: getFormattedMessage("product-category.success.edit.message"),
           })
         );
+        handleClose(false)
       }else{
         dispatch(
           addToast({

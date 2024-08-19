@@ -85,7 +85,7 @@ console.log("Data =>" ,data)
     if (singleEmpDesignation) {
       if (!disabled && valid) {
         console.log("Hiii")
-        handleClose(!show)
+        // handleClose(!show)
         editEmpDesignation(singleEmpDesignation.designationId, prepareFormData(empDesignationValue),handleClose);
         // handleClose
         // clearField(false);
@@ -94,7 +94,7 @@ console.log("Data =>" ,data)
     else {
       if (valid) {
         // setLedgerValue( ledgerValue );
-        handleClose(!show)
+        // handleClose(!show)
         addEmpDesignationData(prepareFormData(empDesignationValue),handleClose);
        
         // clearField(false);
@@ -168,7 +168,7 @@ console.log("Data =>" ,data)
                  onChange={(e) => handleInputChange(e)}
               />
               <label className="form-label mt-1">
-                {getFormattedMessage("globally.input.isActive.label")}
+                {getFormattedMessage("globally.input.isActive.?.label")}
               </label>
 
               <span className="text-danger d-block fw-400 fs-small mt-2"></span>

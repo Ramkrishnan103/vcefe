@@ -127,15 +127,15 @@ const BrandsFrom = (props) => {
         );
         debugger;
         // if (brandForm) {
-        clearField(false);
+       // clearField(false);
         // }
       }
     } else {
       if (valid) {
         setFormValue(formValue);
-        addBrandData(prepareFormData(formValue));
+        addBrandData(prepareFormData(formValue),handleClose);
         // if (brandForm) {
-        clearField(false);
+       // clearField(false);
         // }
       }
     }
@@ -150,7 +150,7 @@ const BrandsFrom = (props) => {
     });
     setImagePreviewUrl(user);
     setErrors("");
-    handleClose ? handleClose(false) : hide(false);
+   // handleClose ? handleClose(false) : hide(false);
   };
 
   return (

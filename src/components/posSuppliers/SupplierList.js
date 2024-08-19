@@ -187,7 +187,7 @@ const SupplierList =(props) => {
                     items={itemsValue}
                     isLoading={isLoading}
                     // ButtonValue={getFormattedMessage('supplier.create.title')} 
-                    // totalRows={itemsValue?.length}
+                     totalRows={itemsValue?.length}
                     // goToImport={handleClose} 
                     // to='#/app/suppliers/create'
                     isUnitFilter

@@ -129,13 +129,23 @@ export const apiBaseURL = {
    SALARYDETAILS :"/salaryDetails",
    SALARY:"/salaryConfig",
 
-   // MARK FROM RAM[17-08-2024]
 
    PAYROLLDETAILS:"/payrollDetails",
 
-   // MARK TO RAM [17-08-2024]
 
 };
+
+
+// MARK FROM RAM [19-08-2024]
+export const posCustomerActionType={
+  FETCH_CUSTOMER: "FETCH_CUSTOMER",
+  EDIT_CUSTOMER: "EDIT_CUSTOMER",
+  FETCH_CUSTOMERS: "FETCH_CUSTOMERS",
+  ADD_CUSTOMER: "ADD_CUSTOMER",
+  DELETE_CUSTOMER: "DELETE_CUSTOMER"
+}
+//MARK TO RAM [19-08-2024]
+
 
 export const closingStockReportActionType = {
   FETCH_CLOSING_STOCK_REPORT: "FETCH_CLOSING_STOCK_REPORT",
@@ -574,12 +584,12 @@ export const supplierReportActionType = {
   FETCH_SUPPLIER_WIDGET_DATA: "FETCH_SUPPLIER_WIDGET_DATA",
 };
 
-// MARK FROM RAM[17-08-2024]
 
 export const payrollReportDetails = {
   FETCH_PAYROLL_DETAILS :"FETCH_PAYROLL_DETAILS"
 }
-// MARK TO RAM[17-08-2024]
+
+
 
 export const customerReportActionType = {
   FETCH_CUSTOMER_WIDGET_DATA: "FETCH_CUSTOMER_WIDGET_DATA",

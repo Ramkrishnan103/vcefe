@@ -109,6 +109,7 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
             text: getFormattedMessage("TaxSetup.success.create.message"),
           })
         );
+        handleClose(false)
       }else{
         dispatch(
           addToast({ text: response?.data?.message, type: toastType?.ERROR })
@@ -120,7 +121,7 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
         payload: response?.data?.data,
       });
       dispatch(fetchTaxSetup(Filters.OBJ));
-      handleClose(false);
+     // handleClose(false);
      
       
       dispatch(addInToTotalRecord(1));
@@ -140,25 +141,26 @@ export const editTaxSetup =
       .then((response) => {
         console.log(apiBaseURL.TAXSETUP,taxSetups)
         console.log("response",response);
-        debugger;
+        
         if(response?.data?.success===true){
           dispatch(
             addToast({
               text: getFormattedMessage("taxSetup.success.edit.message"),
             })
           );
+          handleClose(false)
         }else{
           dispatch(
             addToast({ text: response?.data?.message, type: toastType?.ERROR })
           )
          
         }
-        handleClose(false);
+       // handleClose(false);
          dispatch(fetchTaxSetup());
-        dispatch({
-            type: taxSetupActionType.EDIT_TAXSETUP,
-            payload: response?.data?.data,
-        });
+        // dispatch({
+        //     type: taxSetupActionType.EDIT_TAXSETUP,
+        //     payload: response?.data?.data,
+        // });
         console.log("handleClose=>",handleClose)
       
       dispatch(addInToTotalRecord(1));

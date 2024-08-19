@@ -11,8 +11,8 @@ const CreateBrands = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
 
-    const addBrandData = (formValue) => {
-        Dispatch(addBrand(formValue, Filters.OBJ));
+    const addBrandData = (formValue,handleClose) => {   
+        Dispatch(addBrand(formValue, Filters.OBJ,handleClose));
     };
 
     return (

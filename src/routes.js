@@ -112,16 +112,21 @@ import EmpDepartmentCreate from "./components/employeeDepartment/EmpDepartmentCr
 import EditEmpDepartment from "./components/employeeDepartment/EditEmpDepartment";
 import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
 
+
 import Salary from "./components/salaryPreparation/Salary";
 import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
-//MARK  FROM  RAM [17-08-2024]
 // import PaySlip from "./components/report/purchaseReport/PaySlip";
 import PayrollReports from './components/report/payroll/PayrollReports'
 import PayrollSummary from "./components/report/payroll/PayrollSummary";
 import PayrollDetailed from "./components/report/payroll/PayrollDetailed";
 import EmployeeSummary from "./components/report/payroll/EmployeeSummary";
 
-//MARK  TO RAM [17-08-2024]
+// MARK FROM RAM [19-08-2024]
+import PosCustomer from "./components/PosCustomer/PosCustomer";
+import CreatePosCustomer from './components/PosCustomer/CreatePosCustomer'
+import EditPosCustomer from './components/PosCustomer/EditPosCustomer'
+// MARK TO RAM [19-08-2024]
+
 export const route = [
   {
     path: "dashboard",
@@ -233,21 +238,21 @@ export const route = [
   //   ele: <EditSupplier />,
   //   permission: Permissions.MANAGE_SUPPLIERS,
   // },
-  {
-    path: "customers",
-    ele: <Customers />,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
-  {
-    path: "customers/create",
-    ele: <CreateCustomer />,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
-  {
-    path: "customers/edit/:id",
-    ele: <EditCustomer />,
-    permission: Permissions.MANAGE_CUSTOMERS,
-  },
+  // {
+  //   path: "customers",
+  //   ele: <Customers />,
+  //   permission: Permissions.MANAGE_CUSTOMERS,
+  // },
+  // {
+  //   path: "customers/create",
+  //   ele: <CreateCustomer />,
+  //   permission: Permissions.MANAGE_CUSTOMERS,
+  // },
+  // {
+  //   path: "customers/edit/:id",
+  //   ele: <EditCustomer />,
+  //   permission: Permissions.MANAGE_CUSTOMERS,
+  // },
   {
     path: "user",
     ele: <User />,
@@ -681,7 +686,6 @@ export const route = [
       permission:Permissions.MANAGE_CUSTOMERS,
     },
 
-    //  MARK FROM RAM [17-08-2024]
 
     // {
     //   path: "paySlip",
@@ -710,6 +714,23 @@ export const route = [
       ele: <EmployeeSummary />,
       permission: Permissions.MANAGE_REPORTS,
     },
-    // MARK TO RAM [17-08-2024]
+
+    // MARK FROM RAM [19-08-2024]
+    {
+      path: "posCustomer",
+      ele: <PosCustomer/>,
+      permission: "",
+    },
+    {
+      path: "posCustomer/create",
+      ele: <CreatePosCustomer/>,
+      permission: Permissions.MANAGE_CUSTOMERS,
+    },
+    {
+      path: "posCustomer/edit/:id",
+      ele: <EditPosCustomer/>,
+      permission: Permissions.MANAGE_CUSTOMERS,
+    },
+    //MARK TO RAM [19-08-2024]
   
 ];

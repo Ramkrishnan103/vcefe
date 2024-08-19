@@ -10,8 +10,8 @@ const CreateProductGroups = (props) => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
 
-    const addProductGroupsData = (productValue) => {
-        addProductGroup(productValue);
+    const addProductGroupsData = (productValue,handleClose) => {
+        addProductGroup(productValue,handleClose);
     };
 
     return (

@@ -121,6 +121,7 @@ const Brands = () => {
       <TabTitle title={placeholderText("brands.title")} />
       <SearchComponent
         handleSearchData={handleSearchData}
+        
         AddButton={<CreateBrands />}
       />
       <ReactDataTable

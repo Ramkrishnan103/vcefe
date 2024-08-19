@@ -157,6 +157,14 @@ export default [
         subMenu: [
             // MARK FROM RAM [01-08-2024]
             {
+                title: "customer.title",
+                name: "customer",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/posCustomer",
+                class: "d-flex",
+                permission: Permissions.MANAGE_CUSTOMERS,
+            },
+            {
                 title: "supplier.title",
                 name: "supplier",
                 fontIcon: <FontAwesomeIcon icon={faTruck} />,

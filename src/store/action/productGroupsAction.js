@@ -87,41 +87,29 @@ export const fetchProductGroup = (unitId, singleUnit) => async (dispatch) => {
     });
 };
 
-export const addProductGroup = (product_groups) => async (dispatch) => {
+export const addProductGroup = (product_groups,handleClose) => async (dispatch) => {
   await apiConfig
     .post(apiBaseURL.PRODUCT_GROUPS, product_groups)
     .then((response) => {
-      dispatch({
-        type: productGroupsActionType.ADD_PRODUCT_GROUP,
-        payload: response.data.data,
-      });
-      dispatch(fetchProductGroups(Filters.OBJ));
-      if (response?.data?.data == null) {
+      if (response?.data?.success ==  true) {
         dispatch(
-          addToast({
-            text: getFormattedMessage(response?.data?.message),
-            type: toastType.ERROR,
-          })
+          addToast({ text: response?.data?.message, type: toastType.SUCCESS })
         );
-      } else {
+        handleClose(false)
+        dispatch(fetchAllProductGroups());
+      }else {
         dispatch(
-          addToast({
-            text: getFormattedMessage("product-group.success.create.message"),
-          })
+          addToast({ text: response?.data?.message, type: toastType.ERROR })
         );
-        dispatch(fetchProductGroups(Filters.OBJ));
       }
-
-      dispatch(addInToTotalRecord(1));
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({
-          text: response?.data?.message,
-          type: toastType.ERROR,
-        })
+        addToast({ text: response.data.message, type: toastType.ERROR })
       );
-    });
+    
+    })
+    
 };
 
 export const editProductGroup =
@@ -129,18 +117,20 @@ export const editProductGroup =
     apiConfig
       .post(apiBaseURL.PRODUCT_GROUPS, units)
       .then((response) => {
-        dispatch(fetchProductGroups());
-        dispatch({
-          type: productGroupsActionType.EDIT_PRODUCT_GROUP,
-          payload: response.data.data,
-        });
-        handleClose(false);
+        //dispatch(fetchProductGroups());
+        // dispatch({
+        //   type: productGroupsActionType.EDIT_PRODUCT_GROUP,
+        //   payload: response.data.data,
+        // });
+       // handleClose(false);
         if (response?.data?.success == true) {
         dispatch(
           addToast({
             text: getFormattedMessage("product-group.success.edit.message"),
           })
         );
+        handleClose(false)
+        dispatch(fetchProductGroups());
       } else {
         dispatch(
           addToast({

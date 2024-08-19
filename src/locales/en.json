@@ -989,7 +989,7 @@
   "LedgerUnderGroup.input.name.validate.label": "Please Enter Under Group",
   "globally.input.taxNameError.label": "Enter Tax Name",
   "globally.input.taxName.label": "Enter Tax Name",
-  "taxSetup.edit.title": "Edit TaxSetup",
+ 
   "globally.input.businesstype.label": "Business-Type",
   "globally.input.showpricein.label": "Show Price",
   "choose business type": "choose business type",
@@ -1029,10 +1029,6 @@
   "globally.input.stockValue.name": " Show Stock Value",
   "globally.input.placeholder.stockValue.name": "Enter Stock Value",
   "globally.input.taxpercentage.exists.label": "Tax_Percentage already Exists!",
-  "taxsetup.tax-name.info.label": "TaxName",
-  "TaxSetup.success.create.message": "Data Saved Successfully!",
-  "taxSetup.success.edit.message": "Data Updated Successfully!",
-  "taxSetup.success.delete.message": "Data Deleted Successfully!",
   "taxSetup.create.title": "Create Tax",
   "globally.input.taxpercentage.label": "Tax Percentage",
   "globally.input.nameLengthError.label": "Tax length  cannot exceed 100 ",
@@ -1058,9 +1054,7 @@
   "supplierName.input.name.validate.label":"Please Enter Supplier Name",
   "state.input.validate.label":"Please Enter State",
   "location.input.validate.label":"Please Enter Location",
-  "Data.success.create.message":"Data Saved Successful",
-  "Data.success.update.message" :"Data Updated Successfully",
-  "Data.success.delete.message":"Data Delete Successfully",
+ 
 
 
   "empDepartment.title" :"Department",
@@ -1103,7 +1097,26 @@
   "payroll.title":"Payroll Reports",
  "payrollSummary.title":"Payroll Summary",
  "payrollDetail.title":"Payroll Detailed",
- "employeeSummary.title":"Employee Summary"
+ "employeeSummary.title":"Employee Summary",
+
+"customerCode.title":"Customer Code",
+  "globally.input.location-label":"Location",
+  "globally.input.gstNo.label":"GST No",
+  "globally.input.entryFrom.label":"Entry from",
+  "customerList.create.title":"List of Customers",
+  "import.customers":"Import",
+  "CustomerName.input.name.validate.label":"Please enter customer name",
+  "globally.input.state.validate.label":"Please enter state",
+  "globally.input.location.validate.label":"Please enter location",
+  "taxSetup.edit.title": "Edit Tax",
+  "taxsetup.tax-name.info.label": "Tax Name",
+  "TaxSetup.success.create.message": "Data Saved Successfully.!",
+  "taxSetup.success.edit.message": "Data Updated Successfully.!",
+  "taxSetup.success.delete.message": "Data Deleted Successfully.!",
+  "Data.success.create.message":"Data Saved successfully.!",
+  "Data.success.update.message" :"Data Updated Successfully.!",
+  "Data.success.delete.message":"Data Delete Successfully.!",
+  "globally.input.taxPercentageerr.label":"Enter Tax Percentage"
 
 
 }

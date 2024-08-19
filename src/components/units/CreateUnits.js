@@ -10,8 +10,8 @@ const CreateUnits = (props) => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
 
-    const addUnitsData = (productValue) => {
-        addUnit(productValue);
+    const addUnitsData = (productValue,handleClose) => {
+        addUnit(productValue,handleClose);
     };
 
     return (

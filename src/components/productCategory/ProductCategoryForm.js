@@ -125,14 +125,14 @@ const ProductCategoryForm = (props) => {
           prepareFormData(productCategoryValue),
           handleClose
         );
-        clearField(false);
+        //clearField(false);
       }
     } else {
       if (valid) {
         ;
         setProductCategoryValue(productCategoryValue);
-        addProductcData(prepareFormData(productCategoryValue));
-        clearField(false);
+        addProductcData(prepareFormData(productCategoryValue),handleClose);
+       // clearField(false);
       }
     }
     setSelectImg(null);

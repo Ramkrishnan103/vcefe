@@ -15,6 +15,7 @@ import {
 import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { callUpdateBrandApi } from "./updateBrand";
+import { setSavingButton } from "./saveButtonAction";
 
 export const fetchBrands =
   (filter = {}, isLoading = true, isFilterModal = false) =>
@@ -90,7 +91,7 @@ export const fetchBrand = (brandsId, singleUser) => async (dispatch) => {
     });
 };
 
-export const addBrand = (brands) => async (dispatch) => {
+export const addBrand = (brands,handleClose) => async (dispatch) => {
   await apiConfig
     .post(apiBaseURL.BRANDS, brands)
     .then((response) => {
@@ -105,22 +106,22 @@ export const addBrand = (brands) => async (dispatch) => {
             type: toastType.ERROR,
           })
         );
-        dispatch({
-          type: brandFormActionType.FORM_CLOSE,
-          payload: false,
-        });
+        // dispatch({
+        //   type: brandFormActionType.FORM_CLOSE,
+        //   payload: false,
+        // });
       } else {
         dispatch(
           addToast({
             text: getFormattedMessage("brand.success.create.message"),
           })
         );
-        dispatch({
-          type: brandFormActionType.FORM_CLOSE,
-          payload: false,
-        });
+        handleClose(false)
+        // dispatch({
+        //   type: brandFormActionType.FORM_CLOSE,
+        //   payload: false,
+        // });
       }
-
       dispatch(addInToTotalRecord(1));
     })
     .catch(({ response }) => {
@@ -148,6 +149,7 @@ export const editBrand =
               text: getFormattedMessage("brand.success.edit.message"),
             })
           );
+          handleClose(false)
           dispatch({
             type: brandFormActionType.FORM_CLOSE,
             payload: false,
