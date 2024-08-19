@@ -2,7 +2,7 @@ import React, {useState, createRef, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Form} from 'react-bootstrap-v5';
 import {getFormattedMessage, placeholderText} from "../../shared/sharedMethod";
-import { editUser } from '../../store/action/userAction';
+
 import ModelFooter from '../../shared/components/modelFooter';
 import { useNavigate } from 'react-router';
 import * as EmailValidator from 'email-validator';
@@ -14,12 +14,12 @@ import ReactSelect from "../../shared/select/reactSelect";
 // import { address } from 'faker/lib/locales/az';
 import MultipleImage from '../product/MultipleImage';
 import UserImage from './UserImage';
-import { fetchUsers } from '../../store/action/userAction';
+import { editUser ,fetchUsers} from '../../store/action/userAction';
 
 
 const UsersForm = (props) => {
 
-    const {addUsersData,id, editUser, singleUser,title,to,users,fetchUsers} = props;
+    const {addUsersData,id,fetchUsers, editUser, singleUser,title,to,users} = props;
   
     const navigate=useNavigate();
 console.log("users",users)
@@ -51,6 +51,7 @@ console.log("singleUser",singleUser)
        // imageUrl:singleUser ? singleUser[0].imageUrl:'',
         // base_unit: ''
     });
+    console.log("usersValue",usersValue)
     const [errors, setErrors] = useState({
         // imageUrl: '',
         firstName:'',
@@ -69,19 +70,22 @@ console.log("singleUser",singleUser)
         // base_unit: ''
     });
 
-   
-useEffect(() => {
-    const role =users ? users.map((user) => user?.attributes?.roleName) : [];
-    const userName = role.filter((item, index) => role.indexOf(item) === index);
-    const dropdownOptions = userName.map(name => ({ value: name, label: name }));
-    setRoleDropdown(dropdownOptions);
-  },[users]);
-
-
-    useEffect(()=>{
-        fetchUsers()
-   },[fetchUsers])
+    useEffect(() => {
+        fetchUsers();
+    }, []);
   
+
+   
+    useEffect(() => {
+        if (users) {
+            const roles = users.map(user => user?.attributes?.roleName);
+            const uniqueRoles = [...new Set(roles)];
+            const dropdownOptions = uniqueRoles.map(name => ({ value: name, label: name }));
+            setRoleDropdown(dropdownOptions);
+        }
+    }, [users]);
+
+    
     const handleValidation = () => {
         let errorss = {};
         let isValid = false;
@@ -134,7 +138,7 @@ useEffect(() => {
     const prepareFormData = (data) => {
         console.log("data => " ,data)
         let formData = {
-            "id":id,
+            "id":data.id,
             "firstName": data.firstName,
             "lastName": data.lastName,
             "userName":data.userName,
@@ -181,8 +185,6 @@ useEffect(() => {
     setMultipleFiles([]);
   };
 
-
-
     const clearField = () => {
         setUsersValue({
             firstName: '',
@@ -211,12 +213,12 @@ useEffect(() => {
           {singleUser ? (
             <Link to={singleUser} className="btn btn-primary me-3 save-btn"
              style={{width:"120px"}} onClick={onSubmit}>
-              {getFormattedMessage("globally.edit-btn")}
+              {getFormattedMessage("globally.update-btn")}
             </Link>
           ) : 
           <Link to={""} className="btn btn-primary me-3 save-btn"
           style={{width:"120px"}} onClick={onSubmit}>
-           {getFormattedMessage("globally.update-btn")}
+           {getFormattedMessage("globally.save-btn")}
          </Link>
           }
            {to ? (

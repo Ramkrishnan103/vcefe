@@ -23,8 +23,8 @@ const CreateLedger =(props) => {
        <div>
         <MasterLayout>
             <TopProgressBar/>
-            <HeaderTitle title={getFormattedMessage('ledger.create.title')} to='/app/ledger'/>
-            <LedgerForm addLedgerData={addLedgerData} />
+            {/* <HeaderTitle title={getFormattedMessage('ledger.create.title')} to='/app/ledger'/> */}
+            <LedgerForm addLedgerData={addLedgerData} title={getFormattedMessage( "ledger.create.title")} to='/app/posCustomer'/>
         </MasterLayout>
        </div>
     )

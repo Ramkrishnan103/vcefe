@@ -6,6 +6,7 @@ import { InputGroup, Button } from "react-bootstrap-v5";
 import MultipleImage from "./MultipleImage";
 import { fetchUnits, unitDropdown } from "../../store/action/unitsAction";
 import { fetchTax } from "../../store/action/taxAction";
+import { Link } from "react-router-dom";
 import {
   fetchAllProductCategories,
   productCategoryDropdown,
@@ -76,6 +77,7 @@ const ProductForm = (props) => {
     productGroups,
     taxs,
     fetchTax,
+    to,title
   } = props;
 
   const navigate = useNavigate();
@@ -611,6 +613,36 @@ const ProductForm = (props) => {
     return 0;
   });
   return (
+    <div>
+    <div className="d-md-flex align-items-center justify-content-between mb-5">
+    {title ?<h1 className="mb-0 create-title">{title}</h1> :""}
+    <div className="text-end mt-4 mt-md-0">
+     
+
+      {singleProduct ? (
+        <Link to={singleProduct} className="btn btn-primary me-3  save-btn"
+         style={{width:"100px"}} onClick={onSubmit}>
+          {getFormattedMessage("globally.update-btn")}
+        </Link>
+      ) : 
+      <Link to={""} className="btn btn-primary  me-3 save-btn"
+      style={{width:"100px"}} onClick={onSubmit}>
+       {getFormattedMessage("globally.save-btn")}
+     </Link>
+      }
+       {to ? (
+        <Link to={to} className="btn btn-outline-primary back-btn">
+          {getFormattedMessage("globally.back-btn")}
+        </Link>
+      ) : null}
+      </div>
+      
+        {/* <button className="btn btn-outline-primary back-btn">
+          {getFormattedMessage("globally.back-btn")}
+        </button>
+       */}
+{/*       </div> */}
+</div>
     <div>
       <Form>
         <div className="row">
@@ -1186,14 +1218,15 @@ const ProductForm = (props) => {
                 </div>
               </div>
             </div>
-            <ModelFooter
+            {/* <ModelFooter
               onEditRecord={singleProduct}
               onSubmit={onSubmit}
               //editDisabled={disabled}
               link="/app/products"
             // addDisabled={!productValue.name}
-            />
+            /> */}
           </div>
+         
         </div>
       </Form>
       {unitModel && (
@@ -1245,6 +1278,7 @@ const ProductForm = (props) => {
           hide={setTaxModal}
         />
       )}
+    </div>
     </div>
   );
 };

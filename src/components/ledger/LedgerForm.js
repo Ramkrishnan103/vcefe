@@ -12,10 +12,11 @@ import { useNavigate } from "react-router";
 import ReactSelect from "../../shared/select/reactSelect";
 import { useRef } from "react";
 import moment from "moment";
+import { Link } from "react-router-dom";
 import { width } from "@fortawesome/free-solid-svg-icons/fa0";
 
 const LedgerForm = (props) => {
-  const { id, editLedger, handleClose, show, hide, singleLedger, addLedgerData } = props;
+  const { id, editLedger, handleClose, show, hide, singleLedger, addLedgerData,to,title} = props;
 
   console.log("ID => ", id)
 
@@ -197,10 +198,69 @@ const LedgerForm = (props) => {
   console.log(ledgerValue.underGroup)
 
   return (
+    <div>
+    <div className="d-md-flex align-items-center justify-content-between mb-5">
+    {title ?<h1 className="mb-0 create-title">{title}</h1> :""}
+    <div className="text-end mt-4 mt-md-0">
+     
+
+      {singleLedger ? (
+        <Link to={singleLedger} className="btn btn-primary me-3  save-btn"
+         style={{width:"100px"}} onClick={onSubmit}>
+          {getFormattedMessage("globally.update-btn")}
+        </Link>
+      ) : 
+      <Link to={""} className="btn btn-primary  me-3 save-btn"
+      style={{width:"100px"}} onClick={onSubmit}>
+       {getFormattedMessage("globally.save-btn")}
+     </Link>
+      }
+       {to ? (
+        <Link to={to} className="btn btn-outline-primary back-btn">
+          {getFormattedMessage("globally.back-btn")}
+        </Link>
+      ) : null}
+      </div>
+      
+        {/* <button className="btn btn-outline-primary back-btn">
+          {getFormattedMessage("globally.back-btn")}
+        </button>
+       */}
+{/*       </div> */}
+</div>
+
+
     <div className="card">
       <div className="card-body">
         <Form>
           <div className="row">
+          <div className="col-md-12 mb-3">
+        <div style={{ textAlign: "-webkit-right" }} >
+        <label className="form-check form-check-custom form-check-solid form-check-inline d-flex align-items-center my-4 cursor-pointer custom-label">
+        <input
+                type="checkbox"
+                name="isActive"
+                className="me-3 form-check-input cursor-pointer mt-1 "
+                style={{ marginLeft: "10px", width: "22px", height: "22px" }}
+                checked={ledgerValue.isActive}
+                placeholder={placeholderText(
+                  "globally.input.remarks.placeholder.label"
+                )}
+                onChange={(e) => handleInputChange(e)}
+              />
+             
+              
+
+              <div className="control__indicator" />{" "}
+                        {getFormattedMessage("product.input.isactive.label")}
+                      </label>
+                    </div>
+
+            </div>
+        
+        </div>
+        <div className="row">
+
             <div className="col-md-6 mb-3">
               <label className="form-label">
                 {getFormattedMessage("globally.input.LedgerName.label")}
@@ -449,8 +509,8 @@ const LedgerForm = (props) => {
               />
               <span className="text-danger d-block fw-400 fs-small mt-2"></span>
             </div>
-
-            <div className="col-md-6 mb-3 mt-8" >
+            </div>
+            {/* <div className="col-md-6 mb-3 mt-8" >
               <label className="form-label mt-1" style={{ marginLeft: "30px", fontSize: "15px" }}>
                 {getFormattedMessage("globally.input.isActive.label")}
               </label>
@@ -467,24 +527,14 @@ const LedgerForm = (props) => {
                 onChange={(e) => handleInputChange(e)}
               />
               <span className="text-danger d-block fw-400 fs-small mt-2"></span>
-            </div>
+            </div> */}
 
-            <div className="row">
-              <div className="col-md-12">
-                <ModelFooter
-                  onEditRecord={singleLedger}
-                  onSubmit={onSubmit}
-                  editDisabled={false}
-                  addDisabled={!ledgerValue.ledgerName}
-                  // to="/app/ledger"
-                  clearField={clearField}
-                />
-              </div>
-            </div>
+           
 
-          </div>
+         
         </Form>
       </div>
+    </div>
     </div>
   );
 };

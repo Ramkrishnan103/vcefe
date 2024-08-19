@@ -22,8 +22,9 @@ const CreateProduct = (props) => {
 
     return (
         <MasterLayout>
-            <HeaderTitle title={getFormattedMessage('product.create.title')} to='/app/products'/>
-            <ProductForm addProductData={addProductData} productGroups={base}/>
+            {/* <HeaderTitle title={getFormattedMessage('product.create.title')} to='/app/products'/> */}
+            <ProductForm addProductData={addProductData} 
+            title={getFormattedMessage( "product.create.title")}productGroups={base} to='/app/products'/>
         </MasterLayout>
     )
 };

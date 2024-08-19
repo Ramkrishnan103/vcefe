@@ -79,6 +79,7 @@ export const fetchUser =
            // console.log(usersId)
              //   console.log(apiBaseURL.USERS + "?usersId=2"   )
             .then((response) => {
+                debugger;
                 console.log(response)
                 dispatch({
                     type: userActionType.FETCH_USER,
@@ -241,21 +242,21 @@ export const addImportUsers = (importData) => async (dispatch) => {
 
 export const editUser = 
 (userId, users, navigate) => async (dispatch) => {
+    console.log("hi",userId)
     dispatch(setSavingButton(true));
-     const { firstName, lastName, userName, roleName, mobileNo, email, pwd,address1,address2,remarks,imageUrl } = users;
+     const { firstName, lastName, userName, roleName,  email, pwd,remarks,isActive } = users;
         const data = {
             firstName,
             lastName,
             userName,
             roleName,
-            mobileNo,
+           
             email,
             pwd,
-            address1,
-            address2,
-            remarks,
-            imageUrl,
             
+            remarks,
+            
+            isActive,
             id:userId,
         };
     apiConfig
@@ -263,15 +264,28 @@ export const editUser =
        
         .then((response) => {
             console.log(response)
+
+            if(response?.data?.success==false){
+                dispatch(
+                    addToast({
+                        text: response?.data?.message,
+                        type: toastType.ERROR,
+                    })
+                );
+            }
+            else{
+                dispatch(
+                    addToast({
+                        text: getFormattedMessage("user.success.edit.message"),
+                    })
+                );
+            }
             dispatch({
                 type: userActionType.EDIT_USER,
-                payload: response.data.data,
-            });
-            dispatch(
-                addToast({
-                    text: getFormattedMessage("user.success.edit.message"),
-                })
-            );
+                payload: response?.data?.data,
+            });   
+           
+           
             navigate("/app/users");
             dispatch(setSavingButton(false));
         })

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPrint, faFileExcel, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import ReactSelect from '../../../shared/select/reactSelect';
@@ -15,6 +15,8 @@ const PayrollDetailed = (props) => {
   const { companyConfig, fetchCompanyConfig } = props;
   const tableRef = useRef(null);
   const paySlipRef = useRef(null);
+  const [orientation, setOrientation] = useState('portrait'); 
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     fetchCompanyConfig();
@@ -72,29 +74,27 @@ const PayrollDetailed = (props) => {
     return formatter.format(new Date()).replace(/\/|,|:/g, '-');
   };
 
-  const generatePDF = (companyDetails) => {
+  const generatePDF = () => {
     const { companyName, address, phoneNumber } = companyDetails;
     
     const input = paySlipRef.current;
     html2canvas(input, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: orientation, // Apply the selected orientation
         unit: 'mm',
-        format: 'a4'
+        format: orientation === 'portrait' ? 'a4' : 'a4l'
       });
      
       // Add company details
-     
-      // Add the image content
-      const pdfWidth = 210;
-      const pdfHeight = 297;
+      const pdfWidth = orientation === 'portrait' ? 210 : 297;
+      const pdfHeight = orientation === 'portrait' ? 297 : 210;
       const centerX = pdfWidth / 2;
       pdf.setFontSize(12);
       pdf.text(companyName, centerX, 10, { align: 'center' });
       pdf.setFontSize(10);
       pdf.text(address, centerX, 20, { align: 'center' });
-      pdf.text(`Phone: ${phoneNumber}`,centerX, 30, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, centerX, 30, { align: 'center' });
 
       const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -107,6 +107,19 @@ const PayrollDetailed = (props) => {
     }).catch(error => {
       console.error('Error generating canvas:', error);
     });
+  };
+
+  const handleOrientationChange = (e) => {
+    setOrientation(e.target.value);
+  };
+
+  const handlePdfButtonClick = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleGeneratePdfClick = () => {
+    generatePDF(companyDetails);
+    setShowDropdown(false);
   };
 
   return (
@@ -139,11 +152,30 @@ const PayrollDetailed = (props) => {
               gap: "13px",
               background: "white"
             }}
+            onClick={handlePdfButtonClick}
           >
             <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} />
             <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
-            <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={() => generatePDF(companyDetails)} />
+            <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} />
           </button>
+          {showDropdown && (
+            <>
+              <select
+                value={orientation}
+                onChange={handleOrientationChange}
+                style={{ marginLeft: '10px', marginTop: '10px' }}
+              >
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+              </select>
+              <button 
+                onClick={handleGeneratePdfClick} 
+                style={{ marginLeft: '10px' }}
+              >
+                Generate PDF
+              </button>
+            </>
+          )}
         </div>
       </div>
 

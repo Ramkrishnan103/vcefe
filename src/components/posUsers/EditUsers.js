@@ -53,4 +53,4 @@ const mapStateToProps = (state) => {
     return {users}
 };
 
-export default connect(mapStateToProps, {fetchUser,editUser})(EditUsers);
+export default connect(mapStateToProps, {fetchUser})(EditUsers);
