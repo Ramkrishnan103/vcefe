@@ -617,33 +617,29 @@ const ProductForm = (props) => {
     <div className="d-md-flex align-items-center justify-content-between mb-5">
     {title ?<h1 className="mb-0 create-title">{title}</h1> :""}
     <div className="text-end mt-4 mt-md-0">
-     
+    <div className="row ">
+      <div className="col d-flex"> 
 
-      {singleProduct ? (
-        <Link to={singleProduct} className="btn btn-primary me-3  save-btn"
-         style={{width:"100px"}} onClick={onSubmit}>
-          {getFormattedMessage("globally.update-btn")}
-        </Link>
-      ) : 
-      <Link to={""} className="btn btn-primary  me-3 save-btn"
-      style={{width:"100px"}} onClick={onSubmit}>
-       {getFormattedMessage("globally.save-btn")}
-     </Link>
-      }
-       {to ? (
-        <Link to={to} className="btn btn-outline-primary back-btn">
-          {getFormattedMessage("globally.back-btn")}
-        </Link>
-      ) : null}
+            <Link
+              to={singleProduct ? singleProduct : ""}
+              className="btn btn-primary me-3 save-btn "
+              style={{ width: "100px" }}
+              onClick={onSubmit}
+            >
+              {singleProduct ? getFormattedMessage("globally.update-btn") : getFormattedMessage("globally.save-btn")}
+            </Link>
+            <Link to="/app/products" className="btn btn-outline-primary back-btn">
+              {getFormattedMessage("globally.back-btn")}
+            </Link>
+            </div>
+          </div>
+       
+      
       </div>
       
-        {/* <button className="btn btn-outline-primary back-btn">
-          {getFormattedMessage("globally.back-btn")}
-        </button>
-       */}
-{/*       </div> */}
-</div>
-    <div>
+
+     
+    </div>
       <Form>
         <div className="row">
           <div className="col-xl-8 col-md-8">
@@ -1279,7 +1275,7 @@ const ProductForm = (props) => {
         />
       )}
     </div>
-    </div>
+  
   );
 };
 

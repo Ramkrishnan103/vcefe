@@ -1,15 +1,17 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState,useCallback} from 'react';
+import { Form, Modal } from "react-bootstrap-v5";
 import moment from 'moment';
 import {connect} from 'react-redux';
 import { fetchDailySales } from '../../../store/action/dailySalesAction';
 import { fetchFrontSetting } from '../../../store/action/frontSettingAction';
 import { saleExcelAction } from '../../../store/action/salesExcelAction';
 import { getFormattedMessage, placeholderText } from '../../../shared/sharedMethod';
+import html2canvas from 'html2canvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faFileExcel, faFilePdf, faXmark } from '@fortawesome/free-solid-svg-icons';
 import ReactDataTable from '../../../shared/table/ReactDataTable';
 import { InputGroup } from 'react-bootstrap';
-import ReactSelect from 'react-select';
+import ReactSelect from "../../../shared/select/reactSelect";
 import { address, date } from 'faker/lib/locales/az';
 import { apiBaseURL } from '../../../constants';
 import loader from 'sass-loader';
@@ -36,8 +38,14 @@ const DailySalesTab = (props) => {
     } = props;
     const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
     const [isWarehouseValue, setIsWarehouseValue] = useState(false);
-
+    const pdfRef = useRef(null);
     console.log("dailySales",dailySales)
+    const [fieldValue,setFieldValue]=useState({
+      showPageSize:"",
+      showPageOrientation:""
+    })
+    const [loadingPdf,setLoadingPdf]=useState(false)
+  
     useEffect(() => {
      
       fetchCompanyConfig()
@@ -121,93 +129,58 @@ const DailySalesTab = (props) => {
     dayRange: `${formatDate(fromDate.current?.value)} - ${formatDate(tooDate.current?.value)}`
 
 };
-const generateSalesReportPDF = () => {
+const getCurrentDateTimeInIST = () => {
+  const now = new Date();
+  const offset = 5.5; // IST is UTC+5:30
+  const istDate = new Date(now.getTime() + offset * 3600 * 1000);
+  return istDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+};
+const generatePDF = useCallback((companyDetails,reportDetails,orientation) => {
   const { companyName, address, phoneNumber } = companyDetails;
   const { title, dayRange } = reportDetails;
+  if (!pdfRef.current) {
+    console.error("pdfRef.current is null");
+    return;
+  }
+  const input=pdfRef.current ;
+  html2canvas(input, { scale: 2 }).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
 
-  const doc = new jsPDF();
-  let pageNumber = 1;
+    const isLandscape = orientation === 'Landscape';
+    const pdf = new jsPDF({ orientation:isLandscape? 'landscape' :'portrait', unit: 'mm',  format: isLandscape ? [297, 210] : [210, 297] });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  const addHeader = () => {
-      doc.setFontSize(18);
-      doc.text(companyName, 105, 20, null, null, 'center');
-      doc.setFontSize(12);
-      doc.text(address, 105, 28, null, null, 'center');
-      doc.setFontSize(10);
-      doc.text(phoneNumber, 105, 35, null, null, 'center');
-      doc.setLineWidth(0.2);
-      doc.line(10, 40, 200, 40);
-  };
+    pdf.setFontSize(14);
+    pdf.text(companyName, pdfWidth / 2, 10, { align: "center" });
+    pdf.setFontSize(12);
+    pdf.text(address, pdfWidth / 2, 20, { align: 'center' });
+    pdf.text(`Phone: ${phoneNumber}`, pdfWidth / 2, 30, { align: 'center' });
+    pdf.setLineWidth(0.2);
+    pdf.line(10, 42, 200, 40);
 
-  const addFooter = () => {
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.text(`Page ${pageNumber} of ${pageCount}`, 105, 290, null, null, 'center');
-  };
+    pdf.setFontSize(12);
+    pdf.text(title, 10, 50);
+    pdf.text(dayRange, 10, 60);
 
-  addHeader();
-  doc.setFontSize(14);
-  doc.text(`${title} (${dayRange})`, 10, 50);
-
-  doc.autoTable({
-      startY: 60,
-      head: [['Date', 'Inv No', 'Customer Name', ...(paymode.current?.value === '' ? ['Payment Mode'] : []), 'Sales Value']],
-      body: itemsValue.map(item => [
-          item.Date,
-          item.invNo,
-          item.customerName,
-          ...(paymode.current?.value === '' ? [item.paymentMode] : []),
-          item.salesValue
-      ]),
-      foot: [['Total', '', '', '', itemsValue.reduce((acc, curr) => acc + parseFloat(curr.salesValue), 0).toFixed(2)]],
-
-      
-      headStyles: {
-        0: { halign: 'left' },
-        1: { halign: 'left' },
-        2: { halign: 'left' },
-        [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' }
-    },
-      columnStyles: {
-        0: { halign: 'left' },   // Align Date to the left
-        1: { halign: 'left' },   // Align Inv No to the left
-        2: { halign: 'left' },   // Align Supplier Name to the left
-        3: { halign: 'left' },   // Align Payment Mode to the left (if included)
-        [paymode.current?.value === '' ? 4 : 3]: { halign: 'right' }   // Align Purchase Value to the right
-    },
-    footStyles: {
-      0: { halign: 'left' },   // Total
-      1: { halign: 'left' },   // Empty
-      2: { halign: 'left' },   // Empty
-      [paymode.current?.value === '' ? 3 : 4]: { halign: 'right' } // Total Value
-  },
-      didDrawPage: () => {
-          addFooter();
-          pageNumber++;
-      },
-      margin: { top: 50 },
-      pageBreak: 'auto'
-  });
-
-  const now = new Date();
-  const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Kolkata' };
-  const optionsTime = { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit', 
-      hour12: true, 
-      timeZone: 'Asia/Kolkata' 
-  };
+    pdf.addImage(imgData, 'PNG', 10, 70, imgWidth, imgHeight);
   
-  const dateString = now.toLocaleDateString('en-GB', optionsDate).replace(/\//g, '-');
-  const timeString = now.toLocaleTimeString('en-GB', optionsTime).replace(/:/g, '-');
-  const filename = `Daily_Sales_${dateString}_${timeString}.pdf`;
+  const addFooter = () => {
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, 290, { align: 'center' });
+    }
+  };
 
-  doc.save(filename);
-};
-const exportToPDF = () => {
-  generateSalesReportPDF(companyDetails, reportDetails, itemsValue)
- };
+  addFooter();
+  pdf.save(`Daily_Sales_${getCurrentDateTimeInIST()}.pdf`);
+    })
+},[])
+
  const printTable = () => {
   
   const printWindow=window.open('','','height=600,width=800');
@@ -296,8 +269,43 @@ const exportToExcel=()=>{
     const onExcelClick = () => {
         setIsWarehouseValue(true);
     };
+    const exportToPDF = () => {
+
+      generatePDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
+    };
+    const showPageSize=[
+      {value:"",label:""},
+      {value:"24mm",label:"24mm"},
+      {value:"27mm",label:"27mm"},
+      
+    ]
+    const showPageOrientation=[
+      {value:"",label:""},
+      {value:"Portrait",label:"Portrait"},
+      {value:"Landscape",label:"Landscape"},
+      
+    ]
+    const closeButtonClick = () => {
+      setLoadingPdf(false)
+    };
+    const handleFieldChange = (field) => (selectedOption) => {
+      setFieldValue((prevValues) => ({
+        ...prevValues,
+        [field]: selectedOption ? selectedOption.value : ""
+      }));
+    };
+    
+    
+    const handleClick=()=>{
+    setLoadingPdf(true)
+    
+    }
+    const handleFieldCancel=()=>{
+      setLoadingPdf(false)
+    }
 
     return (
+      <>
         <div className='warehouse_sale_report_table'>
  
              <div className='row'>
@@ -354,7 +362,8 @@ const exportToExcel=()=>{
               icon={faFilePdf}
               className="fa-2x search-icon"
               style={{ color: "red", paddingLeft: "10px" }}
-              onClick={exportToPDF}
+              onClick={handleClick}
+             
             ></FontAwesomeIcon>
 
           </button>
@@ -408,7 +417,7 @@ const exportToExcel=()=>{
 <div className="col-md-12">
        {itemsValue.length>0 && 
 
-<div className="fixTableHead">
+<div className="fixTableHead" ref={pdfRef}>
 <table className='table-container'>
   <thead>
     <tr >
@@ -461,8 +470,72 @@ const exportToExcel=()=>{
 }
 </div>
 </div> 
-
-                        
+<Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+  <Form>
+    <Modal.Header>
+      <Modal.Title>Print</Modal.Title>
+      <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
+              onClick={closeButtonClick}>
+        <FontAwesomeIcon
+          icon={faXmark}
+          className="fa-2x search-icon"
+          style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
+        />
+      </button>
+    </Modal.Header>
+    <Modal.Body>
+      <div className="row">
+        <div className="col-md-12 mb-3">
+          <p>We'll create a printer-friendly PDF version of your report.</p>
+        </div>
+        <div className="col-md-12 mb-3">
+          
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageSize.name")}
+            data={showPageSize}
+            value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
+            onChange={handleFieldChange('showPageSize')}
+          />
+        </div>
+        <div className="col-md-12 mb-3">
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageOrientation.name")}
+            data={showPageOrientation}
+            value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
+            onChange={handleFieldChange('showPageOrientation')}
+          />
+        </div>
+      </div>
+    </Modal.Body>
+    <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "red",
+        color: "white"
+      }}
+        onClick={exportToPDF}>
+        Print
+      </button>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "green",
+        color: "white"
+      }}
+        onClick={handleFieldCancel}>
+        Cancel
+      </button>
+    </div>
+  </Form>
+</Modal>
+</>                    
       
     )
 };

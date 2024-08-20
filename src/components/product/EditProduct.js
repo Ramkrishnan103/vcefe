@@ -78,16 +78,17 @@ const EditProduct = (props) => {
   return (
     <MasterLayout>
       <TopProgressBar />
-      <HeaderTitle
-        title={getFormattedMessage("product.edit.title")}
+      {/* <HeaderTitle
         to="/app/products"
-      />
+      /> */}
       {itemsValue.length >= 1 && (
         <ProductForm
           singleProduct={itemsValue}
           productUnit={getProductUnit}
           productGroups={base}
           id={id}
+        title={getFormattedMessage("product.edit.title")}
+
         />
       )}
     </MasterLayout>

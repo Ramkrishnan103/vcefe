@@ -1,11 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState,useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint, faFileExcel, faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faFileExcel, faFilePdf ,faXmark} from '@fortawesome/free-solid-svg-icons';
 import ReactSelect from '../../../shared/select/reactSelect';
 import { InputGroup } from 'react-bootstrap';
 import { ReactTabulator } from 'react-tabulator';
 import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
 import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
+import { Form, Modal } from "react-bootstrap-v5";
+import { getFormattedMessage } from "../../../shared/sharedMethod";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { fetchCompanyConfig } from "../../../store/action/companyConfigAction";
@@ -15,13 +17,15 @@ const PayrollDetailed = (props) => {
   const { companyConfig, fetchCompanyConfig } = props;
   const tableRef = useRef(null);
   const paySlipRef = useRef(null);
-  const [orientation, setOrientation] = useState('portrait'); 
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     fetchCompanyConfig();
   }, [fetchCompanyConfig]);
-
+  const [fieldValue,setFieldValue]=useState({
+    showPageSize:"",
+    showPageOrientation:""
+  })
+  const [loadingPdf,setLoadingPdf]=useState(false)
   const companyDetails = {
     companyName: companyConfig?.companyName || 'Company Name',
     address: `${companyConfig?.attributes?.address1 || ''} , ${companyConfig?.attributes?.address2 || ''}`,
@@ -74,28 +78,32 @@ const PayrollDetailed = (props) => {
     return formatter.format(new Date()).replace(/\/|,|:/g, '-');
   };
 
-  const generatePDF = () => {
+  const generatePDF = (companyDetails,orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
     
     const input = paySlipRef.current;
     html2canvas(input, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
       const pdf = new jsPDF({
-        orientation: orientation, // Apply the selected orientation
-        unit: 'mm',
-        format: orientation === 'portrait' ? 'a4' : 'a4l'
+        orientation: isLandscape ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: isLandscape ? [297, 210] : [210, 297]
       });
      
       // Add company details
-      const pdfWidth = orientation === 'portrait' ? 210 : 297;
-      const pdfHeight = orientation === 'portrait' ? 297 : 210;
+     
+      // Add the image content
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       const centerX = pdfWidth / 2;
       pdf.setFontSize(12);
       pdf.text(companyName, centerX, 10, { align: 'center' });
       pdf.setFontSize(10);
       pdf.text(address, centerX, 20, { align: 'center' });
-      pdf.text(`Phone: ${phoneNumber}`, centerX, 30, { align: 'center' });
-
+      pdf.text(`Phone: ${phoneNumber}`,centerX, 30, { align: 'center' });
+      pdf.setLineWidth(0.2);
+      pdf.line(10, 42, 200, 40);
       const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       const xOffset = 10;
@@ -108,21 +116,40 @@ const PayrollDetailed = (props) => {
       console.error('Error generating canvas:', error);
     });
   };
+  const exportToPDF = () => {
 
-  const handleOrientationChange = (e) => {
-    setOrientation(e.target.value);
+    generatePDF(companyDetails,fieldValue.showPageOrientation )
   };
-
-  const handlePdfButtonClick = () => {
-    setShowDropdown(!showDropdown);
+  const showPageSize=[
+    {value:"",label:""},
+    {value:"24mm",label:"24mm"},
+    {value:"27mm",label:"27mm"},
+    
+  ]
+  const showPageOrientation=[
+    {value:"",label:""},
+    {value:"Portrait",label:"Portrait"},
+    {value:"Landscape",label:"Landscape"},
+    
+  ]
+  const closeButtonClick = () => {
+    setLoadingPdf(false)
   };
-
-  const handleGeneratePdfClick = () => {
-    generatePDF(companyDetails);
-    setShowDropdown(false);
+  const handleFieldChange = (field) => (selectedOption) => {
+    setFieldValue((prevValues) => ({
+      ...prevValues,
+      [field]: selectedOption ? selectedOption.value : ""
+    }));
   };
-
+  const handlePdfClick=()=>{
+    setLoadingPdf(true)
+    
+    }
+    const handleFieldCancel=()=>{
+      setLoadingPdf(false)
+    }
   return (
+    <>
     <div className="warehouse_purchase_report_table">
       <div className="row mb-4">
         <div className="col-md-3">
@@ -152,30 +179,11 @@ const PayrollDetailed = (props) => {
               gap: "13px",
               background: "white"
             }}
-            onClick={handlePdfButtonClick}
           >
             <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} />
             <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
-            <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} />
+            <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={handlePdfClick} />
           </button>
-          {showDropdown && (
-            <>
-              <select
-                value={orientation}
-                onChange={handleOrientationChange}
-                style={{ marginLeft: '10px', marginTop: '10px' }}
-              >
-                <option value="portrait">Portrait</option>
-                <option value="landscape">Landscape</option>
-              </select>
-              <button 
-                onClick={handleGeneratePdfClick} 
-                style={{ marginLeft: '10px' }}
-              >
-                Generate PDF
-              </button>
-            </>
-          )}
         </div>
       </div>
 
@@ -209,6 +217,73 @@ const PayrollDetailed = (props) => {
         />
       </div>
     </div>
+
+    <Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+  <Form>
+    <Modal.Header>
+      <Modal.Title>Print</Modal.Title>
+      <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
+              onClick={closeButtonClick}>
+        <FontAwesomeIcon
+          icon={faXmark}
+          className="fa-2x search-icon"
+          style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
+        />
+      </button>
+    </Modal.Header>
+    <Modal.Body>
+      <div className="row">
+        <div className="col-md-12 mb-3">
+          <p>We'll create a printer-friendly PDF version of your report.</p>
+        </div>
+        <div className="col-md-12 mb-3">
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageSize.name")}
+            data={showPageSize}
+            value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
+            onChange={handleFieldChange('showPageSize')}
+          />
+        </div>
+        <div className="col-md-12 mb-3">
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageOrientation.name")}
+            data={showPageOrientation}
+            value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
+            onChange={handleFieldChange('showPageOrientation')}
+          />
+        </div>
+      </div>
+    </Modal.Body>
+    <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "red",
+        color: "white"
+      }}
+        onClick={exportToPDF}>
+        Print
+      </button>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "green",
+        color: "white"
+      }}
+        onClick={handleFieldCancel}>
+        Cancel
+      </button>
+    </div>
+  </Form>
+</Modal>
+
+    </>
   );
 };
 

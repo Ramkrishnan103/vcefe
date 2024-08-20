@@ -1083,11 +1083,13 @@
   "password.incorrect.error":"Password doesnot match",
   "email.input.invalidate.label":"Invalid email ID",
  "react-data-table.no-record":"No records found",
-
- "payroll.title":"Payroll Reports",
+"payroll.title":"Payroll Reports",
  "payrollSummary.title":"Payroll Summary",
  "payrollDetail.title":"Payroll Detailed",
- "employeeSummary.title":"Employee Summary"
+ "employeeSummary.title":"Employee Summary",
+
+ "globally.input.pageSize.name":"Page Size",
+ "globally.input.pageOrientation.name":"Page Orientation"
 
   
 

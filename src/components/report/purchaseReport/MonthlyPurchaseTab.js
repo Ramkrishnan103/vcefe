@@ -2,79 +2,85 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import { Form, Modal } from "react-bootstrap-v5";
+import {
+  getFormattedMessage,
+  placeholderText,
+} from "../../../shared/sharedMethod";
 import { connect } from 'react-redux';
 import { fetchMonthPurchase, fetchMonthPurchaseparam } from '../../../store/action/monthlyPurchaseAction';
 import { fetchFrontSetting } from '../../../store/action/frontSettingAction';
-import { fetchAcYear } from "../../../store/action/acYearAction";
-import { fetchCompanyConfig } from "../../../store/action/companyConfigAction";
+import { fetchAcYear } from '../../../store/action/acYearAction';
+import { fetchCompanyConfig } from '../../../store/action/companyConfigAction';
 import { InputGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass,faXmark } from '@fortawesome/free-solid-svg-icons';
 import ReactSelect from '../../../shared/select/reactSelect';
 import { useNavigate } from "react-router";
-import { placeholderText, getCurrentDateTimeInIST } from '../../../shared/sharedMethod';
-import { filter, stubString } from "lodash";
 
-const MonthlyPurchaseTab = (props) => {
-  const {
-    acYear,
-    isLoading,
-    totalRecord,
-    fetchMonthPurchase,
-    fetchMonthPurchaseparam,
-    monthlyPurchase,
-    frontSetting,
-    fetchFrontSetting,
-    warehouseValue,
-    allConfigData,
-    fetchAcYear,
-    companyConfig,
-    fetchCompanyConfig
-  } = props;
-  
+import { filter } from "lodash";
+
+const MonthlyPurchaseTab = ({
+  acYear,
+  isLoading,
+  totalRecord,
+  fetchMonthPurchase,
+  fetchMonthPurchaseparam,
+  monthlyPurchase,
+  frontSetting,
+  fetchFrontSetting,
+  warehouseValue,
+  allConfigData,
+  fetchAcYear,
+  companyConfig,
+  fetchCompanyConfig
+}) => {
   const navigate = useNavigate();
   const searchRef = useRef();
   const pdfRef = useRef(null);
+  const [fieldValue,setFieldValue]=useState({
+    showPageSize:"",
+    showPageOrientation:""
+  })
+  const [loadingPdf,setLoadingPdf]=useState(false)
 
   const [isClearDropdown, setIsClearDropdown] = useState(true);
   const [isDropdown, setIsDropdown] = useState(true);
-  const [errors, setErrors] = useState();
+  const [errors, setErrors] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
   const [itemsRecord, setItemsRecord] = useState(false);
-  
   const [selectedYearRange, setSelectedYearRange] = useState({
     value: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
     label: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
   });
-
   const [acYears, setAcYears] = useState({
     acFrom: 0,
     acTo: 0,
     acYear: "",
   });
-  const itemsValue =
-  monthlyPurchase?.length >= 0 &&
-  monthlyPurchase.map((monthPurchase) => {
-    return {
 
-      monthYear: monthPurchase.monthYear,
-
-      purchaseValue: monthPurchase.attributes.purchaseValue,
-    };
-  });
+  const itemsValue = monthlyPurchase?.length > 0 ? monthlyPurchase.map((monthPurchase) => ({
+    monthYear: monthPurchase.monthYear,
+    purchaseValue: monthPurchase.attributes.purchaseValue,
+  })) : [];
 
   const companyDetails = {
-    companyName: companyConfig?.companyName,
-    address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
-    phoneNumber: companyConfig?.attributes?.phoneNo
-  };
+    companyName: companyConfig?.companyName || '',
+    address: `${companyConfig?.attributes?.address1 || ''}, ${companyConfig?.attributes?.address2 || ''}`,
+    phoneNumber: companyConfig?.attributes?.phoneNo || ''
+  }; 
 
   const reportDetails = {
     title: "Monthly Purchase Report",
     yearRange: selectedYearRange.label
   };
-
+  const getCurrentDateTimeInIST = () => {
+    const now = new Date();
+    const offset = 5.5; // IST is UTC+5:30
+    const istDate = new Date(now.getTime() + offset * 3600 * 1000);
+    return istDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+  };
 
   useEffect(() => {
     fetchFrontSetting();
@@ -88,12 +94,10 @@ const MonthlyPurchaseTab = (props) => {
     }
   }, []);
 
-  const handleSearchChange = useCallback((e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    filterItems(query);
-  }, []);
-
+  useEffect(() => {
+    const values = `?fromDate='${selectedYearRange.label.substr(0, 4)}-04-01'&toDate='${selectedYearRange.label.substr(5, 9)}-03-31'`;
+    fetchMonthPurchaseparam(values, filter, true);
+  }, [fetchMonthPurchaseparam, selectedYearRange]);
   const filterItems = useCallback((query) => {
     if (query === '') {
       setFilteredItems(itemsValue);
@@ -106,11 +110,13 @@ const MonthlyPurchaseTab = (props) => {
       setItemsRecord(true);
     }
   }, [itemsValue]);
+  const handleSearchChange = useCallback((e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    filterItems(query);
+  }, [filterItems]);
 
-  useEffect(() => {
-    const values = `?fromDate='${selectedYearRange.label.substr(0, 4)}-04-01'&toDate='${selectedYearRange.label.substr(5, 9)}-03-31'`;
-    fetchMonthPurchaseparam(values, filter, true);
-  }, [fetchMonthPurchaseparam, selectedYearRange]);
+  
 
   const loadValues = (obj) => {
     const newValues = { value: obj?.value ?? 0, label: obj?.label };
@@ -125,57 +131,54 @@ const MonthlyPurchaseTab = (props) => {
   const totalPurchaseValue = (items) => {
     return items.reduce((total, item) => total + parseFloat(item.purchaseValue || 0), 0).toFixed(2);
   };
-  
 
-  
-  const generatePDF = useCallback((companyDetails, reportDetails, itemsValue) => {
+  const generatePDF = useCallback((companyDetails, reportDetails,orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
     const { title, yearRange } = reportDetails;
-    const input = paySlipRef.current;
+    if (!pdfRef.current) {
+      console.error("pdfRef.current is null");
+      return;
+    }
+    const input = pdfRef.current;
+
     html2canvas(input, { scale: 2 }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const centerX = pdfWidth / 2;
-      
-      pdf.setFontSize(14);
-      pdf.text(companyName, centerX, 10, { align: "center" });
-      pdf.setFontSize(12);
-      pdf.text(address, centerX, 20, { align: 'center' });
-      pdf.text(`Phone: ${phoneNumber}`, centerX, 30, { align: 'center' });
-      pdf.setLineWidth(0.2);
-      pdf.line(10, 42, 200, 40);
-      
-      pdf.setFontSize(12);
-      pdf.text(title, 10);
-      pdf.text(yearRange, 10);
-      
+      const isLandscape = orientation === 'Landscape';
+      const pdf = new jsPDF({  orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: isLandscape ? [297, 210] : [210, 297] });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 10, 40, imgWidth, imgHeight);
-      itemsValue
+
+      pdf.setFontSize(14);
+      pdf.text(companyName, pdfWidth / 2, 10, { align: "center" });
+      pdf.setFontSize(12);
+      pdf.text(address, pdfWidth / 2, 20, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, pdfWidth / 2, 30, { align: 'center' });
+      pdf.setLineWidth(0.2);
+      pdf.line(10, 42, 200, 40);
+
+      pdf.setFontSize(12);
+      pdf.text(title, 10, 50);
+      pdf.text(yearRange, 10, 60);
+
+      pdf.addImage(imgData, 'PNG', 10, 70, imgWidth, imgHeight);
+
       const addFooter = () => {
         const pageCount = pdf.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           pdf.setPage(i);
           pdf.setFontSize(10);
-          pdf.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+          pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, 290, { align: 'center' });
         }
       };
-      
+
       addFooter();
       pdf.save(`Monthly_Purchase_${getCurrentDateTimeInIST()}.pdf`);
     });
   }, []);
-  const getCurrentDateTimeInIST = () => {
-    const now = new Date();
-    const offset = 5.5; // IST offset is UTC+5:30
-    const istDate = new Date(now.getTime() + (offset * 60 + now.getTimezoneOffset()) * 60000);
-    const formattedDate = istDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
-    return formattedDate;
-  };
-  
 
   const generatePurchaseReportExcel = useCallback((companyDetails, reportDetails, itemsValue) => {
     const { companyName, address, phoneNumber } = companyDetails;
@@ -209,8 +212,41 @@ const MonthlyPurchaseTab = (props) => {
     XLSX.writeFile(workbook, 'MonthlyPurchases.xlsx');
   }, []);
 
-  const exportToPDF = ()=>generatePDF(companyDetails, reportDetails, itemsValue)
+  const exportToPDF = () => {
+
+    generatePDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
+  };
+  const showPageSize=[
+    {value:"",label:""},
+    {value:"24mm",label:"24mm"},
+    {value:"27mm",label:"27mm"},
+    
+  ]
+  const showPageOrientation=[
+    {value:"",label:""},
+    {value:"Portrait",label:"Portrait"},
+    {value:"Landscape",label:"Landscape"},
+    
+  ]
+  const closeButtonClick = () => {
+    setLoadingPdf(false)
+  };
+  const handleFieldChange = (field) => (selectedOption) => {
+    setFieldValue((prevValues) => ({
+      ...prevValues,
+      [field]: selectedOption ? selectedOption.value : ""
+    }));
+  };
   
+  
+  const handleClick=()=>{
+  setLoadingPdf(true)
+  
+  }
+  const handleFieldCancel=()=>{
+    setLoadingPdf(false)
+  }
+
   const exportToExcel = () => generatePurchaseReportExcel(companyDetails, reportDetails, itemsValue);
 
   const printTable = () => {
@@ -254,6 +290,7 @@ const MonthlyPurchaseTab = (props) => {
   const paySlipClick = () => navigate('/app/paySlip');
 
   return (
+    <>
     <div className="warehouse_purchase_report_table">
       <div className="row">
         <div className="col-md-3">
@@ -315,7 +352,7 @@ const MonthlyPurchaseTab = (props) => {
               icon={faFilePdf}
               className="fa-2x search-icon"
               style={{ color: "red", paddingLeft: "10px" }}
-              onClick={exportToPDF}
+              onClick={handleClick}
             />
             <button
               className="btn btn-success me-3 d-flex"
@@ -330,7 +367,7 @@ const MonthlyPurchaseTab = (props) => {
       <div className="row">
         <div className="col-md-12">
           {itemsValue.length > 0 && (
-            <div className="fixTableHead"  >
+            <div className="fixTableHead" ref={pdfRef}>
               <table className='table-container'>
                 <thead>
                   <tr>
@@ -362,6 +399,71 @@ const MonthlyPurchaseTab = (props) => {
         </div>
       </div>
     </div>
+    <Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+  <Form>
+    <Modal.Header>
+      <Modal.Title>Print</Modal.Title>
+      <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
+              onClick={closeButtonClick}>
+        <FontAwesomeIcon
+          icon={faXmark}
+          className="fa-2x search-icon"
+          style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
+        />
+      </button>
+    </Modal.Header>
+    <Modal.Body>
+      <div className="row">
+        <div className="col-md-12 mb-3">
+          <p>We'll create a printer-friendly PDF version of your report.</p>
+        </div>
+        <div className="col-md-12 mb-3">
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageSize.name")}
+            data={showPageSize}
+            value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
+            onChange={handleFieldChange('showPageSize')}
+          />
+        </div>
+        <div className="col-md-12 mb-3">
+          <ReactSelect
+            className="position-relative"
+            title={getFormattedMessage("globally.input.pageOrientation.name")}
+            data={showPageOrientation}
+            value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
+            onChange={handleFieldChange('showPageOrientation')}
+          />
+        </div>
+      </div>
+    </Modal.Body>
+    <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "red",
+        color: "white"
+      }}
+        onClick={exportToPDF}>
+        Print
+      </button>
+      <button style={{
+        width: "100px",
+        height: "30px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "green",
+        color: "white"
+      }}
+        onClick={handleFieldCancel}>
+        Cancel
+      </button>
+    </div>
+  </Form>
+</Modal>
+    </>
   );
 };
 

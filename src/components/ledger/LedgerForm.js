@@ -204,28 +204,28 @@ const LedgerForm = (props) => {
     <div className="text-end mt-4 mt-md-0">
      
 
-      {singleLedger ? (
-        <Link to={singleLedger} className="btn btn-primary me-3  save-btn"
-         style={{width:"100px"}} onClick={onSubmit}>
-          {getFormattedMessage("globally.update-btn")}
-        </Link>
-      ) : 
-      <Link to={""} className="btn btn-primary  me-3 save-btn"
-      style={{width:"100px"}} onClick={onSubmit}>
-       {getFormattedMessage("globally.save-btn")}
-     </Link>
-      }
-       {to ? (
-        <Link to={to} className="btn btn-outline-primary back-btn">
-          {getFormattedMessage("globally.back-btn")}
-        </Link>
-      ) : null}
+
+    <div className="row ">
+      <div className="col d-flex"> 
+
+            <Link
+              to={singleLedger ? singleLedger : ""}
+              className="btn btn-primary me-3 save-btn "
+              style={{ width: "100px" }}
+              onClick={onSubmit}
+            >
+              {singleLedger ? getFormattedMessage("globally.update-btn") : getFormattedMessage("globally.save-btn")}
+            </Link>
+            <Link to="/app/ledger" className="btn btn-outline-primary back-btn">
+              {getFormattedMessage("globally.back-btn")}
+            </Link>
+            </div>
+          </div>
+       
+      
       </div>
       
-        {/* <button className="btn btn-outline-primary back-btn">
-          {getFormattedMessage("globally.back-btn")}
-        </button>
-       */}
+       
 {/*       </div> */}
 </div>
 

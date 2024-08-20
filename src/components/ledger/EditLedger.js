@@ -51,8 +51,8 @@ console.log("itemsValue => " , itemsValue)
     return(
         <MasterLayout>
             <TopProgressBar/>
-            <HeaderTitle title={getFormattedMessage( 'ledgers.edit.title' )}  to='/app/ledger' />
-            {ledger.length === 1 && <LedgerForm singleLedger={itemsValue} id={id} />}
+            {/* <HeaderTitle title={getFormattedMessage( 'ledgers.edit.title' )}  to='/app/ledger' /> */}
+            {ledger.length === 1 && <LedgerForm singleLedger={itemsValue} id={id}  title={getFormattedMessage( 'ledgers.edit.title' )} />}
         </MasterLayout>
     )
 }
