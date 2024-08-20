@@ -125,6 +125,8 @@ import EmployeeSummary from "./components/report/payroll/EmployeeSummary";
 import PosCustomer from "./components/PosCustomer/PosCustomer";
 import CreatePosCustomer from './components/PosCustomer/CreatePosCustomer'
 import EditPosCustomer from './components/PosCustomer/EditPosCustomer'
+import PosPurchseListing from "./components/posPurchase/PosPurchaseListing";
+import PosSalesListing from "./components/posSales/PosSalesListing";
 // MARK TO RAM [19-08-2024]
 
 export const route = [
@@ -714,8 +716,6 @@ export const route = [
       ele: <EmployeeSummary />,
       permission: Permissions.MANAGE_REPORTS,
     },
-
-    // MARK FROM RAM [19-08-2024]
     {
       path: "posCustomer",
       ele: <PosCustomer/>,
@@ -731,6 +731,17 @@ export const route = [
       ele: <EditPosCustomer/>,
       permission: Permissions.MANAGE_CUSTOMERS,
     },
-    //MARK TO RAM [19-08-2024]
+
+    // MARK FROM RAM [20-08-2024]
+    {
+      path: "Purchase",
+      ele: <PosPurchseListing/>,
+      permission: Permissions.MANAGE_PRODUCTS,
+    },
+    {
+      path: "SalesListing",
+      ele: <PosSalesListing/>,
+      permission: Permissions.MANAGE_PRODUCTS,
+    },
   
 ];

@@ -97,30 +97,20 @@ export const addBrand = (brands,handleClose) => async (dispatch) => {
     .then((response) => {
       dispatch({
         type: brandsActionType.ADD_BRANDS,
-        payload: response.data.data,
+        payload: response?.data?.data,
       });
-      if (response?.data?.data == null) {
+debugger
+      if (response?.data?.success == true) {
         dispatch(
-          addToast({
-            text: getFormattedMessage(response?.data?.message),
-            type: toastType.ERROR,
-          })
-        );
-        // dispatch({
-        //   type: brandFormActionType.FORM_CLOSE,
-        //   payload: false,
-        // });
-      } else {
-        dispatch(
-          addToast({
-            text: getFormattedMessage("brand.success.create.message"),
-          })
+          addToast({ text: response?.data?.message, type: toastType.SUCCESS })
         );
         handleClose(false)
-        // dispatch({
-        //   type: brandFormActionType.FORM_CLOSE,
-        //   payload: false,
-        // });
+        dispatch(fetchBrands());
+      
+      } else {
+        dispatch(
+          addToast({ text: response?.data?.message, type: toastType.ERROR })
+        );
       }
       dispatch(addInToTotalRecord(1));
     })

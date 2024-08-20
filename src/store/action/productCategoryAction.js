@@ -98,20 +98,7 @@ export const addProductCategory = (products,handleClose) => async (dispatch) => 
         handleClose(false)
         dispatch(fetchProductCategories());
       }
-      // else {
-      //   dispatch({
-      //     type: productCategoriesActionType.ADD_PRODUCT_CATEGORIES,
-      //     payload: response.data.data,
-      //   });
-      //   dispatch(
-      //     addToast({
-      //       text: getFormattedMessage(
-      //         "product-category.success.create.message"
-      //       ),
-      //     })
-      //   );
-      //   dispatch(addInToTotalRecord(1));
-      // }
+     
       else {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.ERROR })

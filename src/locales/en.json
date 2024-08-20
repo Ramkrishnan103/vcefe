@@ -1116,7 +1116,17 @@
   "Data.success.create.message":"Data Saved successfully.!",
   "Data.success.update.message" :"Data Updated Successfully.!",
   "Data.success.delete.message":"Data Delete Successfully.!",
-  "globally.input.taxPercentageerr.label":"Enter Tax Percentage"
+  "globally.input.taxPercentageerr.label":"Enter Tax Percentage",
+
+
+  "Purchase.create.title":"Create Purchase",
+  "globally.input.billAmount.label":"Bill Amount",
+  "globally.input.paymentType.label":"Pay Mode",
+  "globally.input.supplierMobile.label":"Mobile No",
+  "entryNo.title":"Entry No",
+  "inv.No.title":"Inv.No",
+  "react-data-table.searchbarInv.placeholder" :"Search Invoices",
+  "Sales.create.title":"Create Sales"
 
 
 }

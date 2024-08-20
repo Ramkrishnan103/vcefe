@@ -131,6 +131,7 @@ const BrandsFrom = (props) => {
         // }
       }
     } else {
+      debugger
       if (valid) {
         setFormValue(formValue);
         addBrandData(prepareFormData(formValue),handleClose);
@@ -139,7 +140,7 @@ const BrandsFrom = (props) => {
         // }
       }
     }
-    setSelectImg(null);
+     setSelectImg(null);
   };
 
   const clearField = () => {
@@ -150,7 +151,7 @@ const BrandsFrom = (props) => {
     });
     setImagePreviewUrl(user);
     setErrors("");
-   // handleClose ? handleClose(false) : hide(false);
+   handleClose ? handleClose(false) : hide(false);
   };
 
   return (

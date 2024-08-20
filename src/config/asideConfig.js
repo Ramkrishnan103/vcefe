@@ -314,22 +314,45 @@ export default [
         ],
     },
 
-// Mark From Ram [06-08-2024]
 
 
 
-    // {
-    //     title: "inventory.title",
-    //     name: "masterdata",
-    //     fontIcon: <FontAwesomeIcon icon={faReceipt} />,
-    //     to: "/app/products",
-    //     class: "d-flex",
-    //     is_submenu: "true",
-    //     permission: Permissions.MANAGE_PRODUCTS,
-    //     subPath: {
-    //         purchaseSubPath: "/app/purchases",
-    //         posSubpath: "/app/pos",
-    //     },
+// Mark From Ram [20-08-2024]
+
+{
+        title: "inventory.title",
+        name: "masterdata",
+        fontIcon: <FontAwesomeIcon icon={faReceipt} />,
+        to: "/app/products",
+        class: "d-flex",
+        is_submenu: "true",
+        permission: Permissions.MANAGE_PRODUCTS,
+        subPath: {
+            purchaseSubPath: "/app/purchases",
+            posSubpath: "/app/pos",
+        },
+        subMenu: [
+                    {
+                        title: "Purchase (POS)",
+                        to: "/app/Purchase",
+                        name: "purchase",
+                        class: "d-flex",
+                        fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
+                        permission: Permissions.MANAGE_PRODUCTS,
+                    },
+                    {
+                        title: "Sales (POS)",
+                        to: "/app/SalesListing",
+                        name: "Sales",
+                        class: "d-flex",
+                        fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
+                        permission: Permissions.MANAGE_PRODUCTS,
+                    },
+                ]
+    }
+
+// MARK TO RAM [20-08-2024]
+
     //     subMenu: [
     //         {
     //             title: "Sales (POS)",

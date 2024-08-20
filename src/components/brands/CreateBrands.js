@@ -1,18 +1,18 @@
 import React, {useState} from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import {Button} from 'react-bootstrap-v5';
 import {addBrand} from '../../store/action/brandsAction';
 import BrandsFrom from './BrandsFrom';
 import {Filters} from '../../constants';
 import {getFormattedMessage} from '../../shared/sharedMethod';
 
-const CreateBrands = () => {
-    const Dispatch = useDispatch()
+const CreateBrands = (props) => {
+    const {addBrand} = props;
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
 
     const addBrandData = (formValue,handleClose) => {   
-        Dispatch(addBrand(formValue, Filters.OBJ,handleClose));
+        addBrand(formValue,handleClose);
     };
 
     return (
@@ -27,4 +27,4 @@ const CreateBrands = () => {
     )
 };
 
-export default CreateBrands;
+export default connect(null,{addBrand}) (CreateBrands);

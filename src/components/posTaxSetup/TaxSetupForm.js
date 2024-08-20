@@ -66,7 +66,7 @@ const TaxSetupForm = (props) => {
        
       );
     }
-    else if (!taxsetupValue["taxPercentage"].trim()) {
+    else if (!taxsetupValue["taxPercentage"]) {
       errorss["taxPercentage"] = getFormattedMessage(
         "globally.input.taxPercentageerr.label"
        

@@ -180,10 +180,10 @@ console.log("selectedYear",selectedYearRange)
   useEffect(() => {
     let values =
     "?fromDate='" +
-    selectedYearRange.label.substr(0, 4) +
+    selectedYearRange?.label?.substr(0, 4) +
     "-04-01'" +
     "&toDate='" +
-    selectedYearRange.label.substr(5, 9) +
+    selectedYearRange?.label?.substr(5, 9) +
     "-03-31'";
 
   console.log(values);  

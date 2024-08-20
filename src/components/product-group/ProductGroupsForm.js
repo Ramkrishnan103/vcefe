@@ -95,7 +95,7 @@ const ProductGroupsForm = (props) => {
       name: "",
     });
     setErrors("");
-   // handleClose ? handleClose(false) : hide(false);
+   handleClose ? handleClose(false) : hide(false);
   };
 
   return (

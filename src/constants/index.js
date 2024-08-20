@@ -135,8 +135,6 @@ export const apiBaseURL = {
 
 };
 
-
-// MARK FROM RAM [19-08-2024]
 export const posCustomerActionType={
   FETCH_CUSTOMER: "FETCH_CUSTOMER",
   EDIT_CUSTOMER: "EDIT_CUSTOMER",
@@ -144,8 +142,18 @@ export const posCustomerActionType={
   ADD_CUSTOMER: "ADD_CUSTOMER",
   DELETE_CUSTOMER: "DELETE_CUSTOMER"
 }
-//MARK TO RAM [19-08-2024]
 
+// MARK FROM RAM [20-08-2024]
+
+export const posPurchaseListingActionType = {
+  FETCH_PURCHASE_LISTING :"FETCH_PURCHASE_LISTING"
+}
+
+export const posSalesListingActionType = {
+  FETCH_SALES_LISTING :"FETCH_SALES_LISTING"
+}
+
+// MARK TO RAM [20-08-2024]
 
 export const closingStockReportActionType = {
   FETCH_CLOSING_STOCK_REPORT: "FETCH_CLOSING_STOCK_REPORT",
