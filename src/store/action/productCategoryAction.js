@@ -107,7 +107,7 @@ export const addProductCategory = (products,handleClose) => async (dispatch) => 
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };
@@ -124,18 +124,20 @@ export const editProductCategory =
         //     payload: response.data.data,
         // });
       //  handleClose(false);
+      debugger
         if (response?.data?.success == true) {
 
-        dispatch(
-          addToast({
-            text: getFormattedMessage("product-category.success.edit.message"),
-          })
-        );
+          dispatch(
+            addToast({
+              text: response?.data?.message,
+              type: toastType.SUCCESS,
+            })
+          )
         handleClose(false)
       }else{
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -144,7 +146,7 @@ export const editProductCategory =
       .catch(({ response }) => {
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -161,15 +163,16 @@ export const deleteProductCategory = (productId) => async (dispatch) => {
         payload: productId,
       });
       if(response?.data?.success == true){
-      dispatch(
-        addToast({
-          text: getFormattedMessage("product-category.success.delete.message"),
-        })
-      );
+        dispatch(
+          addToast({
+            text: response?.data?.message,
+            type: toastType.SUCCESS,
+          })
+        )
     }else{
       dispatch(
         addToast({
-          text: response.data.message,
+          text: response?.data?.message,
           type: toastType.ERROR,
         })
       );
@@ -178,7 +181,7 @@ export const deleteProductCategory = (productId) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };

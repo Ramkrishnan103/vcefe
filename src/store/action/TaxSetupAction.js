@@ -106,7 +106,7 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
       if(response?.data?.success===true){
         dispatch(
           addToast({
-            text: getFormattedMessage("TaxSetup.success.create.message"),
+            text: response?.data?.message,
           })
         );
         handleClose(false)
@@ -128,7 +128,7 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };
@@ -145,7 +145,7 @@ export const editTaxSetup =
         if(response?.data?.success===true){
           dispatch(
             addToast({
-              text: getFormattedMessage("taxSetup.success.edit.message"),
+              text: response?.data?.message,
             })
           );
           handleClose(false)
@@ -168,7 +168,7 @@ export const editTaxSetup =
       .catch(({ response }) => {
         
         dispatch(
-          addToast({text: response.data.message, type: toastType.ERROR})
+          addToast({text: response?.data?.message, type: toastType.ERROR})
         );
       });
   };
@@ -181,7 +181,7 @@ export const deleteTaxSetup = (taxId) => async (dispatch) => {
       if(response?.data?.success===true){
         dispatch(
           addToast({
-            text: getFormattedMessage("taxSetup.success.delete.message"),
+            text: response?.data?.message,
           })
         );
       }else{
@@ -196,7 +196,7 @@ export const deleteTaxSetup = (taxId) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };

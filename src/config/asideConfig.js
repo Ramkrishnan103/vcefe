@@ -348,6 +348,14 @@ export default [
                         fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
                         permission: Permissions.MANAGE_PRODUCTS,
                     },
+                    // {
+                    //     title: "Sales (POS)",
+                    //     to: "/app/roles",
+                    //     name: "roles",
+                    //     class: "d-flex",
+                    //     fontIcon: <FontAwesomeIcon icon={faCartShopping} />,
+                    //     permission: Permissions.MANAGE_PRODUCTS,
+                    // },
                 ]
     }
 

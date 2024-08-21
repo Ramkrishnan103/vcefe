@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { Image } from "react-bootstrap-v5";
 import * as EmailValidator from "email-validator";
 import { loginAction } from "../../store/action/authAction";
@@ -18,8 +18,13 @@ import VStoreImage from "../../assets/images/vstore.png";
 import Logindes from "../../assets/images/logindes.png";
 import multitaskingconcept from "../../assets/images/multitaskingconcept.png";
 import "../../assets/scss/custom/custom.scss";
+import { fetchCompanyConfig } from "../../store/action/companyConfigAction";
 
-const Login = () => {
+const Login = (props) => {
+  const { fetchCompanyConfig,companyConfig} =props;
+
+  console.log("Company Config :", companyConfig)
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const history = createBrowserHistory();
@@ -169,6 +174,12 @@ const Login = () => {
     alert('hello')
   }
 
+  useEffect(() => {
+    fetchCompanyConfig();
+  },[])
+
+  const companyName = companyConfig?.companyName
+
   return (
     <div className="content d-flex flex-column flex-column-fluid login-bg">
       <div className="d-flex flex-column-fluid">
@@ -221,8 +232,9 @@ const Login = () => {
         <div className="d-flex flex-grow-1 align-items-center justify-content-end login-right" style={{ width: "60%" }}>
           <div className="bg-theme-white rounded-15 width-450 shadow-md px-3 px-sm-4 py-10 mxStyle">
             <h1 className="text-dark text-center mb-7">
-              {getFormattedMessage("login-form.title-company-hindustan")}
+               {companyName ? ("Hello,"+companyName ):'Hello,' }
             </h1>
+
             <form>
               <div className="mb-sm-7 mb-4">
                 <label className="form-label">
@@ -314,4 +326,9 @@ const Login = () => {
   );
 };
 
-export default Login;
+const mapStateToProps =(state) => {
+  const {companyConfig} =state;
+  return {companyConfig}
+}
+
+export default connect(mapStateToProps,{fetchCompanyConfig}) (Login);

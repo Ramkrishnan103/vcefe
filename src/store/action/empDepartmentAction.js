@@ -66,10 +66,7 @@ export const fetchEmpDepartment =
               if(response?.data?.success === true){
                 dispatch(
                     addToast({
-                        text: getFormattedMessage
-                        (
-                            "Data.success.create.message"
-                        ),
+                      text: response?.data?.message,
                     })
                 );
                 handleClose(false)
@@ -158,7 +155,7 @@ export const fetchEmpDepartment =
           if(response?.data?.success===true){
             dispatch(
               addToast({
-                text: getFormattedMessage("Data.success.update.message"),
+                text: response?.data?.message,
               })
             );
            handleClose(false)
@@ -197,7 +194,7 @@ export const fetchEmpDepartment =
             if(response?.data?.success===true){
               dispatch(
                 addToast({
-                  text: getFormattedMessage("Data.success.delete.message"),
+                  text: response?.data?.message,
                 })
               );
             }else{

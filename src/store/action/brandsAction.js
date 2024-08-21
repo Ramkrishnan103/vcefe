@@ -116,7 +116,7 @@ debugger
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };
@@ -136,9 +136,10 @@ export const editBrand =
         if (response?.data?.success == true) {
           dispatch(
             addToast({
-              text: getFormattedMessage("brand.success.edit.message"),
+              text: response?.data?.message,
+              type: toastType.SUCCESS,
             })
-          );
+          )
           handleClose(false)
           dispatch({
             type: brandFormActionType.FORM_CLOSE,
@@ -148,7 +149,7 @@ export const editBrand =
         } else {
           dispatch(
             addToast({
-              text: response.data.message,
+              text: response?.data?.message,
               type: toastType.ERROR,
             })
           ); dispatch({
@@ -161,7 +162,7 @@ export const editBrand =
       .catch(({ response }) => {
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -182,14 +183,15 @@ export const deleteBrand = (brandsId) => async (dispatch) => {
       if (response.data.success == true) {
         dispatch(
           addToast({
-            text: getFormattedMessage("brand.success.delete.message"),
+            text: response?.data?.message,
+            type: toastType.SUCCESS,
           })
-        );
+        )
         dispatch(fetchBrands());
       } else {
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -210,12 +212,12 @@ export const fetchAllBrands = () => async (dispatch) => {
     .then((response) => {
       dispatch({
         type: brandsActionType.FETCH_ALL_BRANDS,
-        payload: response.data.data,
+        payload: response?.data?.data,
       });
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };
@@ -226,7 +228,7 @@ export const brandDropdown = (base_unit_value) => async (dispatch) => {
     .then((response) => {
       dispatch({
         type: brandsActionType.FETCH_BRANDS,
-        payload: response.data.data,
+        payload: response?.data?.data,
       });
     })
     .catch(({ response }) => {

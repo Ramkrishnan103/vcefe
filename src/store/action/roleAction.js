@@ -90,7 +90,7 @@ export const addRole = (roles, navigate) => async (dispatch) => {
         .then((response) => {
             dispatch({
                 type: rolesActionType.ADD_ROLES,
-                payload: response.data.data,
+                payload: response?.data?.data,
             });
             dispatch(
                 addToast({
@@ -102,7 +102,7 @@ export const addRole = (roles, navigate) => async (dispatch) => {
         })
         .catch(({ response }) => {
             dispatch(
-                addToast({ text: response.data.message, type: toastType.ERROR })
+                addToast({ text: response?.data?.message, type: toastType.ERROR })
             );
         });
 };

@@ -126,7 +126,7 @@ export const editProductGroup =
         if (response?.data?.success == true) {
         dispatch(
           addToast({
-            text: getFormattedMessage("product-group.success.edit.message"),
+            text: getFormattedMessage(response?.data?.message),
           })
         );
         handleClose(false)
@@ -163,7 +163,7 @@ export const deleteProductGroup = (unitId) => async (dispatch) => {
       if (response?.data?.success == true) {
       dispatch(
         addToast({
-          text: getFormattedMessage("product-group.success.delete.message"),
+          text: getFormattedMessage(response?.data?.message),
         })
       );
     } else {
