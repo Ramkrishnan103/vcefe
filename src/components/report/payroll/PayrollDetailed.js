@@ -78,60 +78,75 @@ const PayrollDetailed = (props) => {
     return formatter.format(new Date()).replace(/\/|,|:/g, '-');
   };
 
-  const generatePDF = (companyDetails,orientation) => {
+  const generatePDF = (companyDetails, orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
-    
     const input = paySlipRef.current;
+    const isLandscape = orientation === 'Landscape';
+  
     html2canvas(input, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
-      const isLandscape = orientation === 'Landscape';
+  
       const pdf = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: isLandscape ? [297, 210] : [210, 297]
+        unit: 'mm',
+        format: isLandscape ? [297, 210] : [210, 297],
       });
-     
-      // Add company details
-     
-      // Add the image content
+  
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const centerX = pdfWidth / 2;
+  
+      // Define spacing values
+      const topMargin = 20; // Space from the top to the company name
+      const textSpacing = 3; // Reduced spacing between lines of text
+      const lineSpacing = 15; // Space between line and image
+  
+      // Add company details with reduced spacing
       pdf.setFontSize(12);
-      pdf.text(companyName, centerX, 10, { align: 'center' });
+      pdf.text(companyName, centerX, topMargin, { align: 'center' });
       pdf.setFontSize(10);
-      pdf.text(address, centerX, 20, { align: 'center' });
-      pdf.text(`Phone: ${phoneNumber}`,centerX, 30, { align: 'center' });
+      pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+  
+      // Add a horizontal line below the company details
       pdf.setLineWidth(0.2);
-      pdf.line(10, 42, 200, 40);
-      const imgWidth = pdfWidth - 20;
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
+  
+      // Calculate image dimensions and position
+      const imgWidth = pdfWidth - 20; // 10 mm margin on each side
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const xOffset = 10;
-      const yOffset = 40;
+      const xOffset = 10; // Left margin
+      const yOffset = topMargin + 3 * textSpacing + 20; // Adjusted position below the line
+  
+      // Add image content
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
-
+  
+      // Save PDF
       const currentDateTime = getCurrentDateTimeInIST();
       pdf.save(`PayrollDetailed_${currentDateTime}.pdf`);
     }).catch(error => {
       console.error('Error generating canvas:', error);
     });
   };
+  
+  
   const exportToPDF = () => {
 
     generatePDF(companyDetails,fieldValue.showPageOrientation )
   };
-  const showPageSize=[
-    {value:"",label:""},
-    {value:"24mm",label:"24mm"},
-    {value:"27mm",label:"27mm"},
-    
-  ]
-  const showPageOrientation=[
-    {value:"",label:""},
-    {value:"Portrait",label:"Portrait"},
-    {value:"Landscape",label:"Landscape"},
-    
-  ]
+  const showPageOrientation = [
+    { value: "Portrait", label: "Portrait" },
+    { value: "Landscape", label: "Landscape" },
+  ];
+  
+  // Define the options for page size
+  const showPageSize = [
+    { value: "A4", label: "A4" },
+  ];
+  
+  // Find the default value from the options
+  const defaultPageOrientation = showPageOrientation.find(option => option.value === 'Portrait');
+  const defaultPageSize = showPageSize.find(option => option.value === 'A4');
   const closeButtonClick = () => {
     setLoadingPdf(false)
   };
@@ -180,7 +195,7 @@ const PayrollDetailed = (props) => {
               background: "white"
             }}
           >
-            <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} />
+            <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} onClick={handlePdfClick} />
             <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
             <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={handlePdfClick} />
           </button>
@@ -190,7 +205,7 @@ const PayrollDetailed = (props) => {
       <div ref={paySlipRef} className="payroll-container" style={{ width: '100%', overflowX: 'auto', height: "auto", marginTop: '20px', borderRadius: "5px", border: "none" }}>
         <div className="row mt-4 mb-4">
           <div className="col-md-5">
-            <h4>Payroll on April - 2024</h4>
+            <h4>Payroll Detailed Report For The Month Of April - 2024</h4>
           </div>
         </div>
         <ReactTabulator
@@ -218,7 +233,8 @@ const PayrollDetailed = (props) => {
       </div>
     </div>
 
-    <Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+    
+    <Modal className="pdfTable"  show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>
     <Modal.Header>
       <Modal.Title>Print</Modal.Title>
@@ -234,13 +250,14 @@ const PayrollDetailed = (props) => {
     <Modal.Body>
       <div className="row">
         <div className="col-md-12 mb-3">
-          <p>We'll create a printer-friendly PDF version of your report.</p>
+        <p style={{fontSize:"13px"}}>Create a printer-friendly PDF of your report.</p>
         </div>
         <div className="col-md-12 mb-3">
           <ReactSelect
             className="position-relative"
             title={getFormattedMessage("globally.input.pageSize.name")}
             data={showPageSize}
+            defaultValue={defaultPageSize}
             value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
             onChange={handleFieldChange('showPageSize')}
           />
@@ -250,6 +267,7 @@ const PayrollDetailed = (props) => {
             className="position-relative"
             title={getFormattedMessage("globally.input.pageOrientation.name")}
             data={showPageOrientation}
+            defaultValue={defaultPageOrientation}
             value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
             onChange={handleFieldChange('showPageOrientation')}
           />

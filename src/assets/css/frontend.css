@@ -2029,4 +2029,12 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   color:white !important;
 }
 
+/* Mark by Nila 21-8-24 */
+ .pdfTable .modal-content {
+  width:80% !important;
+  height:fit-content !important;
+  max-width: 600px; 
+  margin: auto;
+}
+
 

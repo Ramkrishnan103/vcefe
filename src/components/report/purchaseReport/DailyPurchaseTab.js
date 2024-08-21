@@ -31,7 +31,7 @@ const DailyPurchaseTab = (props) => {
         frontSetting,
         fetchFrontSetting,
         warehouseValue,
-        allConfigData,companyConfig
+        allConfigData,companyConfig,fetchCompanyConfig
     } = props;
     const currencySymbol = frontSetting && frontSetting.value && frontSetting.value.currency_symbol
     const [isWarehouseValue, setIsWarehouseValue] = useState(false);
@@ -128,10 +128,10 @@ const DailyPurchaseTab = (props) => {
     //   };
     
     const companyDetails = {
-      companyName: companyConfig?.companyName,
-      address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
-      phoneNumber: companyConfig?.attributes?.phoneNo
-    };
+      companyName: companyConfig?.companyName || '',
+      address: `${companyConfig?.attributes?.address1 || ''}, ${companyConfig?.attributes?.address2 || ''}`,
+      phoneNumber: companyConfig?.attributes?.phoneNo || ''
+    }; 
     const formatDate = (dateString) => {
       return moment(dateString).format('DD-MM-YYYY');
   };
@@ -142,70 +142,88 @@ const DailyPurchaseTab = (props) => {
   };
 
   
-    const generatePDF =useCallback((companyDetails,reportDetails,orientation) => {
-      const { companyName, address, phoneNumber } = companyDetails;
-      const { title, dayRange } = reportDetails;
-      if (!pdfRef.current) {
+  const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
+    const { companyName, address, phoneNumber } = companyDetails;
+    const { title, dayRange } = reportDetails;
+
+    if (!pdfRef.current) {
         console.error("pdfRef.current is null");
         return;
-      }
-      const input=pdfRef.current ;
-      html2canvas(input, { scale: 2 }).then((canvas) => {
+    }
+
+    const input = pdfRef.current;
+    html2canvas(input, { scale: 2 }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const isLandscape = orientation === 'Landscape';
-        const pdf = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait',
-          unit: 'mm',
-          format: isLandscape ? [297, 210] : [210, 297] });
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pdfWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
-        pdf.setFontSize(14);
-        pdf.text(companyName, pdfWidth / 2, 10, { align: "center" });
+        const pdf = new jsPDF({
+            orientation: isLandscape ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: isLandscape ? [297, 210] : [210, 297]
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const centerX = pdfWidth / 2;
+        const topMargin = 20; // Space from the top to the company name
+        const textSpacing = 3; // Spacing between lines of text
+        const lineSpacing = 15; // Space between line and image
+
+        // Add company details
         pdf.setFontSize(12);
-        pdf.text(address, pdfWidth / 2, 20, { align: 'center' });
-        pdf.text(`Phone: ${phoneNumber}`, pdfWidth / 2, 30, { align: 'center' });
+        pdf.text(companyName, centerX, topMargin, { align: 'center' });
+        pdf.setFontSize(10);
+        pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+        pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
         pdf.setLineWidth(0.2);
-        pdf.line(10, 42, 200, 40);
-  
+        pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
+        // Add report details
         pdf.setFontSize(12);
-        pdf.text(title, 10, 50);
-        pdf.text(dayRange, 10, 60);
+        pdf.text(title, 10, topMargin + 4 * textSpacing + 25); // Adjusted position for title
+        pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30); // Adjusted position for year range
 
-        pdf.addImage(imgData, 'PNG', 10, 70, imgWidth, imgHeight);
-       
-      const addFooter = () => {
-        const pageCount = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          pdf.setPage(i);
-          pdf.setFontSize(10);
-          pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, 290, { align: 'center' });
-        }
-      };
-    
-addFooter();
-    pdf.save(`Daily_Purchase_${getCurrentDateTimeInIST()}.pdf`);
-      })
-  },[]);
+        // Calculate image dimensions and position
+        const imgWidth = pdfWidth - 20; // 10 mm margin on each side
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const xOffset = 10; // Left margin
+        const yOffset = topMargin + 6 * textSpacing + 35; // Adjusted position below the line
 
-   
+        // Add image content
+        pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+        // Add footer to each page
+        const addFooter = () => {
+            const pageCount = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(10);
+                pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+            }
+        };
+        addFooter();
+        pdf.save(`Daily_Purchase_${getCurrentDateTimeInIST()}.pdf`);
+    }).catch(error => {
+        console.error('Error generating canvas:', error);
+    });
+}, []);
   const exportToPDF = () => {
 
     generatePDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
   };
-  const showPageSize=[
-    {value:"",label:""},
-    {value:"24mm",label:"24mm"},
-    {value:"27mm",label:"27mm"},
-    
-  ]
-  const showPageOrientation=[
-    {value:"",label:""},
-    {value:"Portrait",label:"Portrait"},
-    {value:"Landscape",label:"Landscape"},
-    
-  ]
+   const showPageOrientation = [
+    { value: "Portrait", label: "Portrait" },
+    { value: "Landscape", label: "Landscape" },
+  ];
+  
+  // Define the options for page size
+  const showPageSize = [
+    { value: "A4", label: "A4" },
+  ];
+  
+  // Find the default value from the options
+  const defaultPageOrientation = showPageOrientation.find(option => option.value === 'Portrait');
+  const defaultPageSize = showPageSize.find(option => option.value === 'A4');
+  
   const closeButtonClick = () => {
     setLoadingPdf(false)
   };
@@ -224,49 +242,7 @@ addFooter();
   const handleFieldCancel=()=>{
     setLoadingPdf(false)
   }
-   const printTable = () => {
-    // Create a new window or tab
-    const printWindow = window.open('', '', 'height=600,width=800');
-    printWindow.document.write('<div className="company-info">');
-   printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
-   printWindow.document.write(`<p>${companyDetails.address}</p>`);
-   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
-   printWindow.document.write('</div>');
-   printWindow.document.write('<hr>');
   
-   // Add report details
-   printWindow.document.write('<div className="report-info">');
-   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
-   printWindow.document.write(`<p>${reportDetails.dayRange}</p>`);
-   printWindow.document.write('</div>');
-
-  
-    // Get the content you want to print
-    const tableContent = document.querySelector('.table-container').outerHTML;
-  
-    // Write the content to the new window
-    printWindow.document.write('<html><head><title>Print</title>');
-    printWindow.document.write('<style>');
-    printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
-    printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
-    printWindow.document.write('th { background-color: #f2f2f2; }');
-    printWindow.document.write('.purchase-value { text-align: right; }');
-    printWindow.document.write('@media print { .no-print { display: none; } }');
-    printWindow.document.write('</style>');
-    printWindow.document.write('</head><body >');
-    printWindow.document.write('<h1>Daily Purchase Report</h1>'); // Add headers or other content here
-    printWindow.document.write(tableContent);
-    printWindow.document.write('</body></html>');
-  
-    // Close the document to trigger the print dialog
-    printWindow.document.close();
-    printWindow.focus(); // Ensure the new window is in focus
-  
-    // Trigger the print dialog
-    printWindow.onload = () => {
-      printWindow.print();
-  };
-};
 
 const XLSX = require('xlsx');
 const fs = require('fs');
@@ -301,6 +277,71 @@ const generatePurchaseReportExcel = () => {
 const exportToExcel=()=>{
 generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
 }
+const handlePrint = () => {
+  if (!pdfRef.current) return;
+
+  // Prepare the HTML content to be printed
+  const companyDetailsHtml = `
+    <div style="margin-bottom: 20px;">
+      <h3>${companyDetails.companyName}</h3>
+      <h3>${companyDetails.phoneNumber}</h3>
+      <h3>${companyDetails.address}</h3>
+     <hr/>
+
+    </div>
+  `;
+
+  const reportDetailsHtml = `
+    <div style="margin-bottom: 20px;">
+      <p>${reportDetails.title}</p>
+      <p>${reportDetails.dayRange}</p>
+    </div>
+  `;
+
+  const contentHtml = `
+    <html>
+      <head><title>Print</title></head>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 100%; margin: 0 auto; padding: 20px; }
+        .company-details, .report-details { text-align: center; margin-bottom: 20px; }
+        h3, h4 { color: #333; }
+        p {  text-align: left;margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left; }
+        table, th, td { border: 1px solid #ddd; }
+        table,tbody,td{text-align: right;}
+        th, td { padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tfoot th { text-align: right; }
+      </style>
+      <body>
+        <div class="container">
+          <div class="company-details">
+            ${companyDetailsHtml}
+          </div>
+          <div class="report-details">
+            ${reportDetailsHtml}
+          </div>
+          <div class="content">
+            ${pdfRef.current.innerHTML}
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '', 'height=800,width=1000');
+  if (printWindow) {
+    printWindow.document.open();
+    printWindow.document.write(contentHtml);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  } else {
+    console.error("Failed to open print window.");
+  }
+};
+
 
      
       return (
@@ -355,7 +396,7 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
               icon={faPrint}
               className="fa-2x search-icon"
               style={{ color: "black" }}
-             onClick={printTable}
+             onClick={handlePrint}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
@@ -455,7 +496,7 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
 }
 </div>
 </div>
-<Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+<Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>
     <Modal.Header>
       <Modal.Title>Print</Modal.Title>
@@ -471,12 +512,13 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
     <Modal.Body>
       <div className="row">
         <div className="col-md-12 mb-3">
-          <p>We'll create a printer-friendly PDF version of your report.</p>
+        <p style={{fontSize:"13px"}}>Create a printer-friendly PDF of your report.</p>
         </div>
         <div className="col-md-12 mb-3">
           <ReactSelect
             className="position-relative"
             title={getFormattedMessage("globally.input.pageSize.name")}
+            defaultValue={defaultPageSize}
             data={showPageSize}
             value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
             onChange={handleFieldChange('showPageSize')}
@@ -486,6 +528,7 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
           <ReactSelect
             className="position-relative"
             title={getFormattedMessage("globally.input.pageOrientation.name")}
+            defaultValue={defaultPageOrientation}
             data={showPageOrientation}
             value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
             onChange={handleFieldChange('showPageOrientation')}

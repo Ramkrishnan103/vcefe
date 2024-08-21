@@ -37,7 +37,7 @@ const formatDate = (date) => {
 
 const ClosingStockReport = (props) => {
   
-    const {closingStocks,fetchClosingStockReport,ItemValues,companyConfig} =props;
+    const {closingStocks,fetchClosingStockReport,ItemValues,companyConfig,fetchCompanyConfig} =props;
     console.log("closingStocks =>", closingStocks)
     console.log("closingStocks =>", ItemValues)
     const today = new Date();
@@ -148,54 +148,71 @@ const getCurrentDateTimeInIST = () => {
 };
 const [showField,setShowField]=useState()
 console.log("showField",showField )
-const generatePDF = useCallback((companyDetails, reportDetails,orientation) => {
+const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
   const { companyName, address, phoneNumber } = companyDetails;
   const { title, dateRange } = reportDetails;
 
   if (!pdfRef.current) {
-    console.error("pdfRef.current is null");
-    return;
+      console.error("pdfRef.current is null");
+      return;
   }
+
   const input = pdfRef.current;
   html2canvas(input, { scale: 2 }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png');
-    const isLandscape = orientation === 'Landscape';
-    const pdf = new jsPDF({   orientation: isLandscape ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: isLandscape ? [297, 210] : [210, 297]});
+      const imgData = canvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
+      const pdf = new jsPDF({
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: isLandscape ? [297, 210] : [210, 297]
+      });
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pdfWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const centerX = pdfWidth / 2;
+      const topMargin = 20; // Space from the top to the company name
+      const textSpacing = 3; // Spacing between lines of text
+      const lineSpacing = 15; // Space between line and image
 
-    try {
-      pdf.setFontSize(14);
-      pdf.text(companyName || '', pdfWidth / 2, 10, { align: "center" });
+      // Add company details
       pdf.setFontSize(12);
-      pdf.text(address || '', pdfWidth / 2, 20, { align: 'center' });
-      pdf.text(`Phone: ${phoneNumber || ''}`, pdfWidth / 2, 30, { align: 'center' });
+      pdf.text(companyName, centerX, topMargin, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
+      // Add a horizontal line below the company details
       pdf.setLineWidth(0.2);
-      pdf.line(10, 42, 200, 40);
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
 
+      // Add report details
       pdf.setFontSize(12);
-      pdf.text(title || '', 10, 50);
-      pdf.text(dateRange || '', 10, 60);
+      pdf.text(title, 10, topMargin + 4 * textSpacing + 25); // Adjusted position for title
+      pdf.text(dateRange, 10, topMargin + 5 * textSpacing + 30); // Adjusted position for year range
 
-      pdf.addImage(imgData, 'PNG', 10, 70, imgWidth, imgHeight);
+      // Calculate image dimensions and position
+      const imgWidth = pdfWidth - 20; // 10 mm margin on each side
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const xOffset = 10; // Left margin
+      const yOffset = topMargin + 6 * textSpacing + 35; // Adjusted position below the line
+
+      // Add image content
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+      // Add footer to each page
       const addFooter = () => {
-        const pageCount = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          pdf.setPage(i);
-          pdf.setFontSize(10);
-          pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, 290, { align: 'center' });
-        }
+          const pageCount = pdf.internal.getNumberOfPages();
+          for (let i = 1; i <= pageCount; i++) {
+              pdf.setPage(i);
+              pdf.setFontSize(10);
+              pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+          }
       };
-      addFooter(); // Make sure this function does not introduce issues
 
-      pdf.save(`Closing Stock Report_${getCurrentDateTimeInIST()}.pdf`);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
+      addFooter();
+      pdf.save(`Closing_Stock_Report_${getCurrentDateTimeInIST()}.pdf`);
+  }).catch(error => {
+      console.error('Error generating canvas:', error);
   });
 }, []);
 
@@ -327,18 +344,20 @@ const exportToPDF = () => {
 
   generatePDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
 };
-const showPageSize=[
-  {value:"",label:""},
-  {value:"24mm",label:"24mm"},
-  {value:"27mm",label:"27mm"},
-  
-]
-const showPageOrientation=[
-  {value:"",label:""},
-  {value:"Portrait",label:"Portrait"},
-  {value:"Landscape",label:"Landscape"},
-  
-]
+const showPageOrientation = [
+  { value: "Portrait", label: "Portrait" },
+  { value: "Landscape", label: "Landscape" },
+];
+
+// Define the options for page size
+const showPageSize = [
+  { value: "A4", label: "A4" },
+];
+
+// Find the default value from the options
+const defaultPageOrientation = showPageOrientation.find(option => option.value === 'Portrait');
+const defaultPageSize = showPageSize.find(option => option.value === 'A4');
+
 const closeButtonClick = () => {
   setLoadingPdf(false)
 };
@@ -582,7 +601,7 @@ const handleFieldCancel=()=>{
         search={search} /> : null }
         {/* </MasterLayout> */}
         </div>
-        <Modal show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+        <Modal  className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>
     <Modal.Header>
       <Modal.Title>Print</Modal.Title>
@@ -598,13 +617,14 @@ const handleFieldCancel=()=>{
     <Modal.Body>
       <div className="row">
         <div className="col-md-12 mb-3">
-          <p>We'll create a printer-friendly PDF version of your report.</p>
+        <p style={{fontSize:"13px"}}>Create a printer-friendly PDF of your report.</p>
         </div>
         <div className="col-md-12 mb-3">
           <ReactSelect
             className="position-relative"
             title={getFormattedMessage("globally.input.pageSize.name")}
             data={showPageSize}
+            defaultValue={defaultPageSize}
             value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
             onChange={handleFieldChange('showPageSize')}
           />
@@ -614,6 +634,7 @@ const handleFieldCancel=()=>{
             className="position-relative"
             title={getFormattedMessage("globally.input.pageOrientation.name")}
             data={showPageOrientation}
+            defaultValue={defaultPageOrientation}
             value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
             onChange={handleFieldChange('showPageOrientation')}
           />
