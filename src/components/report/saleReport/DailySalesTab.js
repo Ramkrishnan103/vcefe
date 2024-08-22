@@ -137,6 +137,75 @@ const getCurrentDateTimeInIST = () => {
 };
 const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
   const { companyName, address, phoneNumber } = companyDetails;
+    const { title, dayRange } = reportDetails;
+
+    if (!pdfRef.current) {
+        console.error("pdfRef.current is null");
+        return;
+    }
+
+    const input = pdfRef.current;
+    html2canvas(input, { scale: 1.5, useCORS: true }).then((canvas) => {
+        // Create a new canvas to resize the image
+        const resizedCanvas = document.createElement('canvas');
+        const resizedCtx = resizedCanvas.getContext('2d');
+        resizedCanvas.width = canvas.width / 2; // Reduce the size
+        resizedCanvas.height = canvas.height / 2;
+        resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+        const imgData = resizedCanvas.toDataURL('image/png');
+        const isLandscape = orientation === 'Landscape';
+        const pdf = new jsPDF({
+            orientation: isLandscape ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: isLandscape ? [297, 210] : [210, 297]
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const centerX = pdfWidth / 2;
+        const topMargin = 20;
+        const textSpacing = 3;
+        const lineSpacing = 15;
+
+        pdf.setFontSize(12);
+        pdf.text(companyName, centerX, topMargin, { align: 'center' });
+        pdf.setFontSize(10);
+        pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+        pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
+        pdf.setLineWidth(0.2);
+        pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
+        pdf.setFontSize(12);
+        pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
+        pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30);
+
+        const imgWidth = pdfWidth - 20;
+        const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+        const xOffset = 10;
+        const yOffset = topMargin + 6 * textSpacing + 35;
+
+        pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+        const addFooter = () => {
+            const pageCount = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(10);
+                pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+            }
+        };
+        addFooter();
+      pdf.save(`Daily_Sales${getCurrentDateTimeInIST()}.pdf`);
+  }).catch(error => {
+      console.error('Error generating canvas:', error);
+  });
+}, []);
+
+
+const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientation) => {
+  const { companyName, address, phoneNumber } = companyDetails;
   const { title, dayRange } = reportDetails;
 
   if (!pdfRef.current) {
@@ -145,8 +214,15 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
   }
 
   const input = pdfRef.current;
-  html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
+  html2canvas(input, { scale: 1.5 , useCORS: true}).then((canvas) => {
+      // Create a new canvas to resize the image
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2; // Reduce the size
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+      const imgData = resizedCanvas.toDataURL('image/png');
       const isLandscape = orientation === 'Landscape';
       const pdf = new jsPDF({
           orientation: isLandscape ? 'landscape' : 'portrait',
@@ -157,36 +233,30 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const centerX = pdfWidth / 2;
-      const topMargin = 20; // Space from the top to the company name
-      const textSpacing = 3; // Spacing between lines of text
-      const lineSpacing = 15; // Space between line and image
+      const topMargin = 20;
+      const textSpacing = 3;
+      const lineSpacing = 15;
 
-      // Add company details
       pdf.setFontSize(12);
       pdf.text(companyName, centerX, topMargin, { align: 'center' });
       pdf.setFontSize(10);
       pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
       pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
 
-      // Add a horizontal line below the company details
       pdf.setLineWidth(0.2);
-      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
 
-      // Add report details
       pdf.setFontSize(12);
-      pdf.text(title, 10, topMargin + 4 * textSpacing + 25); // Adjusted position for title
-      pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30); // Adjusted position for year range
+      pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
+      pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30);
 
-      // Calculate image dimensions and position
-      const imgWidth = pdfWidth - 20; // 10 mm margin on each side
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const xOffset = 10; // Left margin
-      const yOffset = topMargin + 6 * textSpacing + 35; // Adjusted position below the line
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+      const xOffset = 10;
+      const yOffset = topMargin + 6 * textSpacing + 35;
 
-      // Add image content
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
 
-      // Add footer to each page
       const addFooter = () => {
           const pageCount = pdf.internal.getNumberOfPages();
           for (let i = 1; i <= pageCount; i++) {
@@ -195,65 +265,37 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
               pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
           }
       };
-
       addFooter();
-      pdf.save(`Daily_Sales${getCurrentDateTimeInIST()}.pdf`);
+      // Open the PDF in a new window and trigger the print dialog
+      const pdfBlob = pdf.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      iframe.onload = () => {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+      };
+
+      iframe.contentWindow.onafterprint = () => {
+         
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(pdfUrl);
+      };
+
+      iframe.src = pdfUrl;
   }).catch(error => {
       console.error('Error generating canvas:', error);
   });
 }, []);
+const exportToPrintPDF = () => {
 
-
- const printTable = () => {
-  
-  const printWindow=window.open('','','height=600,width=800');
-  printWindow.document.write('<style>');
-printWindow.document.write('.company-info {');
-printWindow.document.write('  text-align: center;');
-printWindow.document.write('  margin: 0 auto;');
-printWindow.document.write('  padding: 20px;');
-printWindow.document.write('  max-width: 600px;'); // Adjust the max-width as needed
-printWindow.document.write('}');
-printWindow.document.write('</style>');
-
-  printWindow.document.write('<div class="company-info">');
-   printWindow.document.write(`<h2>${companyDetails.companyName}</h2>`);
-   printWindow.document.write(`<p>${companyDetails.address}</p>`);
-   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
-   printWindow.document.write('</div>');
-   printWindow.document.write('<hr>');
-  
-   // Add report details
-   printWindow.document.write('<div className="report-info">');
-   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
-   printWindow.document.write(`<p>${reportDetails.dayRange}</p>`);
-   printWindow.document.write('</div>');
-
-  const tableContent=document.querySelector('.table-container').outerHTML;
-  printWindow.document.write('<html><head><title>Print</title>');
-  printWindow.document.write('<style>');
-   printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
-   printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
-   printWindow.document.write('th { background-color: #f2f2f2; }');
-   printWindow.document.write('.salesValue { text-align: right; }');
-   printWindow.document.write('@media print { .no-print { display: none; } }');
-   printWindow.document.write('</style>');
-   printWindow.document.write('</head><body >');
-   printWindow.document.write('<h1>Daily Sales Report</h1>'); // Add headers or other content here
-   printWindow.document.write(tableContent);
-   printWindow.document.write('</body></html>');
- 
-   // Close the document to trigger the print dialog
-   printWindow.document.close();
-   printWindow.focus(); // Ensure the new window is in focus
- 
-   // Trigger the print dialog
-   printWindow.onload = () => {
-     printWindow.print();
- };
-
+  generateAndPrintPDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
 };
-
 const XLSX = require('xlsx');
 const fs = require('fs');
 
@@ -373,7 +415,7 @@ const exportToExcel=()=>{
               icon={faPrint}
               className="fa-2x search-icon"
               style={{ color: "black" }}
-             onClick={printTable}
+             onClick={exportToPrintPDF}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon

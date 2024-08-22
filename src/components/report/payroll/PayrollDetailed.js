@@ -80,43 +80,46 @@ const PayrollDetailed = (props) => {
 
   const generatePDF = (companyDetails, orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
-    const input = paySlipRef.current;
+    
     const isLandscape = orientation === 'Landscape';
+    const input = paySlipRef.current;
   
-    html2canvas(input, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-  
+    html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2; // Reduce the size
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+      const imgData = resizedCanvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
       const pdf = new jsPDF({
-        orientation: isLandscape ? 'landscape' : 'portrait',
-        unit: 'mm',
-        format: isLandscape ? [297, 210] : [210, 297],
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: isLandscape ? [297, 210] : [210, 297]
       });
-  
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const centerX = pdfWidth / 2;
-  
-      // Define spacing values
-      const topMargin = 20; // Space from the top to the company name
-      const textSpacing = 3; // Reduced spacing between lines of text
-      const lineSpacing = 15; // Space between line and image
-  
-      // Add company details with reduced spacing
+      const topMargin = 20;
+      const textSpacing = 3;
+      const lineSpacing = 15;
+
       pdf.setFontSize(12);
       pdf.text(companyName, centerX, topMargin, { align: 'center' });
       pdf.setFontSize(10);
       pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
       pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
-  
-      // Add a horizontal line below the company details
+
       pdf.setLineWidth(0.2);
-      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
-  
-      // Calculate image dimensions and position
-      const imgWidth = pdfWidth - 20; // 10 mm margin on each side
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const xOffset = 10; // Left margin
-      const yOffset = topMargin + 3 * textSpacing + 20; // Adjusted position below the line
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+      const xOffset = 10;
+      const yOffset = topMargin + 4 * textSpacing + 25;
+
   
       // Add image content
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
@@ -129,7 +132,83 @@ const PayrollDetailed = (props) => {
     });
   };
   
-  
+  const generateAndPrintPDF = (companyDetails, orientation) => {
+    const { companyName, address, phoneNumber } = companyDetails;
+    
+    const isLandscape = orientation === 'Landscape';
+    const input = paySlipRef.current;
+
+    html2canvas(input, { scale: 1.5, useCORS: true }).then((canvas) => {
+        const resizedCanvas = document.createElement('canvas');
+        const resizedCtx = resizedCanvas.getContext('2d');
+        resizedCanvas.width = canvas.width / 2; // Reduce the size
+        resizedCanvas.height = canvas.height / 2;
+        resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+        const imgData = resizedCanvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: isLandscape ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: isLandscape ? [297, 210] : [210, 297]
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const centerX = pdfWidth / 2;
+        const topMargin = 20;
+        const textSpacing = 3;
+
+        pdf.setFontSize(12);
+        pdf.text(companyName, centerX, topMargin, { align: 'center' });
+        pdf.setFontSize(10);
+        pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+        pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
+        pdf.setLineWidth(0.2);
+        pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
+        const imgWidth = pdfWidth - 20;
+        const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+        const xOffset = 10;
+        const yOffset = topMargin + 4 * textSpacing + 25;
+
+        // Add image content
+        pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+        // Output PDF as Blob and create an Object URL
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        // Create a hidden iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+
+        iframe.contentWindow.onafterprint = () => {
+            // Clean up after printing
+            document.body.removeChild(iframe);
+            URL.revokeObjectURL(pdfUrl);
+        };
+
+        iframe.src = pdfUrl;
+    }).catch(error => {
+        console.error('Error generating canvas:', error);
+    });
+};
+
+const exportToPrintPDF = () => {
+    generateAndPrintPDF(companyDetails, fieldValue.showPageOrientation);
+};
+
+
   const exportToPDF = () => {
 
     generatePDF(companyDetails,fieldValue.showPageOrientation )
@@ -195,7 +274,7 @@ const PayrollDetailed = (props) => {
               background: "white"
             }}
           >
-            <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} onClick={handlePdfClick} />
+            <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} onClick={exportToPrintPDF} />
             <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
             <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={handlePdfClick} />
           </button>

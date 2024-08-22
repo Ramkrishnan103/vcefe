@@ -152,8 +152,15 @@ const DailyPurchaseTab = (props) => {
     }
 
     const input = pdfRef.current;
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
+    html2canvas(input, { scale: 1.5, useCORS: true }).then((canvas) => {
+        // Create a new canvas to resize the image
+        const resizedCanvas = document.createElement('canvas');
+        const resizedCtx = resizedCanvas.getContext('2d');
+        resizedCanvas.width = canvas.width / 2; // Reduce the size
+        resizedCanvas.height = canvas.height / 2;
+        resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+        const imgData = resizedCanvas.toDataURL('image/png');
         const isLandscape = orientation === 'Landscape';
         const pdf = new jsPDF({
             orientation: isLandscape ? 'landscape' : 'portrait',
@@ -164,11 +171,10 @@ const DailyPurchaseTab = (props) => {
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const centerX = pdfWidth / 2;
-        const topMargin = 20; // Space from the top to the company name
-        const textSpacing = 3; // Spacing between lines of text
-        const lineSpacing = 15; // Space between line and image
+        const topMargin = 20;
+        const textSpacing = 3;
+        const lineSpacing = 15;
 
-        // Add company details
         pdf.setFontSize(12);
         pdf.text(companyName, centerX, topMargin, { align: 'center' });
         pdf.setFontSize(10);
@@ -176,22 +182,19 @@ const DailyPurchaseTab = (props) => {
         pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
 
         pdf.setLineWidth(0.2);
-        pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15); // Adjusted line position
-        // Add report details
+        pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
         pdf.setFontSize(12);
-        pdf.text(title, 10, topMargin + 4 * textSpacing + 25); // Adjusted position for title
-        pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30); // Adjusted position for year range
+        pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
+        pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30);
 
-        // Calculate image dimensions and position
-        const imgWidth = pdfWidth - 20; // 10 mm margin on each side
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        const xOffset = 10; // Left margin
-        const yOffset = topMargin + 6 * textSpacing + 35; // Adjusted position below the line
+        const imgWidth = pdfWidth - 20;
+        const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+        const xOffset = 10;
+        const yOffset = topMargin + 6 * textSpacing + 35;
 
-        // Add image content
         pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
 
-        // Add footer to each page
         const addFooter = () => {
             const pageCount = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
@@ -206,6 +209,99 @@ const DailyPurchaseTab = (props) => {
         console.error('Error generating canvas:', error);
     });
 }, []);
+
+const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientation) => {
+  const { companyName, address, phoneNumber } = companyDetails;
+  const { title, dayRange } = reportDetails;
+
+  if (!pdfRef.current) {
+      console.error("pdfRef.current is null");
+      return;
+  }
+
+  const input = pdfRef.current;
+  html2canvas(input, { scale: 1.5 , useCORS: true}).then((canvas) => {
+      // Create a new canvas to resize the image
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2; // Reduce the size
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+      const imgData = resizedCanvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
+      const pdf = new jsPDF({
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: isLandscape ? [297, 210] : [210, 297]
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const centerX = pdfWidth / 2;
+      const topMargin = 20;
+      const textSpacing = 3;
+      const lineSpacing = 15;
+
+      pdf.setFontSize(12);
+      pdf.text(companyName, centerX, topMargin, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
+      pdf.setLineWidth(0.2);
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
+      pdf.setFontSize(12);
+      pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
+      pdf.text(dayRange, 10, topMargin + 5 * textSpacing + 30);
+
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+      const xOffset = 10;
+      const yOffset = topMargin + 6 * textSpacing + 35;
+
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+      const addFooter = () => {
+          const pageCount = pdf.internal.getNumberOfPages();
+          for (let i = 1; i <= pageCount; i++) {
+              pdf.setPage(i);
+              pdf.setFontSize(10);
+              pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+          }
+      };
+      addFooter();
+      // Open the PDF in a new window and trigger the print dialog
+      const pdfBlob = pdf.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      iframe.onload = () => {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+      };
+
+      iframe.contentWindow.onafterprint = () => {
+         
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(pdfUrl);
+      };
+
+      iframe.src = pdfUrl;
+  }).catch(error => {
+      console.error('Error generating canvas:', error);
+  });
+}, []);
+const exportToPrintPDF = () => {
+
+  generateAndPrintPDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
+};
   const exportToPDF = () => {
 
     generatePDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
@@ -277,70 +373,7 @@ const generatePurchaseReportExcel = () => {
 const exportToExcel=()=>{
 generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
 }
-const handlePrint = () => {
-  if (!pdfRef.current) return;
 
-  // Prepare the HTML content to be printed
-  const companyDetailsHtml = `
-    <div style="margin-bottom: 20px;">
-      <h3>${companyDetails.companyName}</h3>
-      <h3>${companyDetails.phoneNumber}</h3>
-      <h3>${companyDetails.address}</h3>
-     <hr/>
-
-    </div>
-  `;
-
-  const reportDetailsHtml = `
-    <div style="margin-bottom: 20px;">
-      <p>${reportDetails.title}</p>
-      <p>${reportDetails.dayRange}</p>
-    </div>
-  `;
-
-  const contentHtml = `
-    <html>
-      <head><title>Print</title></head>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .container { width: 100%; margin: 0 auto; padding: 20px; }
-        .company-details, .report-details { text-align: center; margin-bottom: 20px; }
-        h3, h4 { color: #333; }
-        p {  text-align: left;margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left; }
-        table, th, td { border: 1px solid #ddd; }
-        table,tbody,td{text-align: right;}
-        th, td { padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        tfoot th { text-align: right; }
-      </style>
-      <body>
-        <div class="container">
-          <div class="company-details">
-            ${companyDetailsHtml}
-          </div>
-          <div class="report-details">
-            ${reportDetailsHtml}
-          </div>
-          <div class="content">
-            ${pdfRef.current.innerHTML}
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  const printWindow = window.open('', '', 'height=800,width=1000');
-  if (printWindow) {
-    printWindow.document.open();
-    printWindow.document.write(contentHtml);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  } else {
-    console.error("Failed to open print window.");
-  }
-};
 
 
      
@@ -396,7 +429,7 @@ const handlePrint = () => {
               icon={faPrint}
               className="fa-2x search-icon"
               style={{ color: "black" }}
-             onClick={handlePrint}
+             onClick={exportToPrintPDF}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
