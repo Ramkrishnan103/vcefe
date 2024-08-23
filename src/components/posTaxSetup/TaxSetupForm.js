@@ -127,10 +127,13 @@ const TaxSetupForm = (props) => {
       }
     } else {
       if (valid) {
-         setTaxSetupValue(taxsetupValue);
+         //setTaxSetupValue(taxsetupValue);
          console.log(!show)
 
-        addTaxSetup(prepareFormData(taxsetupValue),handleClose);
+        addTaxSetup(prepareFormData(taxsetupValue), () => {
+          handleClose() ;
+          clearField();
+      });
         //clearField(false);
        
       }

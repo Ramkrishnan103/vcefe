@@ -107,6 +107,7 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
         dispatch(
           addToast({
             text: response?.data?.message,
+            type:toastType?.success
           })
         );
         handleClose(false)

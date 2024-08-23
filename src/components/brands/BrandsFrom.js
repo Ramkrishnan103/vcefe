@@ -20,8 +20,8 @@ const BrandsFrom = (props) => {
   } = props;
   const innerRef = createRef();
   const [formValue, setFormValue] = useState({
-    category1id: singleBrand ? singleBrand.category1id : 0,
-    name: singleBrand ? singleBrand.name : "",
+    category1id: singleBrand ? singleBrand?.category1id : 0,
+    name: singleBrand ? singleBrand?.name : "",
     // image: singleBrand ? singleBrand.image : ''
   });
   const [errors, setErrors] = useState({ name: "" });
@@ -38,12 +38,14 @@ const BrandsFrom = (props) => {
   useEffect(() => {
     if (singleBrand) {
       setFormValue({
-        category1id: singleBrand.category1id,
-        name: singleBrand.name,
+        category1id: singleBrand?.category1id,
+        name: singleBrand?.name,
         // image: singleBrand.image
       });
     }
   }, [singleBrand]);
+
+  console.log("Formvalue :" ,formValue)
 
   useEffect(() => {
     console.log(brandForm);
@@ -116,43 +118,40 @@ const BrandsFrom = (props) => {
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
-    // formValue.image = selectImg;
-    if (singleBrand && valid) {
-      if (!disabled) {
-        // formValue.image = selectImg;
-        editBrand(
-          singleBrand.category1id,
-          prepareFormData(formValue),
-          handleClose
-        );
-        debugger;
-        // if (brandForm) {
-       // clearField(false);
-        // }
-      }
-    } else {
-      debugger
-      if (valid) {
-        setFormValue(formValue);
-        addBrandData(prepareFormData(formValue),handleClose);
-        // if (brandForm) {
-       // clearField(false);
-        // }
-      }
-    }
-     setSelectImg(null);
-  };
 
-  const clearField = () => {
-    setFormValue({
+    if (valid) {
+        if (singleBrand && !disabled) {
+            // Edit existing brand
+            editBrand(
+                singleBrand.category1id,
+                prepareFormData(formValue),
+                handleClose
+            );
+        } else {
+            // Add new brand
+            addBrandData(
+                prepareFormData(formValue),
+                () => {
+                    handleClose(); 
+                    clearField();  
+                }
+            );
+        }
+    }
+    // No need to clear the image selection here, it should only be cleared on successful submission
+};
+
+
+const clearField = () => {
+  setFormValue({
       category1id: 0,
       name: "",
       // image: ''
-    });
-    setImagePreviewUrl(user);
-    setErrors("");
-   handleClose ? handleClose(false) : hide(false);
-  };
+  });
+  setImagePreviewUrl(user);
+  setErrors("");
+  handleClose ? handleClose(false) : hide(false);
+};
 
   return (
     <Modal
@@ -191,7 +190,7 @@ const BrandsFrom = (props) => {
                   "globally.input.name.placeholder.label"
                 )}
                 className="form-control"
-                ref={innerRef}
+                // ref={innerRef}
                 value={formValue.name}
                 onChange={(e) => onChangeInput(e)}
                 autoFocus

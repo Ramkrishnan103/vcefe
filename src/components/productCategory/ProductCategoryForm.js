@@ -131,7 +131,10 @@ const ProductCategoryForm = (props) => {
       if (valid) {
         ;
         setProductCategoryValue(productCategoryValue);
-        addProductcData(prepareFormData(productCategoryValue),handleClose);
+        addProductcData(prepareFormData(productCategoryValue), () => {
+          handleClose(); 
+          clearField();  
+      });
        // clearField(false);
       }
     }

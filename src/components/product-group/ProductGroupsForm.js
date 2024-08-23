@@ -83,7 +83,10 @@ const ProductGroupsForm = (props) => {
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductGroup(prepareFormData(unitValue),handleClose);
+        addProductGroup(prepareFormData(unitValue),() => {
+          handleClose(); 
+          clearField();  
+        });
         //clearField(false);
       }
     }

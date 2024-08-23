@@ -99,7 +99,7 @@ export const addBrand = (brands,handleClose) => async (dispatch) => {
         type: brandsActionType.ADD_BRANDS,
         payload: response?.data?.data,
       });
-debugger
+
       if (response?.data?.success == true) {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.SUCCESS })
@@ -170,7 +170,7 @@ export const editBrand =
   };
 
 export const deleteBrand = (brandsId) => async (dispatch) => {
-  debugger
+  
   apiConfig
     .delete(apiBaseURL.BRANDS + "?categoryId=" + brandsId)
     .then((response) => {

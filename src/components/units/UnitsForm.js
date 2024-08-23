@@ -140,7 +140,10 @@ const UnitsForm = (props) => {
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductData(prepareFormData(unitValue),handleClose);
+        addProductData(prepareFormData(unitValue),() => {
+          handleClose();
+          clearField();
+        });
         // clearField(false);
       }
     }
