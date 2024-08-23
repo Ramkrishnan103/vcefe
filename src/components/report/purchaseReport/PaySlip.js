@@ -31,22 +31,32 @@ const PaySlip = () => {
 
     const input = paySlipRef.current;
 
-    html2canvas(input, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
+    html2canvas(input, { scale: 1.5,useCORS:true }).then(canvas => {
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2; // Adjust as necessary
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+      const imgData = resizedCanvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: isLandscape ? 'landscape' : 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: isLandscape ? [297, 210] : [210, 297]
       });
 
       // Calculate image dimensions for A4
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = 297; // A4 height in mm
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // A4 width in mm
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // A4 height in mm
+      const centerX = pdfWidth / 2;
+    const topMargin = 20;
+    const textSpacing = 3;
+      const imgWidth = pdfWidth-20;
+      const imgHeight = (resizedCanvas.height * imgWidth) /resizedCanvas.width;
+      const xOffset = 10;
+      const yOffset = topMargin + 6 * textSpacing + 35;
       // Add image to PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
       const currentDateTime = getCurrentDateTimeInIST();
       pdf.save(`PaySlip_${currentDateTime}.pdf`);
     }).catch(error => {

@@ -22,19 +22,7 @@ import { faPrint,faFileExcel, faFilePdf,faXmark  } from "@fortawesome/free-solid
 import ReactSelect from "../../../shared/select/reactSelect";
 import { fetchAcYear } from "../../../store/action/acYearAction";
 import { filter, stubString } from "lodash";
-import allConfigReducer from "../../../store/reducers/allConfigReducer";
-import {
-  ActionOnSet,
-  FONT_WEIGHT,
-} from "ag-charts-community/dist/esm/es6/module-support";
-import { act } from "react";
-import loader from "sass-loader";
-import { LinearGradient } from "ag-charts-community/dist/esm/es6/scene/gradient/linearGradient";
-import { color } from "faker/lib/locales/az/commerce";
-// import "./monthlySalesTab.css";
-import Footer from "../../footer/Footer";
-import CommonTable from "../../../shared/table/CommonTable";
-// import "./assets/css/frontend.css"
+
 import {jsPDF} from 'jspdf';
 
 import * as XLSX from 'xlsx';
@@ -549,8 +537,8 @@ const handleFieldCancel=()=>{
 <div className="col-md-12">
        {itemsValue.length>0 && 
 
-<div className="fixTableHead" ref={pdfRef}>
-<table className='table-container'>
+<div className="fixTableHead" >
+<table className='table-container'ref={pdfRef}>
   <thead>
     <tr >
       <th style={{fontWeight:"bold",fontSize:"16px"}}>Month</th>

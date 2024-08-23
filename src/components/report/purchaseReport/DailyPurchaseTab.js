@@ -481,9 +481,9 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
  
   <div className="col-md-12">
        {itemsValue.length>0 && 
-        <div className='fixTableHead' ref={pdfRef}>
+        <div className='fixTableHead'>
      
-       <table className='table-container'>
+       <table className='table-container' ref={pdfRef}>
         <thead >
         <tr>
             <th style={{textAlign:"left"}}>Date</th>

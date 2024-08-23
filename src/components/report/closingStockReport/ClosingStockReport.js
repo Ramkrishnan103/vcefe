@@ -42,6 +42,8 @@ const ClosingStockReport = (props) => {
     console.log("closingStocks =>", ItemValues)
     const today = new Date();
     const formattedDate = formatDate(today);
+    const [page, setPage] = useState(1);
+    const [itemsPerPage] = useState(10);
     const[search,setSearch] =useState('')
     const[fetchRangeValue,setFetchRangeValue] =useState({
       category1Name:"",
@@ -153,24 +155,25 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
   const { title, dateRange } = reportDetails;
 
   if (!pdfRef.current) {
-      console.error("pdfRef.current is null");
-      return;
+    console.error("pdfRef.current is null");
+    return;
   }
 
   const input = pdfRef.current;
-  html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
+
+  html2canvas(input, { scale: 1.5, useCORS: true }).then((canvas) => {
     const resizedCanvas = document.createElement('canvas');
     const resizedCtx = resizedCanvas.getContext('2d');
-    resizedCanvas.width = canvas.width / 2; // Reduce the size
+    resizedCanvas.width = canvas.width / 2; // Adjust as necessary
     resizedCanvas.height = canvas.height / 2;
     resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
 
     const imgData = resizedCanvas.toDataURL('image/png');
     const isLandscape = orientation === 'Landscape';
     const pdf = new jsPDF({
-        orientation: isLandscape ? 'landscape' : 'portrait',
-        unit: 'mm',
-        format: isLandscape ? [297, 210] : [210, 297]
+      orientation: isLandscape ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: isLandscape ? [297, 210] : [210, 297]
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -178,7 +181,6 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
     const centerX = pdfWidth / 2;
     const topMargin = 20;
     const textSpacing = 3;
-    const lineSpacing = 15;
 
     pdf.setFontSize(12);
     pdf.text(companyName, centerX, topMargin, { align: 'center' });
@@ -201,19 +203,21 @@ const generatePDF = useCallback((companyDetails, reportDetails, orientation) => 
     pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
 
     const addFooter = () => {
-        const pageCount = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            pdf.setPage(i);
-            pdf.setFontSize(10);
-            pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-        }
+      const pageCount = pdf.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+      }
     };
+
     addFooter();
-      pdf.save(`Closing_Stock_Report_${getCurrentDateTimeInIST()}.pdf`);
+    pdf.save(`Closing_Stock_Report_${getCurrentDateTimeInIST()}.pdf`);
   }).catch(error => {
-      console.error('Error generating canvas:', error);
+    console.error('Error generating canvas:', error);
   });
 }, []);
+
 const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientation) => {
   const { companyName, address, phoneNumber } = companyDetails;
   const { title, dateRange } = reportDetails;
@@ -373,58 +377,7 @@ const XLSX = require('xlsx');
       XLSX.writeFile(workbook, 'Closing_Stock_Report.xlsx');
   };
   
-const printTable = () => {
-  // Create a new window or tab
-  const printWindow = window.open('', '', 'height=600,width=800');
-  printWindow.document.write('<style>');
-  printWindow.document.write('.company-info {');
-  printWindow.document.write('  text-align: center;');
-  printWindow.document.write('  margin: 0 auto;');
-  printWindow.document.write('  padding: 20px;');
-  printWindow.document.write('  max-width: 600px;'); // Adjust the max-width as needed
-  printWindow.document.write('}');
-  printWindow.document.write('</style>');
-  printWindow.document.write('<div className="company-info">');
-   printWindow.document.write(`<h2 >${companyDetails.companyName}</h2>`);
-   printWindow.document.write(`<p>${companyDetails.address}</p>`);
-   printWindow.document.write(`<p>${companyDetails.phoneNumber}</p>`);
-   printWindow.document.write('</div>');
-   printWindow.document.write('<hr>');
-  
-   // Add report details
-   printWindow.document.write('<div className="report-info">');
-   printWindow.document.write(`<h3>${reportDetails.title}</h3>`);
-   printWindow.document.write(`<p>${reportDetails.dateRange}</p>`);
-   printWindow.document.write('</div>');
 
-
-  // Get the content you want to print
-  const tableContent = document.querySelector('.table-container').outerHTML;
-
-  // Write the content to the new window
-  printWindow.document.write('<html><head><title>Print</title>');
-  printWindow.document.write('<style>');
-  printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
-  printWindow.document.write('th, td { border: 1px solid black; padding: 8px; text-align: left; }');
-  printWindow.document.write('th { background-color: #f2f2f2; }');
-  printWindow.document.write('.purchase-value { text-align: right; }');
-  printWindow.document.write('.total-value { text-align: right; font-weight: bold; }'); 
-  printWindow.document.write('@media print { .no-print { display: none; } }');
-  printWindow.document.write('</style>');
-  printWindow.document.write('</head><body >');
-  printWindow.document.write('<h1>Closing Stock Report</h1>'); // Add headers or other content here
-  printWindow.document.write(tableContent);
-  printWindow.document.write('</body></html>');
-
-  // Close the document to trigger the print dialog
-  printWindow.document.close();
-  printWindow.focus(); // Ensure the new window is in focus
-
-  // Trigger the print dialog
-  printWindow.onload = () => {
-    printWindow.print();
-};
-};
 const exportToExcel=()=>{
   generateClosingStockReportExcel (companyDetails, reportDetails, itemsValue)
 }
@@ -623,7 +576,7 @@ const handleFieldCancel=()=>{
 
 <div className="row">
 
-<div className="col-md-12">
+<div className="col-md-12" >
        {itemsValue.length>0 && 
 
 <div className="fixTableHead" ref={pdfRef}>

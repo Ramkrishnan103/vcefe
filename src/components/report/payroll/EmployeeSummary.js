@@ -1,6 +1,10 @@
+import BeauteSoft from "./BeauteSoft";
+
 const EmployeeSummary=()=>{
   return(
-<div></div>
+<div>
+  <BeauteSoft/>
+</div>
 
   )
 }

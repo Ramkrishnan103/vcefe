@@ -437,8 +437,8 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
       <div className="row">
         <div className="col-md-12">
           {itemsValue.length > 0 && (
-            <div className="fixTableHead" ref={pdfRef}>
-              <table className='table-container'>
+            <div className="fixTableHead">
+              <table className='table-container'  ref={pdfRef}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: "left" }}>Month</th>

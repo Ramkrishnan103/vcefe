@@ -484,8 +484,8 @@ const exportToExcel=()=>{
 <div className="col-md-12">
        {itemsValue.length>0 && 
 
-<div className="fixTableHead" ref={pdfRef}>
-<table className='table-container'>
+<div className="fixTableHead" >
+<table className='table-container'ref={pdfRef}>
   <thead>
     <tr >
       <th style={{fontWeight:"bold",fontSize:"16px"}}>Date</th>
