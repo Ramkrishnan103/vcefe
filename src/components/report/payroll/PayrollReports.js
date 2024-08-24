@@ -19,7 +19,7 @@ return(
     }}>
     <MasterLayout >
         <TopProgressBar  />
-        <TabTitle  title={placeholderText( 'warehouse.reports.title'  )} />
+        <TabTitle  title={placeholderText( 'Payroll Reports'  )} />
         <h1 style={{textAlign:'center',color:'green'}}>Payroll Reports</h1>
         <Tabs defaultActiveKey='payroll' id='uncontrolled-tab-example' onSelect={( k ) => setKey( k )}
             className='p-3 mb-2 custom-bg-color text-white mt-7 mb-5 payrolltabs'   >

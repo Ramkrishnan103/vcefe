@@ -2,6 +2,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Form, Modal } from "react-bootstrap-v5";
 import TopProgressBar from "../../../shared/components/loaders/TopProgressBar"
 import MasterLayout from "../../MasterLayout"
+import { ReactTabulator } from 'react-tabulator';
+import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
 import {  faFilter,faFileExcel, faFilePdf, faPrint,faXmark } from "@fortawesome/free-solid-svg-icons";
 import ClosingStockReportForm from "./ClosingStockReportForm";
 import { useEffect, useRef, useState,useCallback } from "react";
@@ -61,6 +64,33 @@ const ClosingStockReport = (props) => {
       showPageOrientation:""
     })
     const [loadingPdf,setLoadingPdf]=useState(false)
+
+    const columns=[
+      {title:"Code",field:"code",width:"110px"},
+      {title:"Product Name",field:"productName",width:"300px"},
+      {title:"MRP",field:"mrp",width:"110px"},
+      {title:"Stock",field:"stock",width:"110px"},
+      {title:"Cost",field:"cost",width:"110px"},
+      {title:"Value",field:"value",width:"110px"},
+    ]
+    data=[
+      {code:{},productName:{},mrp:{},stock:{},cost:{},value:{}},
+  ]
+  const options={
+    layout:"fitColumns",
+    footerElement:`
+    <div style="display: flex; justify-content: space-between;">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      
+    </div>
+    `,
+  footerCalculator:{
+    salary:"sum"
+  }
+  }
     
 const onChange =() => {
    setSearch(searchRef.current.value)
@@ -631,6 +661,11 @@ const handleFieldCancel=()=>{
     </tr>
   </tfoot>
   </table>
+  <ReactTabulator columns={columns}
+    data={data}
+     options={options}
+
+    />
 </div>
 }
 </div>

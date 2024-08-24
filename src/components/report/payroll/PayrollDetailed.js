@@ -1,64 +1,176 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint, faFileExcel, faFilePdf, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faFileExcel, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import ReactSelect from '../../../shared/select/reactSelect';
 import { InputGroup } from 'react-bootstrap';
 import { ReactTabulator } from 'react-tabulator';
 import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
 import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
-import { Form, Modal } from "react-bootstrap-v5";
-import { getFormattedMessage } from "../../../shared/sharedMethod";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { fetchCompanyConfig } from "../../../store/action/companyConfigAction";
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
+import { fetchSalaryDetailsReportFilter } from '../../../store/action/SalaryStructureAction';
+import Select from 'react-select';
+import moment from 'moment';
 
 const PayrollDetailed = (props) => {
-  const { companyConfig, fetchCompanyConfig } = props;
+  const { companyConfig, fetchCompanyConfig, fetchSalaryDetailsReportFilter, payrollReportDetails } = props;
   const tableRef = useRef(null);
   const paySlipRef = useRef(null);
+  const payrollReport = useSelector((state) => state.payrollReport);
+  const [paySlipMonth, setPaySlipMonth] = useState();
+
+  const now = new Date();
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const [preparationValue, setPreparationValue] = useState({
+    year: now.getFullYear(),
+    month: monthNames[now.getMonth()],
+  });
+
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
+    value: now.getFullYear() - 1 + i,
+    label: now.getFullYear() - 1 + i,
+  }));
+
+  console.log("Year =>", yearOptions);
+
+  const monthOptions = monthNames.map((month, index) => ({
+    value: index + 1,
+    label: month,
+  }));
+
+  const handleYearChange = (selectedOption) => {
+    setPreparationValue((prev) => ({
+      ...prev,
+      year: selectedOption?.value,
+    }));
+  };
+
+  const handleMonthChange = (selectedOption) => {
+    console.log("SelectedOption", selectedOption);
+
+    setPreparationValue((prev) => ({
+      ...prev,
+      month: selectedOption?.label,
+    }));
+  };
+
+  useEffect(() => {
+    
+    const monthIndex = (moment(preparationValue?.month, 'MMMM').month() + 1) - 1;
+
+    // Create a moment object for the first day of that month
+    const monthMoment = moment().month(monthIndex);
+
+    // Format the month to get the abbreviated name
+    const monthAbbrev = monthMoment.format('MMM');
+
+    console.log(monthAbbrev); // Outputs: Aug
+
+    setPaySlipMonth(monthAbbrev + " " + preparationValue?.year);
+
+    if (preparationValue?.month != "" && preparationValue?.year != "") {
+      loadValues();
+    }
+  }, [preparationValue]);
+
+
+  const yearValue = useRef();
+  const monthValue = useRef();
+
+  const loadValues = (filter) => {
+    
+    let year = yearOptions.find(
+      (option) => option.value === preparationValue.year
+    );
+    let month = monthOptions.find(
+      (option) => option.label === preparationValue.month
+    );
+
+    let values = `?year=${year ? year.value : ""}&month=${month ? month.value : ""
+      }`;
+    console.log(values);
+
+    fetchSalaryDetailsReportFilter(values, filter, true);
+  };
+
+
+  // useEffect(() => {
+  //   loadValues();
+  // }, [preparationValue.month, preparationValue.year])
+
+
+  // console.log("PayrollReport => ", payrollReportDetails)
 
   useEffect(() => {
     fetchCompanyConfig();
+    // fetchSalaryDetailsReportFilter();
   }, [fetchCompanyConfig]);
-
-  const [fieldValue, setFieldValue] = useState({
-    showPageSize: "",
-    showPageOrientation: ""
-  });
-
-  const [loadingPdf, setLoadingPdf] = useState(false);
 
   const companyDetails = {
     companyName: companyConfig?.companyName || 'Company Name',
     address: `${companyConfig?.attributes?.address1 || ''} , ${companyConfig?.attributes?.address2 || ''}`,
     phoneNumber: companyConfig?.attributes?.phoneNo || 'Phone Number'
   };
+  const [fieldValue, setFieldValue] = useState({
+    showPageSize: "",
+    showPageOrientation: ""
+  });
+  const [loadingPdf, setLoadingPdf] = useState(false);
 
   const columns = [
-    { title: "Emp ID", field: "empId", width: 110, headerSort: false },
-    { title: "Emp Name", field: "empName", width: 150, headerSort: false },
+    { title: "Emp ID", field: "empId", width: 80, headerSort: false },
+    { title: "Emp Name", field: "empName", width: 110, headerSort: false },
     {
       title: "Earnings", hozAlign: "center",
       columns: [
-        { title: "Basic Pay", field: "basicPay", hozAlign: "right", width: 90, headerSort: false },
-        { title: "HRA", field: "hra", hozAlign: "right", width: 90, headerSort: false },
-        { title: "Conveyance", field: "conveyance", hozAlign: "right", width: 100, headerSort: false },
-        { title: "Others", field: "others", hozAlign: "right", width: 90, headerSort: false }
+        { title: "Basic Pay", field: "basicPay", hozAlign: "right", width: 70, headerSort: false },
+        { title: "HRA", field: "hra", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Conveyance", field: "conveyance", hozAlign: "right", width: 80, headerSort: false },
+        { title: "Others", field: "others", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Total Earnings", field: "others", hozAlign: "right", width: 80, headerSort: false }
       ]
     },
     {
       title: "Deductions", hozAlign: "center",
       columns: [
-        { title: "ESI", field: "esi", hozAlign: "right", width: 90, headerSort: false },
-        { title: "PF", field: "pf", hozAlign: "right", width: 90, headerSort: false },
-        { title: "LWF", field: "lwf", hozAlign: "right", width: 90, headerSort: false },
-        { title: "Tax Deduc.", field: "taxDeduc", hozAlign: "right", width: 90, headerSort: false }
+        { title: "ESI", field: "esi", hozAlign: "right", width: 70, headerSort: false },
+        { title: "PF", field: "pf", hozAlign: "right", width: 70, headerSort: false },
+        { title: "LWF", field: "lwf", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Tax Deduc.", field: "taxDeduc", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Total Deduc.", field: "totalDeduc", hozAlign: "right", width: 70, headerSort: false }
       ]
     },
-    { title: "LOP", field: "lop", width: 110, hozAlign: "right", headerSort: false },
-    { title: "Net Paid", field: "netPaid", width: 110, hozAlign: "right", headerSort: false },
+    { title: "Gross Amount", field: "grossAmt", width: 80, hozAlign: "right", headerSort: false },
+    { title: "LOP",hozAlign:"center",
+      columns:[
+        { title: "Leave Days", field: "leaveDays", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Loss of Pay", field: "lossOfPay", hozAlign: "right", width: 70, headerSort: false },
+      ]
+    },
+    { title: "Net Paid", field: "netPaid", width: 80, hozAlign: "right", headerSort: false },
   ];
+
+  const getFooterData = (table) => {
+    return [
+      { empId: '', empName: 'Total', basicPay: '', hra: '', conveyance: '', others: '', netPaid: payrollReport?.data?.employeeDetails?.reduce((total, item) => total + parseFloat(item?.netPaid), 0) }
+    ];
+  };
 
   const getCurrentDateTimeInIST = () => {
     const options = {
@@ -205,24 +317,45 @@ const PayrollDetailed = (props) => {
     { value: "Portrait", label: "Portrait" },
     { value: "Landscape", label: "Landscape" },
   ];
-
+  
   const showPageSize = [
     { value: "A4", label: "A4" },
   ];
-
   const defaultPageOrientation = showPageOrientation.find(option => option.value === 'Portrait');
   const defaultPageSize = showPageSize.find(option => option.value === 'A4');
 
   const closeButtonClick = () => {
     setLoadingPdf(false);
   };
-
   const handleFieldChange = (field) => (selectedOption) => {
     setFieldValue((prevValues) => ({
       ...prevValues,
       [field]: selectedOption ? selectedOption.value : ""
     }));
   };
+
+  const itemsValue =
+    payrollReport &&
+    payrollReport?.data?.employeeDetails?.map((payroll) => {
+      return {
+        empId: payroll?.empId,
+        empName: payroll?.empName,
+        basicPay: parseFloat(payroll?.basicPay).toFixed(2) || payroll?.basicPay,
+        hra: parseFloat(payroll?.hra).toFixed(2) || payroll?.hra,
+        conveyance: parseFloat(payroll?.conveyaences).toFixed(2) || payroll?.conveyaences,
+        others: parseFloat(payroll?.others).toFixed(2) || payroll?.others,
+        totalEarnings:"",
+        esi: parseFloat(payroll?.employeeEsi).toFixed(2) || payroll?.employeeEsi,
+        pf: parseFloat(payroll?.employeePf).toFixed(2) || payroll?.employeePf,
+        lwf: parseFloat(payroll?.lwf).toFixed(2) || payroll?.lwf,
+        taxDeduc: parseFloat(payroll?.taxDeductions).toFixed(2) || payroll?.taxDeductions,
+        totalDeduc:"",
+        grossAmt:"",
+        lop: parseFloat(payroll?.lop).toFixed(2) || payroll?.lop,
+        netPaid: parseFloat(payroll?.netPaid).toFixed(2)
+      };
+    });
+  console.log(itemsValue);
 
   const handlePdfClick = () => {
     setLoadingPdf(true);
@@ -233,148 +366,108 @@ const PayrollDetailed = (props) => {
   };
 
   return (
-    <>
-      <div className="warehouse_purchase_report_table">
-        <div className="row mb-4">
-          <div className="col-md-3">
-            <h4>Month</h4>
-            <InputGroup className="flex-nowrap">
-              <ReactSelect style={{ paddingLeft: "20px", marginLeft: "10px" }} />
-            </InputGroup>
-          </div>
-          <div className="col-md-1"></div>
-          <div className="col-md-3">
-            <h4>Year</h4>
-            <InputGroup className="flex-nowrap">
-              <ReactSelect style={{ paddingLeft: "20px", marginLeft: "10px" }} />
-            </InputGroup>
-          </div>
-          <div className="col-md-3"></div>
-          <div className="col-md-2 d-flex flex-row justify-content-end">
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "none",
-                borderRadius: "10px",
-                width: "220px",
-                height: "60px",
-                gap: "13px",
-                background: "white"
+    <div className="warehouse_purchase_report_table">
+      <div className="row mb-4">
+        <div className="col-md-3">
+          <h4>Month</h4>
+          {/* <InputGroup className="flex-nowrap"> */}
+            <Select
+              options={monthOptions}
+              className='flex-nowrap'
+              // value={formValues.designation}
+              value={monthOptions.find(
+                (option) => option.label === preparationValue.month
+              )}
+              onChange={(selectedOption) => {
+                handleMonthChange(selectedOption);
               }}
-            >
-              <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} onClick={exportToPrintPDF} />
-              <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
-              <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={handlePdfClick} />
-            </button>
-          </div>
+            />
+          {/* </InputGroup> */}
         </div>
-
-        <div ref={paySlipRef} className="payroll-container" style={{ width: '100%', overflowX: 'auto', height: "auto", marginTop: '20px', borderRadius: "5px", border: "none" }}>
-          <div className="row mt-4 mb-4">
-            <div className="col-md-5">
-              <h4>Payroll Detailed Report For The Month Of April - 2024</h4>
-            </div>
-          </div>
-          <ReactTabulator
-            columns={columns}
-            data={[
-              { empId: 1, empName: "John Doe", basicPay: 5000, hra: 2000, conveyance: 500, others: 300, esi: 100, pf: 200, lwf: 50, taxDeduc: 150, lop: 0, netPaid: 7550 },
-              { empId: 2, empName: "Jane Smith", basicPay: 6000, hra: 2500, conveyance: 600, others: 400, esi: 120, pf: 240, lwf: 60, taxDeduc: 180, lop: 0, netPaid: 8260 }
-            ]}
-            ref={tableRef}
-            options={{
-              columnHeaderVertAlign: "bottom",
-              layout: 'fitColumns',
-              responsiveLayout: "hide",
-              footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
-                <div style='padding-left: 10px;'>Total</div>
-                <div style='padding-right: 10px;'>6667</div>
-              </div>`,
-            }}
-            
+        <div className="col-md-1"></div>
+        <div className="col-md-3">
+          <h4>Year</h4>
+          {/* <InputGroup className="flex-nowrap"> */}
+            {/* <ReactSelect style={{ paddingLeft: "20px", marginLeft: "10px" }}
+              data={yearOptions}
+              ref={yearValue}
+              value={yearOptions.find(
+                (option) => option.value === preparationValue.year
+              )}
+              onChange={() => handleYearChange()}
+            /> */}
+            <Select
+              options={yearOptions}
+              className='flex-nowrap'
+              // value={formValues.designation}
+              value={yearOptions.find(
+                (option) => option.value === preparationValue.year
+              )}
+              onChange={(selectedOption) => {
+                handleYearChange(selectedOption);
+              }}
+            />
+          {/* </InputGroup> */}
+        </div>
+        <div className="col-md-3"></div>
+        <div className="col-md-2 d-flex flex-row justify-content-end">
+          <button
             style={{
-              width: '100%',
-              borderCollapse: 'collapse',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              borderRadius: "10px",
+              width: "220px",
+              height: "60px",
+              gap: "13px",
+              background: "white"
             }}
-          />
+          >
+            <FontAwesomeIcon icon={faPrint} className="fa-2x search-icon" style={{ color: "black" }} onClick={exportToPrintPDF} />
+            <FontAwesomeIcon icon={faFileExcel} className="fa-2x search-icon" style={{ color: "green", paddingLeft: "10px" }} />
+            <FontAwesomeIcon icon={faFilePdf} className="fa-2x search-icon" style={{ color: "red", paddingLeft: "10px" }} onClick={handlePdfClick}  />
+          </button>
         </div>
       </div>
 
-      <Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
-        <Form>
-          <Modal.Header>
-            <Modal.Title>Print</Modal.Title>
-            <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
-              onClick={closeButtonClick}>
-              <FontAwesomeIcon
-                icon={faXmark}
-                className="fa-2x search-icon"
-                style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
-              />
-            </button>
-          </Modal.Header>
-          <Modal.Body>
-            <div className="row">
-              <div className="col-md-12 mb-3">
-                <p style={{ fontSize: "13px" }}>Create a printer-friendly PDF of your report.</p>
-              </div>
-              <div className="col-md-12 mb-3">
-                <ReactSelect
-                  className="position-relative"
-                  title={getFormattedMessage("globally.input.pageSize.name")}
-                  data={showPageSize}
-                  defaultValue={defaultPageSize}
-                  value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
-                  onChange={handleFieldChange('showPageSize')}
-                />
-              </div>
-              <div className="col-md-12 mb-3">
-                <ReactSelect
-                  className="position-relative"
-                  title={getFormattedMessage("globally.input.pageOrientation.name")}
-                  data={showPageOrientation}
-                  defaultValue={defaultPageOrientation}
-                  value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
-                  onChange={handleFieldChange('showPageOrientation')}
-                />
-              </div>
-            </div>
-          </Modal.Body>
-          <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
-            <button style={{
-              width: "100px",
-              height: "30px",
-              border: "none",
-              borderRadius: "10px",
-              backgroundColor: "red",
-              color: "white"
-            }}
-              onClick={exportToPDF}>
-              Print
-            </button>
-            <button style={{
-              width: "100px",
-              height: "30px",
-              border: "none",
-              borderRadius: "10px",
-              backgroundColor: "green",
-              color: "white"
-            }}
-              onClick={handleFieldCancel}>
-              Cancel
-            </button>
+      <div ref={paySlipRef} className="payroll-container" style={{ width: '100%', overflowX: 'auto', height: "auto", marginTop: '20px', borderRadius: "5px", border: "none" }}>
+        <div className="row mt-4 mb-4">
+          <div className="col-md-5">
+            <h4>Payroll on {paySlipMonth}</h4>
           </div>
-        </Form>
-      </Modal>
-    </>
+        </div>
+        <ReactTabulator
+          columns={columns}
+          data={itemsValue || []}
+          ref={tableRef}
+          options={{
+            columnHeaderVertAlign: "bottom",
+            layout: 'fitColumns',
+            responsiveLayout: "hide",
+            placeholder: "No records found",
+            footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+              <div style='padding-left: 10px;'>Total</div>
+              <div style='padding-right: 10px;'>${parseFloat(payrollReport?.data?.employeeDetails?.reduce((a, b) => a + b.netPaid, 0)).toFixed(2)}</div>
+            </div>`,
+            footer: (table) => getFooterData(table), // Dynamic footer example
+            initialSort: [
+              { column: "empId", dir: "asc" }  // Default sort on empName in ascending order
+            ]
+          }}
+          style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+          }}
+        />
+      </div>
+    </div>
   );
 };
 
 const mapStateToProps = (state) => {
-  const { companyConfig } = state;
-  return { companyConfig };
+  const { companyConfig, payrollReportDetails } = state;
+  return { companyConfig, payrollReportDetails };
 };
 
-export default connect(mapStateToProps, { fetchCompanyConfig })(PayrollDetailed);
+export default connect(mapStateToProps, { fetchCompanyConfig, fetchSalaryDetailsReportFilter })(PayrollDetailed);

@@ -11,7 +11,10 @@ import warehouseReducer from "./warehouseReducrs";
 import employeeReducer from "./employeeReducer";
 // import employeeFormReducer from "./employeeFormReducer";
 // import employeeSingleReducer from "./employeeSingleReducer";
+// import departmentReducer from "./departmentReducer";
+// import designationReducer from "./designationReducer";
 // import empDepartmentReducer from "./empDepartmentReducer";
+
 // import empDesignationReducer from "./empDesignationReducer";
 import unitsReducers from "./unitsReducres";
 import taxSetupReducer from "./TaxSetupReducer";
@@ -127,8 +130,8 @@ import closingStockReportReducer from "./closingStockReportReducer";
 
 //Mark from Nila 30-7-2024
 import posCustomerReducer from "./posCustomerReducer";
-import salaryReducer from "./salaryReducer";
-
+// import salaryReducer from "./salaryReducer";
+import SalaryStructureReducer from "./SalaryStructureReducer";
 export default combineReducers({
   companyConfig: companyConfigReducer,
   monthlySales: monthlySalesReducer,
@@ -256,6 +259,12 @@ export default combineReducers({
  
   //Mark from Nila 30-7-2024
   posCustomer:posCustomerReducer,
-  salary:salaryReducer,
-
+  // salary:salaryReducer,
+  // singleSalary: salarySingleReducer,
+  salaryDetail:SalaryStructureReducer,
+  // salaryListingall: salaryListingallReducer,
+  // payrollReport: payrollReportReducer,
+  // loader: loaderReducer,
+  // saleSingle: saleSingleReducer,
+  // purchaseSingle: purchaseSingleReducer,
 });
