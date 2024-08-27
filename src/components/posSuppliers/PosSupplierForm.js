@@ -14,7 +14,7 @@ import { addToast } from "../../store/action/toastAction"
 
 const PosSupplierForm = (props) => {
 
-    const {id,singleSupplier,editSuppliers,handleClose,addSuppliersData, to, editLink,title} =props
+    const {id,singleSupplier,editSuppliers,handleClose,addSuppliersData, to, editLink,title,posSupplier} =props
 
     console.log("Single Supplier =>" ,singleSupplier);
     console.log("Id => ", id)
@@ -183,8 +183,7 @@ console.log("Data =>" ,data)
       e.preventDefault();
     }
   };
-
-
+console.log("Pos supplier :",posSupplier)
 
     return(
 <div>
@@ -259,7 +258,7 @@ console.log("Data =>" ,data)
                 type="text"
                 name="ledgerName"
                 value={supplierValue.ledgerName }
-                maxLength={100}
+                
                 // placeholder={placeholderText(
                 //   "globally.input.ledgerName.placeholder.label"
                 // )}
@@ -281,7 +280,7 @@ console.log("Data =>" ,data)
               <input
                 type="text"
                 name="supplierCode"
-                value={supplierValue.supplierCode}
+                value={posSupplier ? ((posSupplier?.attributes?.ledgerCode, 10) + 1) : ''}
                 maxLength={50}
                 // placeholder={placeholderText(
                 //   "globally.input.supplierCode.placeholder.label"
@@ -503,4 +502,9 @@ console.log("Data =>" ,data)
     )
 }
 
-export default connect(null,{editSuppliers}) (PosSupplierForm)
+const  mapStateToProps =(state) => {
+  const {posSupplier,isLoading,allConfigData,totalRecord} =state;
+  return {posSupplier,isLoading,allConfigData,totalRecord};
+}
+
+export default connect(mapStateToProps,{editSuppliers}) (PosSupplierForm)

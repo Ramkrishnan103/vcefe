@@ -1126,7 +1126,9 @@
   "entryNo.title":"Entry No",
   "inv.No.title":"Inv.No",
   "react-data-table.searchbarInv.placeholder" :"Search Invoices",
-  "Sales.create.title":"Create Sales"
+  "Sales.create.title":"Create Sales",
 
+  "product.input.units.label" : "Unit"
+ 
 
 }

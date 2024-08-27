@@ -24,7 +24,11 @@ import PriceHistoryModal from "./PriceHistoryModal";
 import AddPriceListConfirmationModal from "../../shared/action-buttons/AddPriceListConfimationModal";
 import HeaderTitle from "../header/HeaderTitle";
 import ActionButtonForNewItems from "../../shared/action-buttons/ActionButtonForNewItems";
-const PriceList = () => {
+const PriceList = (props) => {
+   const{priceList}=props;
+
+   console.log("Price list  :" ,priceList);
+
   const { priceListing, isLoading, priceHistoryList } = useSelector(
     (state) => state
   );
@@ -51,13 +55,25 @@ const PriceList = () => {
   const salesPriceInput = useRef(null);
 
   useEffect(() => {
-    Dispatch(fetchPriceList(true));
-  }, []);
+    console.log("Received priceList props:", priceList);
+    setPriceListNew(priceList || []);
+    setFilterPriceListNew(priceList || []);
+  }, [priceList]);
+
+  console.log("Pricelist New :",priceListNew )
+  
   useEffect(() => {
-    setPriceListNew(priceListing);
-    setFilterPriceListNew(priceListing);
-    setTotalRecord(priceListing.length);
+    Dispatch(fetchPriceList(true));
+  }, [Dispatch]);
+
+  useEffect(() => {
+    if (priceListing) {
+      setPriceListNew(priceListing);
+      setFilterPriceListNew(priceListing);
+      setTotalRecord(priceListing.length);
+    }
   }, [priceListing]);
+
   const goToEditProduct = (item) => {
     console.log("goToEditProduct", salesPriceInput);
     console.log("goToEditProduct1", salesPriceInput.current.focus());

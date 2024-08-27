@@ -77,8 +77,7 @@ const SupplierList =(props) => {
 
 
     const itemsValue = filterPosSupplier 
-        && filterPosSupplier 
-            .map(posSupplier => {
+        && filterPosSupplier ?.map(posSupplier => {
                 if (posSupplier?.attributes?.underGroup === "SUPPLIERS") {
                     return {
                         supplierCode: posSupplier?.attributes?.ledgerCode,
@@ -90,7 +89,7 @@ const SupplierList =(props) => {
                 }
                 return null;
             })
-            .filter(item => item !== null) // Filter out null values
+            .filter(item => item !== null) 
         ;
 
     console.log("Items Value =>", itemsValue);   

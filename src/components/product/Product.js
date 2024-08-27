@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { connect, useDispatch } from "react-redux";
 import moment from "moment";
 import { Button, Image } from "react-bootstrap-v5";
 import MasterLayout from "../MasterLayout";
@@ -21,6 +21,11 @@ import TopProgressBar from "../../shared/components/loaders/TopProgressBar";
 import ImportProductModel from "./ImportProductModel";
 import { productExcelAction } from "../../store/action/productExcelAction";
 import SearchComponent from "../../shared/components/SearchComponent";
+import { wrap } from "lodash";
+import { fetchPriceHistory, fetchPriceListSpecific } from "../../store/action/priceListAction";
+import PriceHistoryModal from "../priceList/PriceHistoryModal";
+import PriceList from "../priceList/PriceList";
+import { useNavigate } from "react-router";
 
 const Product = (props) => {
   const {
@@ -33,7 +38,10 @@ const Product = (props) => {
     productExcelAction,
     productUnitId,
     allConfigData,
+     priceHistoryList,
+     priceListing
   } = props;
+
   const [deleteModel, setDeleteModel] = useState(false);
   const [isDelete, setIsDelete] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +55,11 @@ const Product = (props) => {
   };
 
   const [isWarehouseValue, setIsWarehouseValue] = useState(false);
+  const [priceHistoryModalShow, setPriceHistoryModalShow] = useState(false);
+  const [priceList, setPriceList] = useState([]);
+  const [showPriceList, setShowPriceList] = useState(false);
+  const Dispatch = useDispatch();
+
   useEffect(() => {
     if (isWarehouseValue === true) {
       productExcelAction(setIsWarehouseValue, true, productUnitId);
@@ -81,6 +94,32 @@ const Product = (props) => {
   const goToProductDetailPage = (ProductId) => {
     window.location.href = "#/app/products/detail/" + ProductId;
   };
+
+  const onClickPriceHistory = useCallback((items) => {
+    setShowPriceList(!showPriceList);
+    if (!showPriceList) {
+      Dispatch(fetchPriceListSpecific(true, items?.id));
+    }
+  }, [showPriceList, Dispatch]);
+
+  useEffect(() => {
+    if (priceHistoryList) {
+      setPriceList(priceHistoryList);
+    }
+  }, [priceHistoryList]);
+
+
+  console.log("price History List :" ,priceHistoryList)
+  console.log("Price list  :" ,priceList);
+
+
+
+  // const CustomHeader = ({ columnName }) => (
+  //   <div style={{ textAlign: 'right', paddingRight: '20px' }}>
+  //     {columnName}
+  //   </div>
+  // );
+
 
   const columns = [
     {
@@ -130,21 +169,56 @@ const Product = (props) => {
       className: "product-name",
       sortField: "name",
       sortable: true,
+       wrap:true
     },
     // {
     //     name: getFormattedMessage( 'product.input.code.label' ),
-    //     selector: row => <span className='badge bg-light-danger'>
+    //     selector: row => <span className='badge bg-light-success'>
     //         <span>{row.code}</span>
     //     </span>,
     //     sortField: 'code',
     //     sortable: true,
     // },
-    // {
-    //     name: getFormattedMessage( 'product.input.brand.label' ),
-    //     selector: row => row.brand_name,
-    //     sortField: 'brand_name',
-    //     sortable: false,
-    // },
+    {
+      name: getFormattedMessage("product.input.brand.label") ,
+        selector: row => row.brand_name,
+        sortField: 'brand_name',
+        sortable: false, 
+        // conditionalCellStyles: [
+        //   {
+        //     when: (row) => row.brand_name,  // Condition to apply the style
+        //     style: {
+        //       textAlign: 'right',
+        //       paddingRight: '20px',
+        //     },
+        //   },
+        // ],
+    
+        // cell: (row) => (
+        //   <div style={{ marginLeft: "20px" }}>
+        //     {row.brand_name}
+        //   </div>)
+    },
+    {
+      name: getFormattedMessage("product.input.category.label") ,
+      selector: row => row.category,
+      sortField: 'category',
+      sortable: false,
+      // cell: (row) => (
+      //   <div style={{ marginLeft: "20px" }}>
+      //     {row.brand_name}
+      //   </div>)
+  },
+    {
+      name: getFormattedMessage("product.input.units.label"),
+      selector: row => row.product_unit,
+      sortField: 'product_unit',
+      sortable: false, 
+      // cell: (row) => (
+      //   <div style={{ marginLeft: "20px" }}>
+      //     {row.brand_name}
+      //   </div>)
+  },
     // {
     //     name: getFormattedMessage( 'product.table.price.column.label' ),
 
@@ -152,6 +226,12 @@ const Product = (props) => {
     //     sortField: 'product_price',
     //     sortable: true,
     // },
+    {
+      name: getFormattedMessage( 'globally.input.isactive.label' ),
+      selector: row => row.isActive,
+      sortField: 'isActive',
+      sortable: false,
+  },
     // {
     //     name: getFormattedMessage( 'product.input.product-unit.label' ),
     //     sortField: 'product_unit',
@@ -201,6 +281,8 @@ const Product = (props) => {
           goToEditProduct={goToEditProduct}
           isEditMode={true}
           onClickDeleteModel={onClickDeleteModel}
+          isViewPriceHistory={true}
+          onClickPriceHistory={() => onClickPriceHistory(row)}
         />
       ),
     },
@@ -229,24 +311,29 @@ const Product = (props) => {
     filterProduct?.map((product) => {
       return {
         name: product?.attributes?.name,
-        code: product?.attributes?.code,
-        date: getFormattedDate(
-          product?.attributes?.created_at,
-          allConfigData && allConfigData
-        ),
-        time: moment(product?.attributes?.created_at).format("LT"),
-        brand_name: product?.attributes?.brand_name,
-        product_price: product?.attributes?.product_price,
-        product_unit: product?.attributes?.product_unit_name?.name
-          ? product?.attributes?.product_unit_name?.name
-          : "N/A",
-        in_stock: product?.attributes?.in_stock,
+        code: product?.attributes?.code_barcode,
+        // date: getFormattedDate(
+        //   product?.attributes?.created_at,
+        //   allConfigData && allConfigData
+        // ),
+        // time: moment(product?.attributes?.created_at).format("LT"),
+        brand_name: product?.attributes?.category1_name,
+        category:product?.attributes?.category2_name,        
+        product_unit: product?.attributes?.sales_unit_name,
+        // ?.name
+        //   ? product?.attributes?.product_unit_name?.name
+        //   : "N/A",
+        product_price: product?.attributes?.tax,
+        // in_stock: product?.attributes?.in_stock,
+        isActive: product?.attributes?.isActive == true ? "Yes" : "No",
         images: product?.attributes?.product_image,
         id: product.items_id,
         currency: currencySymbol,
       };
     });
   console.log("product_image", itemsValue);
+
+  console.log("PriceListing :",priceListing)
   return (
     <MasterLayout>
       <TopProgressBar />
@@ -289,6 +376,24 @@ const Product = (props) => {
       {importProduct && (
         <ImportProductModel handleClose={handleClose} show={importProduct} />
       )}
+
+        {/* <PriceHistoryModal
+          priceHistoryShow={priceHistoryModalShow}
+          title="Price History"
+          onClickPriceHistory={onClickPriceHistory}
+          priceHistoryList={priceHistoryList}
+        /> */}
+
+      {/* {showPriceList && (
+        <PriceList 
+        // {navigate("")}
+          priceList={priceList}
+          show={showPriceList}
+          handleClose={() => setShowPriceList(false)}
+          setShowPriceList={setShowPriceList}
+          setPriceList={setPriceList}
+        />
+      )} */}
     </MasterLayout>
   );
 };
@@ -301,6 +406,8 @@ const mapStateToProps = (state) => {
     frontSetting,
     productUnitId,
     allConfigData,
+     priceHistoryList,
+     priceListing
   } = state;
   return {
     products,
@@ -309,11 +416,13 @@ const mapStateToProps = (state) => {
     frontSetting,
     productUnitId,
     allConfigData,
+     priceHistoryList,
+     priceListing
   };
 };
 
 export default connect(mapStateToProps, {
   fetchProducts,
   fetchFrontSetting,
-  productExcelAction,
+  productExcelAction
 })(Product);
