@@ -1,345 +1,296 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Form, Modal } from "react-bootstrap-v5";
-import TopProgressBar from "../../../shared/components/loaders/TopProgressBar"
-import MasterLayout from "../../MasterLayout"
+import TopProgressBar from "../../../shared/components/loaders/TopProgressBar";
+import MasterLayout from "../../MasterLayout";
 import { ReactTabulator } from 'react-tabulator';
-import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
-import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
-import {  faFilter,faFileExcel, faFilePdf, faPrint,faXmark } from "@fortawesome/free-solid-svg-icons";
+import 'react-tabulator/lib/styles.css';
+import 'tabulator-tables/dist/css/tabulator_simple.min.css';
+import { faFilter, faFileExcel, faFilePdf, faPrint, faXmark } from "@fortawesome/free-solid-svg-icons";
 import ClosingStockReportForm from "./ClosingStockReportForm";
-import { useEffect, useRef, useState,useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import UnitsForm from "../../units/UnitsForm";
 import Units from "../../units/Units";
 import { connect } from "react-redux";
 import { fetchClosingStockReport } from "../../../store/action/ClsoingStockReportAction";
 import html2canvas from 'html2canvas';
-import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
+import { fetchCompanyConfig } from "../../../store/action/companyConfigAction";
 import { getFormattedMessage } from "../../../shared/sharedMethod";
 import ClosingStockField from "./ClosingStockField";
-import {jsPDF} from 'jspdf';
+import { jsPDF } from 'jspdf';
 import ReactSelect from "../../../shared/select/reactSelect";
 import * as XLSX from 'xlsx';
-
-
-
 const today = new Date();
 const numOfDaysAdded = 0;
 const date = new Date(today.setDate(today.getDate() + numOfDaysAdded));
 const defaultValue = date.toISOString().split('T')[0]; 
-
+const formatDecimal = (cell, formatterParams, onRendered) => {
+  const value = cell.getValue();
+  // Format number to 2 decimal places
+  return value.toFixed(2);
+};
 const formatDate = (date) => {
   const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); 
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
 };
-// const formattedDate = formatDate(date);
 
+const ClosingStockReport = ({ closingStocks, fetchClosingStockReport,ItemValues, companyConfig, fetchCompanyConfig }) => {
+  const today = new Date();
+  const formattedDate = formatDate(today);
+  const [page, setPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [search, setSearch] = useState('');
+  const [fetchRangeValue, setFetchRangeValue] = useState({
+    category1Name: "",
+    category2Name: "",
+    category3Name: "",
+    unitName: ""
+  });
+  const [label, setLabel] = useState(false);
+  const [fieldShow, setFieldShow] = useState(false);
+  const handleFieldClose = () => setFieldShow(!fieldShow);
+  const pdfRef = useRef(null);
+  const searchRef = useRef();
+  const [fieldValue, setFieldValue] = useState({
+    showPageSize: "",
+    showPageOrientation: ""
+  });
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const navigate = useNavigate();
 
-
-const ClosingStockReport = (props) => {
-  
-    const {closingStocks,fetchClosingStockReport,ItemValues,companyConfig,fetchCompanyConfig} =props;
-    console.log("closingStocks =>", closingStocks)
-    console.log("closingStocks =>", ItemValues)
-    const today = new Date();
-    const formattedDate = formatDate(today);
-    const [page, setPage] = useState(1);
-    const [itemsPerPage] = useState(10);
-    const[search,setSearch] =useState('')
-    const[fetchRangeValue,setFetchRangeValue] =useState({
-      category1Name:"",
-      category2Name:"",
-      category3Name:"",
-      unitName:""
-    });
-    const [label,setLabel]=useState(false)
-    const [fieldShow,setFieldShow]=useState(false) 
-    const handleFieldClose = () => setFieldShow(!fieldShow);
-    const pdfRef = useRef(null);
-    const searchRef=useRef();
-    const [fieldValue,setFieldValue]=useState({
-      showPageSize:"",
-      showPageOrientation:""
-    })
-    const [loadingPdf,setLoadingPdf]=useState(false)
-
-    const columns=[
-      {title:"Code",field:"code",width:"110px"},
-      {title:"Product Name",field:"productName",width:"300px"},
-      {title:"MRP",field:"mrp",width:"110px"},
-      {title:"Stock",field:"stock",width:"110px"},
-      {title:"Cost",field:"cost",width:"110px"},
-      {title:"Value",field:"value",width:"110px"},
-    ]
-    data=[
-      {code:{},productName:{},mrp:{},stock:{},cost:{},value:{}},
-  ]
-  const options={
-    layout:"fitColumns",
-    footerElement:`
-    <div style="display: flex; justify-content: space-between;">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      
-    </div>
-    `,
-  footerCalculator:{
-    salary:"sum"
-  }
-  }
-    
-const onChange =() => {
-   setSearch(searchRef.current.value)
-}
-
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
-
-useEffect(()=> {
-  fetchCompanyConfig()
-    fetchClosingStockReport();
-},[])
-
-    const onClick = () => {
-  setLabel(true)
-  //  navigate(`/app/report/closingStock`)
-//    setShowStatements(true)
-   setShow(true)
-  //  console.log("Range =>" ,range)
-   setFetchRangeValue(range)
-   console.log("fetchRangeValue =>" ,fetchRangeValue)
-    };
-
-
-    const itemsValue =
-    closingStocks?.length >= 0 &&
-    closingStocks.map((closingStock) => {
-      console.log("hi",closingStock)
-      return {
-        Code: closingStock.attributes.itemCode,
-        productName: closingStock.attributes.itemName,
-        MRP:closingStock.attributes.mrp,
-        stock: closingStock.attributes.stock,
-        unitName: closingStock.attributes.unitName,
-        cost: closingStock.attributes.purchaseCost,
-        value: closingStock.attributes.salesPrice,
-        category1Name: closingStock.attributes.category1Name,
-        
-      };
-    });
-
-  const footers = [
-    {
-      name: getFormattedMessage("totalStock.title"),
-        
-       selector: (row) => row.totalValue,
-       sortField: "totalValue",
-       sortable: true, 
-    }
+  const columns = [
+    { title: "Code", field: "code",headerSort:false },
+    { title: "Product Name", field: "productName",headerSort:false },
+    { title: "MRP", field: "mrp",headerSort:false ,hozAlign:"center", headerHozAlign: "center",formatter: formatDecimal  },
+    { title: "Stock", field: "stock",headerSort:false ,hozAlign:"center", headerHozAlign: "center"  },
+    { title: "Unit Name", field: "unitName",headerSort:false, hozAlign:"right", headerHozAlign: "right" },
+    { title: "Cost", field: "cost",headerSort:false, hozAlign:"right", headerHozAlign: "right" ,formatter: formatDecimal    },
+    { title: "Value", field: "value",headerSort:false , hozAlign:"right" ,headerHozAlign: "right",formatter: formatDecimal    }
   ];
 
+  const onChange = () => {
+    setSearch(searchRef.current.value);
+  };
+
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(!show);
+
+  useEffect(() => {
+    fetchCompanyConfig();
+    fetchClosingStockReport();
+  }, []);
+  const itemsValue = closingStocks?.length >= 0 &&
+  closingStocks.map(closingStock => ({
+    code: closingStock.attributes.itemCode,
+    productName: closingStock.attributes.itemName,
+    mrp: closingStock.attributes.mrp,
+    stock: closingStock.attributes.stock,
+    unitName: closingStock.attributes.unitName,
+    cost: closingStock.attributes.purchaseCost,
+    value: closingStock.attributes.salesPrice
+  })) || [];
+
+
+
   const totalSalesValue = (data) => {
-    console.log("data",data)
     return new Intl.NumberFormat('en-IN', {
       style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(data.reduce((acc, curr) => acc + parseFloat(curr.value), 0));
   };
+  const calculateFooterData = (table) => {
+    const data = table.getData();
+   
+    const totalValue = data.reduce((acc, row) => acc + (row.value || 0), 0);
+  
+    return `
+      <div style='width:100%; text-align: right; padding: 10px; border-top: 1px solid #ddd; background-color: #f9f9f9;'>
+        <div>Total</div>
+        <div>Total Value:${totalValue.toFixed(2)}</div>
+      </div>
+    `;
+  };
+  
 
-const [range,setRange ]=useState({
-    category1Name:"",
-    category2Name:"",
-    category3Name:"",
-    unitName:"",
-})
-const handleClick=(e)=>{
-   setFieldShow(true)
- 
-}
-
-const companyDetails = {
-  companyName: companyConfig?.companyName,
-  address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
-  phoneNumber: companyConfig?.attributes?.phoneNo
-};
-
-const reportDetails = {
-  title: " Closing Stock Report as on",
-  dateRange:formattedDate
-};
-const getCurrentDateTimeInIST = () => {
-  const now = new Date();
-  const offset = 5.5; // IST is UTC+5:30
-  const istDate = new Date(now.getTime() + offset * 3600 * 1000);
-  return istDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
-};
-const [showField,setShowField]=useState()
-console.log("showField",showField )
-const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
-  const { companyName, address, phoneNumber } = companyDetails;
-  const { title, dateRange } = reportDetails;
-
-  if (!pdfRef.current) {
-    console.error("pdfRef.current is null");
-    return;
-  }
-
-  const input = pdfRef.current;
-
-  html2canvas(input, { scale: 1.5, useCORS: true }).then((canvas) => {
-    const resizedCanvas = document.createElement('canvas');
-    const resizedCtx = resizedCanvas.getContext('2d');
-    resizedCanvas.width = canvas.width / 2; // Adjust as necessary
-    resizedCanvas.height = canvas.height / 2;
-    resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
-
-    const imgData = resizedCanvas.toDataURL('image/png');
-    const isLandscape = orientation === 'Landscape';
-    const pdf = new jsPDF({
-      orientation: isLandscape ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: isLandscape ? [297, 210] : [210, 297]
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const centerX = pdfWidth / 2;
-    const topMargin = 20;
-    const textSpacing = 3;
-
-    pdf.setFontSize(12);
-    pdf.text(companyName, centerX, topMargin, { align: 'center' });
-    pdf.setFontSize(10);
-    pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
-    pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
-
-    pdf.setLineWidth(0.2);
-    pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
-
-    pdf.setFontSize(12);
-    pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
-    pdf.text(dateRange, 10, topMargin + 5 * textSpacing + 30);
-
-    const imgWidth = pdfWidth - 20;
-    const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
-    const xOffset = 10;
-    const yOffset = topMargin + 6 * textSpacing + 35;
-
-    pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
-
-    const addFooter = () => {
-      const pageCount = pdf.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        pdf.setPage(i);
-        pdf.setFontSize(10);
-        pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-      }
-    };
-
-    addFooter();
-    pdf.save(`Closing_Stock_Report_${getCurrentDateTimeInIST()}.pdf`);
-  }).catch(error => {
-    console.error('Error generating canvas:', error);
+  const [range, setRange] = useState({
+    category1Name: "",
+    category2Name: "",
+    category3Name: "",
+    unitName: "",
   });
-}, []);
 
-const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientation) => {
-  const { companyName, address, phoneNumber } = companyDetails;
-  const { title, dateRange } = reportDetails;
+  const handleClick = (e) => {
+    setFieldShow(true);
+  };
 
-  if (!pdfRef.current) {
+  const companyDetails = {
+    companyName: companyConfig?.companyName,
+    address: `${companyConfig?.attributes?.address1} , ${companyConfig?.attributes?.address2}`,
+    phoneNumber: companyConfig?.attributes?.phoneNo
+  };
+
+  const reportDetails = {
+    title: "Closing Stock Report as on",
+    dateRange: formattedDate
+  };
+  useEffect(() => {
+    console.log("Closing Stocks: ", closingStocks);
+    console.log("Items Value: ", itemsValue);
+  }, [closingStocks]);
+
+  const getCurrentDateTimeInIST = () => {
+    const now = new Date();
+    const offset = 5.5; // IST is UTC+5:30
+    const istDate = new Date(now.getTime() + offset * 3600 * 1000);
+    return istDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+  };
+  const [showField,setShowField]=useState()
+  const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
+    if (!pdfRef.current) {
       console.error("pdfRef.current is null");
       return;
-  }
+    }
 
-  const input = pdfRef.current;
-  html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
-    const resizedCanvas = document.createElement('canvas');
-    const resizedCtx = resizedCanvas.getContext('2d');
-    resizedCanvas.width = canvas.width / 2; // Reduce the size
-    resizedCanvas.height = canvas.height / 2;
-    resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+    html2canvas(pdfRef.current, { scale: 1.5, useCORS: true }).then(canvas => {
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2;
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
 
-    const imgData = resizedCanvas.toDataURL('image/png');
-    const isLandscape = orientation === 'Landscape';
-    const pdf = new jsPDF({
+      const imgData = resizedCanvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
+      const pdf = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
         unit: 'mm',
         format: isLandscape ? [297, 210] : [210, 297]
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const centerX = pdfWidth / 2;
+      const topMargin = 20;
+      const textSpacing = 3;
+
+      pdf.setFontSize(12);
+      pdf.text(companyDetails.companyName, centerX, topMargin, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(companyDetails.address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+      pdf.text(`Phone: ${companyDetails.phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+
+      pdf.setLineWidth(0.2);
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+
+      pdf.setFontSize(12);
+      pdf.text(reportDetails.title, 10, topMargin + 4 * textSpacing + 25);
+      pdf.text(reportDetails.dateRange, 10, topMargin + 5 * textSpacing + 30);
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfImgWidth = pdfWidth - 20;
+      const pdfImgHeight = (imgProps.height * pdfImgWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 10, topMargin + 6 * textSpacing + 35, pdfImgWidth, pdfImgHeight);
+      setLoadingPdf(false);
+      pdf.save(`ClosingStockReport_${formattedDate}.pdf`);
+    }).catch(error => {
+      console.error('Error generating PDF:', error);
     });
+  }, [formattedDate]);
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const centerX = pdfWidth / 2;
-    const topMargin = 20;
-    const textSpacing = 3;
-    const lineSpacing = 15;
+  const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientation) => {
+    const { companyName, address, phoneNumber } = companyDetails;
+    const { title, dateRange } = reportDetails;
+  
+    if (!pdfRef.current) {
+        console.error("pdfRef.current is null");
+        return;
+    }
+  
+    const input = pdfRef.current;
+    html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
+      const resizedCanvas = document.createElement('canvas');
+      const resizedCtx = resizedCanvas.getContext('2d');
+      resizedCanvas.width = canvas.width / 2; // Reduce the size
+      resizedCanvas.height = canvas.height / 2;
+      resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+  
+      const imgData = resizedCanvas.toDataURL('image/png');
+      const isLandscape = orientation === 'Landscape';
+      const pdf = new jsPDF({
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: isLandscape ? [297, 210] : [210, 297]
+      });
+  
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const centerX = pdfWidth / 2;
+      const topMargin = 20;
+      const textSpacing = 3;
+      const lineSpacing = 15;
+  
+      pdf.setFontSize(12);
+      pdf.text(companyName, centerX, topMargin, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
+      pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
+  
+      pdf.setLineWidth(0.2);
+      pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
+  
+      pdf.setFontSize(12);
+      pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
+      pdf.text(dateRange, 10, topMargin + 5 * textSpacing + 30);
+  
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
+      const xOffset = 10;
+      const yOffset = topMargin + 6 * textSpacing + 35;
+  
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+  
+      const addFooter = () => {
+          const pageCount = pdf.internal.getNumberOfPages();
+          for (let i = 1; i <= pageCount; i++) {
+              pdf.setPage(i);
+              pdf.setFontSize(10);
+              pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+          }
+      };
+      addFooter();
+      const pdfBlob = pdf.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const iframe = document.createElement('iframe');
+          iframe.style.position = 'absolute';
+          iframe.style.width = '0';
+          iframe.style.height = '0';
+          iframe.style.border = 'none';
+          document.body.appendChild(iframe);
+  
+          iframe.onload = () => {
+              iframe.contentWindow.focus();
+              iframe.contentWindow.print();
+          };
+  
+          iframe.contentWindow.onafterprint = () => {
+              
+              document.body.removeChild(iframe);
+              URL.revokeObjectURL(pdfUrl);
+          };
+  
+          iframe.src = pdfUrl;
+    }).catch(error => {
+        console.error('Error generating canvas:', error);
+    });
+  }, []);
+  const exportToPrintPDF = () => {
 
-    pdf.setFontSize(12);
-    pdf.text(companyName, centerX, topMargin, { align: 'center' });
-    pdf.setFontSize(10);
-    pdf.text(address, centerX, topMargin + textSpacing + 5, { align: 'center' });
-    pdf.text(`Phone: ${phoneNumber}`, centerX, topMargin + 2 * textSpacing + 10, { align: 'center' });
-
-    pdf.setLineWidth(0.2);
-    pdf.line(10, topMargin + 3 * textSpacing + 15, pdfWidth - 10, topMargin + 3 * textSpacing + 15);
-
-    pdf.setFontSize(12);
-    pdf.text(title, 10, topMargin + 4 * textSpacing + 25);
-    pdf.text(dateRange, 10, topMargin + 5 * textSpacing + 30);
-
-    const imgWidth = pdfWidth - 20;
-    const imgHeight = (resizedCanvas.height * imgWidth) / resizedCanvas.width;
-    const xOffset = 10;
-    const yOffset = topMargin + 6 * textSpacing + 35;
-
-    pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
-
-    const addFooter = () => {
-        const pageCount = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            pdf.setPage(i);
-            pdf.setFontSize(10);
-            pdf.text(`Page ${i} of ${pageCount}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-        }
-    };
-    addFooter();
-    const pdfBlob = pdf.output('blob');
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    const iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-        };
-
-        iframe.contentWindow.onafterprint = () => {
-            
-            document.body.removeChild(iframe);
-            URL.revokeObjectURL(pdfUrl);
-        };
-
-        iframe.src = pdfUrl;
-  }).catch(error => {
-      console.error('Error generating canvas:', error);
-  });
-}, []);
-const exportToPrintPDF = () => {
-
-  generateAndPrintPDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
-};
-
-const XLSX = require('xlsx');
+    generateAndPrintPDF(companyDetails, reportDetails,fieldValue.showPageOrientation )
+  };
+  const XLSX = require('xlsx');
   const fs = require('fs');
 
   const generateClosingStockReportExcel = (companyDetails, reportDetails, itemsValue) => {
@@ -420,42 +371,43 @@ const showPageOrientation = [
   { value: "Portrait", label: "Portrait" },
   { value: "Landscape", label: "Landscape" },
 ];
-
-// Define the options for page size
 const showPageSize = [
   { value: "A4", label: "A4" },
 ];
-
-// Find the default value from the options
 const defaultPageOrientation = showPageOrientation.find(option => option.value === 'Portrait');
 const defaultPageSize = showPageSize.find(option => option.value === 'A4');
 
-const closeButtonClick = () => {
-  setLoadingPdf(false)
-};
-const handleFieldChange = (field) => (selectedOption) => {
-  setFieldValue((prevValues) => ({
-    ...prevValues,
-    [field]: selectedOption ? selectedOption.value : ""
-  }));
-};
-
-
-const handlePdfClick=()=>{
-setLoadingPdf(true)
-
-}
-const handleFieldCancel=()=>{
-  setLoadingPdf(false)
-}
-
-    return(
-   <>
-        <div style={{backgroundColor:"white",height:"100%"}}>
-            
+  const closeButtonClick = () => {
+    setLoadingPdf(false)
+  };
+  const handleFieldChange = (field) => (selectedOption) => {
+    setFieldValue((prevValues) => ({
+      ...prevValues,
+      [field]: selectedOption ? selectedOption.value : ""
+    }));
+  };
+  const handlePdfClick=()=>{
+    setLoadingPdf(true)
+    
+    }
+    const handleFieldCancel=()=>{
+      setLoadingPdf(false)
+    }
+    const onClick = () => {
+      setLabel(true)
+      //  navigate(`/app/report/closingStock`)
+    //    setShowStatements(true)
+       setShow(true)
+      //  console.log("Range =>" ,range)
+       setFetchRangeValue(range)
+       console.log("fetchRangeValue =>" ,fetchRangeValue)
+        };
+  return (
+    <>
+    <div style={{backgroundColor:"white",height:"100%"}}>
     {fieldShow&&<ClosingStockField setShowField={setShowField} fieldShow={fieldShow}  handleFieldClose={handleFieldClose}/>}
-           <div className="row">
-           <div className="col-md-5">
+    <div className="row">
+    <div className="col-md-5">
                 <h2 style={{color:"green"}}>Closing  Stock Report as on  { formattedDate}</h2>
                 </div>
                 <div className="col-md-5"></div>
@@ -496,23 +448,18 @@ const handleFieldCancel=()=>{
             ></FontAwesomeIcon>
 
           </button>
-           </div> 
-           </div>
-          
-          
-           <div className="row"> 
-                <div className='col-md-1 mt-2'>
+                  </div>   
+    </div>
+    <div className="row"> 
+    <div className='col-md-1 mt-2'>
                     <h4 >Search</h4>
                 </div>
-
                 <div className='col-md-4'>
                      <input type='text' ref={searchRef} onChange={onChange}  placeholder='Item Name Or Item Code' className=' form-control rounded text-align-center  align-items-center mr-15 mb-5'></input>
                 </div>
-
-<div className="col-md-1"></div>
-
-<div className="col-md-3" style={{ display: 'flex', alignItems: 'center', marginTop: "-20px" ,}}>
-    <button style={{
+                <div className="col-md-1"></div> 
+                <div className="col-md-3" style={{ display: 'flex', alignItems: 'center', marginTop: "-20px" ,}}>
+                <button style={{
         border: "1px solid gray",
         borderRadius: "10px 0 0 10px", 
         backgroundColor: "blue",
@@ -542,7 +489,7 @@ const handleFieldCancel=()=>{
     }} onClick={onClick}>
         <span style={{ fontSize: '16px',fontWeight:"bold" }}>Range</span>
     </button>
-
+    
     <button style={{
         border: "1px solid gray",
         borderRadius: "10px 0 0 10px", 
@@ -561,28 +508,27 @@ const handleFieldCancel=()=>{
     </button> 
     <button style={{
      
-        border: "1px solid gray",
-        borderRadius: "0 10px 10px 0", 
-        backgroundColor: "white",
-        height: "40px", 
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 10px',
-        marginLeft: "-1px",
-        marginRight:"35px",
-        color: "blue" 
-    }} onClick={handleClick}>
-        <span style={{ fontSize: '16px',fontWeight:"bold" }}>Field</span>
-    </button>
+     border: "1px solid gray",
+     borderRadius: "0 10px 10px 0", 
+     backgroundColor: "white",
+     height: "40px", 
+     display: 'flex',
+     alignItems: 'center',
+     padding: '0 10px',
+     marginLeft: "-1px",
+     marginRight:"35px",
+     color: "blue" 
+ }} onClick={handleClick}>
+     <span style={{ fontSize: '16px',fontWeight:"bold" }}>Field</span>
+ </button>
 
 
-  
-</div>
- </div>
+    </div>           
+    </div>
 {
   label&&(
     <div className="row">
-    <div className="col-md-3">
+      <div className="col-md-3">
         <h4> search : {search}</h4>
     </div>
 
@@ -599,159 +545,121 @@ const handleFieldCancel=()=>{
     </div>
 
     
-</div>
-
+    </div>
   )
 }
-
 <div className="row">
-
 <div className="col-md-12" >
-       {itemsValue.length>0 && 
-
-<div className="fixTableHead" ref={pdfRef}>
-<table className='table-container'>
-  <thead>
-    <tr >
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Code</th>
-      <th style={{fontWeight:"bold",textAlign:"center",fontSize:"16px"}}> Product Name</th>
-      <th style={{fontWeight:"bold",textAlign:"center",fontSize:"16px"}}> MRP</th>
-      <th style={{fontWeight:"bold",fontSize:"16px",textAlign:"center"}} colSpan='2'>Stock</th>
-      {/* <th style={{fontWeight:"bold",textAlign:"right",fontSize:"16px"}}> Sales Value</th> */}
-
-      <th style={{fontWeight:"bold",fontSize:"16px",textAlign:"center"}}>Cost</th>
-      <th style={{fontWeight:"bold",textAlign:"right",fontSize:"16px"}}> Value</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    {itemsValue.map((closingStock, index) => (
-      <tr key={index}>
-        <td >{closingStock.Code}</td>
-        <td >{closingStock.productName}</td>
-        <td >{closingStock.MRP}</td>
-        <td  style={{textAlign:"right"}}>{closingStock.stock}</td>
-        <td >{closingStock.unitName}</td>
-        <td  style={{textAlign:"right"}}>{
-       new Intl.NumberFormat('en-IN', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(parseFloat(closingStock.cost), 0)
-        }</td>
-        <td className="salesvalue" style={{textAlign:"right"}}>{
-            new Intl.NumberFormat('en-IN', {
-                style: 'decimal',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(parseFloat(closingStock.value), 0)
-            }
-        </td>
-      </tr>
-    ))}
-  </tbody>
 
   
-  <tfoot>
-    <tr >
-      {footers.map((footer) => (
-        <th colSpan='2' >{footer.name}</th>
-      ))}
-      <th colSpan='5' style={{textAlign:"right"}} >{totalSalesValue(itemsValue)}</th>
-    </tr>
-  </tfoot>
-  </table>
-  <ReactTabulator columns={columns}
-    data={data}
-     options={options}
+<ReactTabulator 
+                  columns={columns}
+                  data={itemsValue}
+                  options={{
+                    columnHeaderVertAlign: "bottom",
+                    layout: 'fitColumns',
+                    responsiveLayout: "hide",
+                    placeholder: "No records found",
+                    height:"400px",
+                   footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+                    <div style='padding-left: 10px;'>Total</div>
+                    <div style='padding-right: 10px;'>
+                    ${totalSalesValue(itemsValue)}
+                    </div>
+            </div>`
+                  }}
+                />
+    
 
-    />
 </div>
-}
 </div>
-</div> 
-
-        { show? <ClosingStockReportForm closingStocks={closingStocks} show ={show} handleClose={handleClose} 
+{ show? <ClosingStockReportForm closingStocks={closingStocks} show ={show} handleClose={handleClose} 
         // setItemValues={setItemValues}
         singleStock={itemsValue}  
         setRange ={setRange}
         search={search} /> : null }
         {/* </MasterLayout> */}
-        </div>
-        <Modal  className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
-  <Form>
-    <Modal.Header>
-      <Modal.Title>Print</Modal.Title>
-      <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
-              onClick={closeButtonClick}>
-        <FontAwesomeIcon
-          icon={faXmark}
-          className="fa-2x search-icon"
-          style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
-        />
-      </button>
-    </Modal.Header>
-    <Modal.Body>
-      <div className="row">
-        <div className="col-md-12 mb-3">
-        <p style={{fontSize:"13px"}}>Create a printer-friendly PDF of your report.</p>
-        </div>
-        <div className="col-md-12 mb-3">
-          <ReactSelect
-            className="position-relative"
-            title={getFormattedMessage("globally.input.pageSize.name")}
-            data={showPageSize}
-            defaultValue={defaultPageSize}
-            value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
-            onChange={handleFieldChange('showPageSize')}
-          />
-        </div>
-        <div className="col-md-12 mb-3">
-          <ReactSelect
-            className="position-relative"
-            title={getFormattedMessage("globally.input.pageOrientation.name")}
-            data={showPageOrientation}
-            defaultValue={defaultPageOrientation}
-            value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
-            onChange={handleFieldChange('showPageOrientation')}
-          />
-        </div>
-      </div>
-    </Modal.Body>
-    <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
-      <button style={{
-        width: "100px",
-        height: "30px",
-        border: "none",
-        borderRadius: "10px",
-        backgroundColor: "red",
-        color: "white"
-      }}
-        onClick={exportToPDF}>
-        Print
-      </button>
-      <button style={{
-        width: "100px",
-        height: "30px",
-        border: "none",
-        borderRadius: "10px",
-        backgroundColor: "green",
-        color: "white"
-      }}
-        onClick={handleFieldCancel}>
-        Cancel
-      </button>
     </div>
-  </Form>
+     
+
+    <Modal  className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
+ <Form>
+   <Modal.Header>
+     <Modal.Title>Print</Modal.Title>
+     <button style={{ backgroundColor: "white", display: "flex", gap: "10px", border: "none" }}
+             onClick={closeButtonClick}>
+       <FontAwesomeIcon
+         icon={faXmark}
+         className="fa-2x search-icon"
+         style={{ height: "20px", width: "27px", marginTop: "2px", color: "gray" }}
+       />
+     </button>
+   </Modal.Header>
+   <Modal.Body>
+     <div className="row">
+       <div className="col-md-12 mb-3">
+       <p style={{fontSize:"13px"}}>Create a printer-friendly PDF of your report.</p>
+       </div>
+       <div className="col-md-12 mb-3">
+         <ReactSelect
+           className="position-relative"
+           title={getFormattedMessage("globally.input.pageSize.name")}
+           data={showPageSize}
+           defaultValue={defaultPageSize}
+           value={showPageSize.find(option => option.value === fieldValue.showPageSize)}
+           onChange={handleFieldChange('showPageSize')}
+         />
+       </div>
+       <div className="col-md-12 mb-3">
+         <ReactSelect
+           className="position-relative"
+           title={getFormattedMessage("globally.input.pageOrientation.name")}
+           data={showPageOrientation}
+           defaultValue={defaultPageOrientation}
+           value={showPageOrientation.find(option => option.value === fieldValue.showPageOrientation)}
+           onChange={handleFieldChange('showPageOrientation')}
+         />
+       </div>
+     </div>
+      
+   </Modal.Body>
+   <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", gap: "20px", justifyContent: "center" }}>
+     <button style={{
+       width: "100px",
+       height: "30px",
+       border: "none",
+       borderRadius: "10px",
+       backgroundColor: "red",
+       color: "white"
+     }}
+       onClick={exportToPDF}>
+       Print
+     </button>
+     <button style={{
+       width: "100px",
+       height: "30px",
+       border: "none",
+       borderRadius: "10px",
+       backgroundColor: "green",
+       color: "white"
+     }}
+       onClick={handleFieldCancel}>
+       Cancel
+     </button>
+   </div>
+ </Form>
 </Modal>
 
-        </>
-    )
-}
+    </>
+  );
+};
 
-const mapStateToProps =(state) => {
-    const {closingStocks,companyConfig} =state;
-    return{closingStocks,companyConfig};
-}
 
-export default connect(mapStateToProps,{fetchClosingStockReport,fetchCompanyConfig}) (ClosingStockReport)
+const mapStateToProps = (state) => {
+ const {closingStocks,companyConfig}=state;
+ return {closingStocks,companyConfig}
+};
+
+
+
+export default connect(mapStateToProps,{fetchClosingStockReport,fetchCompanyConfig} )(ClosingStockReport);

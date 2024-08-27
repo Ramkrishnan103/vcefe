@@ -17,7 +17,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass,faXmark } from '@fortawesome/free-solid-svg-icons';
 import ReactSelect from '../../../shared/select/reactSelect';
 import { useNavigate } from "react-router";
-
+import { ReactTabulator } from 'react-tabulator';
+import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
 import { filter } from "lodash";
 
 const MonthlyPurchaseTab = ({
@@ -59,9 +61,14 @@ const MonthlyPurchaseTab = ({
     acTo: 0,
     acYear: "",
   });
+  const columns=[
+    {title:"Month",field:"month",headerSort:false},
+    {title:"Purchase value",field:"purchaseValue",headerSort:false,hozAlign:"right",headerHozAlign:"right"}
+  ]
+  
 
   const itemsValue = monthlyPurchase?.length > 0 ? monthlyPurchase.map((monthPurchase) => ({
-    monthYear: monthPurchase.monthYear,
+    month: monthPurchase.monthYear,
     purchaseValue: monthPurchase.attributes.purchaseValue,
   })) : [];
 
@@ -128,9 +135,7 @@ const MonthlyPurchaseTab = ({
     fetchMonthPurchaseparam(values, filter, true);
   };
 
-  const totalPurchaseValue = (items) => {
-    return items.reduce((total, item) => total + parseFloat(item.purchaseValue || 0), 0).toFixed(2);
-  };
+  
   const showPageOrientation = [
     { value: "Portrait", label: "Portrait" },
     { value: "Landscape", label: "Landscape" },
@@ -163,7 +168,9 @@ const MonthlyPurchaseTab = ({
   const handleFieldCancel=()=>{
     setLoadingPdf(false)
   }
-
+  const totalPurchaseValue = (items) => {
+    return items.reduce((total, item) => total + parseFloat(item.purchaseValue || 0), 0).toFixed(2);
+  };
   const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
     const { title, yearRange } = reportDetails;
@@ -172,6 +179,7 @@ const MonthlyPurchaseTab = ({
         console.error("pdfRef.current is null");
         return;
     }
+
 
     const input = pdfRef.current;
     html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
@@ -434,40 +442,33 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
         </div>
       </div>
 
-      <div className="row">
-        <div className="col-md-12">
+     
           {itemsValue.length > 0 && (
-            <div className="fixTableHead">
-              <table className='table-container'  ref={pdfRef}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "left" }}>Month</th>
-                    <th style={{ textAlign: "right" }}>Purchase Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(itemsRecord ? filteredItems : itemsValue).map((month, index) => (
-                    <tr key={index}>
-                      <td>{month.monthYear}</td>
-                      <td style={{ textAlign: "right" }} className="purchaseValue">
-                        {new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(month.purchaseValue).toFixed(2))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th>Total</th>
-                    <th style={{ textAlign: "right" }}>
-                      {totalPurchaseValue(itemsRecord ? filteredItems : itemsValue)}
-                    </th>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+           
+<ReactTabulator ref={pdfRef}
+columns={columns}
+data={itemsRecord? filteredItems : itemsValue}
+options={{
+  columnHeaderVertAlign: "bottom",
+  layout: 'fitColumns',
+  responsiveLayout: "hide",
+  placeholder: "No records found",
+  footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+    <div style='padding-left: 10px;'>Total</div>
+    <div style='padding-right: 10px;'>{totalPurchaseValue(itemsRecord ? filteredItems : itemsValue)}</div>
+  </div>`,
+  footer: (table) => getFooterData(table), // Dynamic footer example
+  initialSort: [
+    { columns: "month", dir: "asc" }  // Default sort on empName in ascending order
+  ]
+}}
+style={{
+  width: '100%',
+  borderCollapse: 'collapse'
+}}
+/>
           )}
-        </div>
-      </div>
+       
     </div>
     <Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>

@@ -2037,4 +2037,16 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   margin: auto;
 }
 
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+
+  height:40px;
+  background-color:#0d6efd !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size:16px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  
+}
 

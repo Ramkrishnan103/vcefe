@@ -366,6 +366,7 @@ const PayrollDetailed = (props) => {
   };
 
   return (
+    <>
     <div className="warehouse_purchase_report_table">
       <div className="row mb-4">
         <div className="col-md-3">
@@ -457,11 +458,12 @@ const PayrollDetailed = (props) => {
           }}
           style={{
             width: '100%',
-            borderCollapse: 'collapse',
+            borderCollapse: 'collapse'
           }}
         />
       </div>
     </div>
+    </>
   );
 };
 
