@@ -2009,11 +2009,14 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 .payroll-container .tabulator-cell.amount-cell {
   text-align: right !important; /* Align text to the right */
 }
+
 .payroll-container .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
   padding-top: 10px;
   text-align:center;
 }
-
+.payroll-container .tabulator .tabulator-header{
+  border-bottom: none !important;
+}
 .payroll-container .tabulator-tabulator{
   border:none!important;
 }
@@ -2021,7 +2024,9 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   color:#000 !important;
 }
 .payroll-container .tabulator-footer .tabulator-footer-contents {
-  padding:5px 0 5px !important;
+ 
+  background-color: green !important;
+  color:white !important;
 }
  
 
@@ -2037,7 +2042,7 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   margin: auto;
 }
 
-.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+.tabulator-container .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
 
   height:40px;
   background-color:#0d6efd !important;
@@ -2049,4 +2054,15 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   justify-content: flex-end;
   
 }
+.tabulator-container .tabulator-footer .tabulator-footer-contents {
+  padding:5px 0 5px !important;
+  height:40px;
+}
+.tabulator-container .tabulator .tabulator-footer{
+  border-top:none !important;
+  background-color: green !important;
+  color:white !important;
+  font-size: 16px !important;
+}
+
 

@@ -22,7 +22,9 @@ import { faPrint,faFileExcel, faFilePdf,faXmark  } from "@fortawesome/free-solid
 import ReactSelect from "../../../shared/select/reactSelect";
 import { fetchAcYear } from "../../../store/action/acYearAction";
 import { filter, stubString } from "lodash";
-
+import { ReactTabulator } from 'react-tabulator';
+import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
 import {jsPDF} from 'jspdf';
 
 import * as XLSX from 'xlsx';
@@ -58,6 +60,15 @@ const MonthlySalesTab = (props) => {
     showPageOrientation:""
   })
   const [loadingPdf,setLoadingPdf]=useState(false)
+  const formatDecimal = (cell, formatterParams, onRendered) => {
+    const value = cell.getValue();
+    
+    return value.toFixed(2);
+  };
+  const columns=[
+    {title:"Month",field:"month",headerSort:false,width:"50%"},
+    {title:"Sales Value",field:"salesValue",headerSort:false,hozAlign:"right",headerHozAlign:"right",formatter: formatDecimal,width:"50%"   }
+  ]
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -71,7 +82,7 @@ const MonthlySalesTab = (props) => {
       setIsFiltered(false);
     } else {
       const filtered = itemsValue.filter(item =>
-        item.monthYear.toLowerCase().includes(query.toLowerCase())
+        item.month.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredItems(filtered);
       setIsFiltered(true);
@@ -99,7 +110,7 @@ const MonthlySalesTab = (props) => {
     monthlySales?.length >= 0 &&
     monthlySales.map((monthSales) => {
       return {
-        monthYear: monthSales.monthYear,
+        month: monthSales.monthYear,
         salesValue: monthSales.attributes.salesValue,
       };
     });
@@ -109,19 +120,6 @@ const MonthlySalesTab = (props) => {
       saleExcelAction(warehouseValue.value, setIsWarehouseValue);
     }
   }, [isWarehouseValue]);
-
-  const footers = [
-    {
-      name: getFormattedMessage("totalSales.title"),
-        
-       selector: (row) => row.totalValue,
-       sortField: "totalValue",
-       sortable: true, 
-    }
-  ];
-
-  console.log(footers)
-
 
   useEffect(() => {
     fetchAcYear();
@@ -449,31 +447,29 @@ const handleFieldCancel=()=>{
   return (
     <>
     <div className="warehouse_sale_report_table">
-    <div className="row">
-        <div className="col-md-3">
+    <div className="row mb-3">
+        <div className=" col-sm-12 col-md-3 col-lg-3 d-flex align-items-center">
           <input
-            className="form-control wd-100"
+            className="form-control "
             placeholder="Search"
             ref={searchRef}
             value={searchQuery}
             onChange={handleSearchChange}
-            style={{ paddingLeft: '30px' }} 
+            style={{ paddingLeft: '30px',position:"relative" }} 
           />
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
-            style={{ marginTop: "-66px", marginLeft: "10px" }}
+            style={{ marginLeft: "10px", fontSize: '1rem',position:"absolute",left:"15px" }}
           />
         </div>
-        <div className="col-md-1"></div>
-        <div className="col-md-1">
-          <h3 className="mt-3" >
+       
+        <div className="col-sm-12 col-md-6 col-lg-3 d-flex align-items-center">
+          <h3 className="mb-0" >
             Ac Year
           </h3>
-        </div>
-
-        <div className="col-md-3">
-         
-          <InputGroup className="flex-nowrap dropdown-side-btn text-black">
+          
+          
+          <InputGroup className="ms-2 flex-nowrap ">
             <ReactSelect
               className="position-relative"
               placeholder={placeholderText("globally.input.AcYear.label")}
@@ -484,11 +480,10 @@ const handleFieldCancel=()=>{
             />
           </InputGroup>
 
-          {/* </select> */}
         </div>
 
-        <div className="col-md-2"></div>
-        <div className="col-md-2">
+      
+        <div className="col-sm-12 col-md-12 col-lg-6 d-flex justify-content-center align-items-center">
           <button
             style={{
               display: "flex",
@@ -496,10 +491,10 @@ const handleFieldCancel=()=>{
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-              width: "220px",
+             
               height: "60px",
               backgroundColor: "white",
-              gap: "13px",  
+              gap: "10px",  
             }}
           >
             
@@ -531,54 +526,34 @@ const handleFieldCancel=()=>{
         </div>
         
       </div>
-
-<div className="row">
-
-<div className="col-md-12">
-       {itemsValue.length>0 && 
-
-<div className="fixTableHead" >
-<table className='table-container'ref={pdfRef}>
-  <thead>
-    <tr >
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Month</th>
-      <th style={{fontWeight:"bold",textAlign:"right",fontSize:"16px"}}> Sales Value</th>
-    </tr>
-  </thead>
-
-
-
-  <tbody>
-    {(isFiltered ? filteredItems : itemsValue).map((month, index) => (
-      <tr key={index}>
-        <td >{month.monthYear}</td>
-        <td className="salesvalue">{
-            new Intl.NumberFormat('en-IN', {
-                style: 'decimal',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(parseFloat(month.salesValue), 0)
-            }
-        </td>
-      </tr>
-    ))}
-  </tbody>
-
-  
-  <tfoot>
-    <tr >
-      {footers.map((footer) => (
-        <th>{footer.name}</th>
-      ))}
-      <th style={{textAlign:'right'}} >{totalSalesValue(isFiltered ? filteredItems : itemsValue)}</th>
-    </tr>
-  </tfoot>
-  </table>
-</div>
-}
-</div>
-</div> 
-
+      <div className="tabulator-container">
+        {
+          itemsValue.length>0&&(
+            <ReactTabulator ref={pdfRef}
+            columns={columns}
+            data={(isFiltered ? filteredItems : itemsValue)}
+            options={{
+              columnHeaderVertAlign:"bottom",
+              layout:"fitColumns",
+              responsiveLayout:"hide",
+              placeholder:"No records found",
+              height:"auto",
+              footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; display: flex; justify-content: space-between; align-items: center;'>
+    <div style='padding-left: 10px;'>Total</div>
+    <div style='padding-right: 10px;'>${totalSalesValue(isFiltered ? filteredItems : itemsValue)}</div>
+  </div>`
+ 
+ 
+}}
+style={{
+  width: '100%',
+  borderCollapse: 'collapse'
+}}
+           
+            />
+          )
+        }
+      </div>
 
     </div>
 

@@ -61,13 +61,13 @@ const ClosingStockReport = ({ closingStocks, fetchClosingStockReport,ItemValues,
   const navigate = useNavigate();
 
   const columns = [
-    { title: "Code", field: "code",headerSort:false },
-    { title: "Product Name", field: "productName",headerSort:false },
-    { title: "MRP", field: "mrp",headerSort:false ,hozAlign:"center", headerHozAlign: "center",formatter: formatDecimal  },
-    { title: "Stock", field: "stock",headerSort:false ,hozAlign:"center", headerHozAlign: "center"  },
-    { title: "Unit Name", field: "unitName",headerSort:false, hozAlign:"right", headerHozAlign: "right" },
-    { title: "Cost", field: "cost",headerSort:false, hozAlign:"right", headerHozAlign: "right" ,formatter: formatDecimal    },
-    { title: "Value", field: "value",headerSort:false , hozAlign:"right" ,headerHozAlign: "right",formatter: formatDecimal    }
+    { title: "Code", field: "code",headerSort:false,width:"10%" },
+    { title: "Product Name", field: "productName",headerSort:false,width:'40%' },
+    { title: "MRP", field: "mrp",headerSort:false ,hozAlign:"center", headerHozAlign: "center",formatter: formatDecimal ,width:"10%" },
+    { title: "Stock", field: "stock",headerSort:false ,hozAlign:"center", headerHozAlign: "center",width:"10%"  },
+    { title: "Unit Name", field: "unitName",headerSort:false, hozAlign:"right", headerHozAlign: "right" ,width:"10%"},
+    { title: "Cost", field: "cost",headerSort:false, hozAlign:"right", headerHozAlign: "right" ,formatter: formatDecimal,width:"10%"    },
+    { title: "Value", field: "value",headerSort:false , hozAlign:"right" ,headerHozAlign: "right",formatter: formatDecimal  ,width:"10%"  }
   ];
 
   const onChange = () => {
@@ -549,19 +549,20 @@ const defaultPageSize = showPageSize.find(option => option.value === 'A4');
   )
 }
 <div className="row">
-<div className="col-md-12" >
+<div className="col-md-12 w-100 tabulator-container " >
 
   
 <ReactTabulator 
                   columns={columns}
                   data={itemsValue}
+                  ref={pdfRef}
                   options={{
                     columnHeaderVertAlign: "bottom",
                     layout: 'fitColumns',
-                    responsiveLayout: "hide",
+                    responsiveLayout: "collapse",
                     placeholder: "No records found",
-                    height:"400px",
-                   footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+                    height:"350px",
+                   footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; display: flex; justify-content: space-between; align-items: center;'>
                     <div style='padding-left: 10px;'>Total</div>
                     <div style='padding-right: 10px;'>
                     ${totalSalesValue(itemsValue)}

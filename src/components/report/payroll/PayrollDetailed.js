@@ -432,8 +432,8 @@ const PayrollDetailed = (props) => {
         </div>
       </div>
 
-      <div ref={paySlipRef} className="payroll-container" style={{ width: '100%', overflowX: 'auto', height: "auto", marginTop: '20px', borderRadius: "5px", border: "none" }}>
-        <div className="row mt-4 mb-4">
+      <div ref={paySlipRef} className="payroll-container" >
+        <div className="row ">
           <div className="col-md-5">
             <h4>Payroll on {paySlipMonth}</h4>
           </div>
@@ -447,14 +447,12 @@ const PayrollDetailed = (props) => {
             layout: 'fitColumns',
             responsiveLayout: "hide",
             placeholder: "No records found",
-            footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+            height:"auto",
+            footerElement: `<div style='width:100%;text-align: left; padding: 10px;   display: flex; justify-content: space-between; align-items: center;'>
               <div style='padding-left: 10px;'>Total</div>
               <div style='padding-right: 10px;'>${parseFloat(payrollReport?.data?.employeeDetails?.reduce((a, b) => a + b.netPaid, 0)).toFixed(2)}</div>
             </div>`,
-            footer: (table) => getFooterData(table), // Dynamic footer example
-            initialSort: [
-              { column: "empId", dir: "asc" }  // Default sort on empName in ascending order
-            ]
+           
           }}
           style={{
             width: '100%',

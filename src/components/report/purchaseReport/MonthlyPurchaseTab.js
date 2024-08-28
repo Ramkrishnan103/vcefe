@@ -61,9 +61,14 @@ const MonthlyPurchaseTab = ({
     acTo: 0,
     acYear: "",
   });
+  const formatDecimal = (cell, formatterParams, onRendered) => {
+    const value = cell.getValue();
+    // Format number to 2 decimal places
+    return value.toFixed(2);
+  };
   const columns=[
-    {title:"Month",field:"month",headerSort:false},
-    {title:"Purchase value",field:"purchaseValue",headerSort:false,hozAlign:"right",headerHozAlign:"right"}
+    {title:"Month",field:"month",headerSort:false,width:"50%"},
+    {title:"Purchase value",field:"purchaseValue",headerSort:false,hozAlign:"right",headerHozAlign:"right",formatter: formatDecimal,width:"50%" }
   ]
   
 
@@ -111,7 +116,7 @@ const MonthlyPurchaseTab = ({
       setItemsRecord(false);
     } else {
       const filtered = itemsValue.filter(item =>
-        item.monthYear.toLowerCase().includes(query.toLowerCase())
+        item.month.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredItems(filtered);
       setItemsRecord(true);
@@ -375,26 +380,25 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
   return (
     <>
     <div className="warehouse_purchase_report_table">
-      <div className="row">
-        <div className="col-md-3">
+      <div className="row mb-3">
+        <div className=" col-sm-12 col-md-3 col-lg-3 d-flex align-items-center">
           <input
             className="form-control wd-100"
             placeholder="Search"
             onChange={handleSearchChange}
             ref={searchRef}
-            style={{ paddingLeft: '30px' }}
+            style={{ paddingLeft: '30px',position:"relative" }}
           />
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
-            style={{ marginTop: "-66px", marginLeft: "10px" }}
+            style={{ marginLeft: "10px", fontSize: '1rem',position:"absolute",left:"20px" }}
           />
         </div>
-        <div className="col-md-1"></div>
-        <div className="col-md-1">
-          <h3 className="mt-3">Ac Year</h3>
-        </div>
-        <div className="col-md-3">
-          <InputGroup className="flex-nowrap dropdown-side-btn text-black">
+       
+        <div className="col-sm-12 col-md-6 col-lg-3 d-flex align-items-center">
+          <h3 className="mb-0">Ac Year</h3>
+        
+          <InputGroup className="ms-2 flex-nowrap ">
             <ReactSelect
               className="position-relative"
               placeholder={placeholderText("globally.input.AcYear.label")}
@@ -404,8 +408,8 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
             />
           </InputGroup>
         </div>
-        <div className="col-md-2"></div>
-        <div className="col-md-2">
+        
+        <div className="col-sm-12 col-md-12 col-lg-6 d-flex justify-content-center align-items-center">
           <button
             style={{
               display: "flex",
@@ -413,7 +417,7 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-              width: "220px",
+             
               height: "60px",
               gap: "13px",
               background: "white"
@@ -442,7 +446,7 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
         </div>
       </div>
 
-     
+     <div className="tabulator-container">
           {itemsValue.length > 0 && (
            
 <ReactTabulator ref={pdfRef}
@@ -453,14 +457,13 @@ options={{
   layout: 'fitColumns',
   responsiveLayout: "hide",
   placeholder: "No records found",
-  footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; height: 50px; background-color: #e0f4e0; display: flex; justify-content: space-between; align-items: center;margin-top:-6px'>
+  height:"auto",
+  footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 5px; display: flex; justify-content: space-between; align-items: center;'>
     <div style='padding-left: 10px;'>Total</div>
-    <div style='padding-right: 10px;'>{totalPurchaseValue(itemsRecord ? filteredItems : itemsValue)}</div>
-  </div>`,
-  footer: (table) => getFooterData(table), // Dynamic footer example
-  initialSort: [
-    { columns: "month", dir: "asc" }  // Default sort on empName in ascending order
-  ]
+    <div style='padding-right: 10px;'>${totalPurchaseValue(itemsRecord? filteredItems : itemsValue)}</div>
+  </div>`
+ 
+ 
 }}
 style={{
   width: '100%',
@@ -468,6 +471,7 @@ style={{
 }}
 />
           )}
+          </div>
        
     </div>
     <Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>

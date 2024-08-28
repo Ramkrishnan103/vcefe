@@ -21,8 +21,11 @@ import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
+import { ReactTabulator } from 'react-tabulator';
+import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
 
-// import "../../assets/css/frontend.css";
+
 
 const DailySalesTab = (props) => {
     const {
@@ -45,6 +48,11 @@ const DailySalesTab = (props) => {
       showPageOrientation:""
     })
     const [loadingPdf,setLoadingPdf]=useState(false)
+    const formatDecimal = (cell, formatterParams, onRendered) => {
+      const value = cell.getValue();
+      // Format number to 2 decimal places
+      return value.toFixed(2);
+    };
   
     useEffect(() => {
      
@@ -53,16 +61,24 @@ const DailySalesTab = (props) => {
     useEffect(() => {
         fetchFrontSetting();
     }, [warehouseValue]);
+    const columns=[
+      {title:"Date",field:"date",headerSort:false,width:"10%"},
+      {title:"InvNo",field:"invNo",headerSort:false,width:"20%"},
+      {title:"Customer Name",field:"customerName",headerSort:false,width:"20%"},
+      {title:"Payment Type",field:"paymentType",headerSort:false,hozAlign:"center", headerHozAlign: "center",width:"15%"},
+      {title:"Address",field:"address",headerSort:false,width:"15%"},
+      {title:"Sales Value",field:"salesValue",headerSort:false,hozAlign:"right",headerHozAlign:"right",formatter: formatDecimal ,width:"20%"  },
+    ]
 
     const itemsValue = dailySales?.length >= 0 && dailySales.map(dailysale => {
       
         return (
             {
-                Date:dailysale?.date=== null ? null : moment( dailysale.date).format("DD-MM-YYYY"),
+                date:dailysale?.date=== null ? null : moment( dailysale.date).format("DD-MM-YYYY"),
                 invNo:dailysale.attributes.invNo,
               
                 customerName: dailysale.attributes.customerName,
-                paymentMode: dailysale.attributes.paymentType,
+                paymentType: dailysale.attributes.paymentType,
                 address:dailysale.attributes.customerAddress,
                 salesValue:dailysale.attributes.salesValue,
             }
@@ -70,20 +86,6 @@ const DailySalesTab = (props) => {
     });
 
     console.log("itemsValue",itemsValue)
-
-   
-
-    const footers = [
-        {
-          name: getFormattedMessage("totalSales.title"),
-            
-           selector: (row) => row.totalValue,
-           sortField: "totalValue",
-           sortable: true, 
-        }
-      ];
-
-      
   const totalSalesValue = (data) => {
     console.log("data",data)
     return new Intl.NumberFormat('en-IN', {
@@ -266,7 +268,7 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
           }
       };
       addFooter();
-      // Open the PDF in a new window and trigger the print dialog
+      
       const pdfBlob = pdf.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const iframe = document.createElement('iframe');
@@ -395,7 +397,7 @@ const exportToExcel=()=>{
                         <input id2='dateRequired2' type='date' ref={tooDate} defaultValue={defaultValue}  className='form-control  rounded text-align-center  align-items-center mr-15 mb-5'></input>
                 </div>
 
-                <div className='col-md-1'></div>
+               
                 <div className='col-md-2 mx-auto ' >
                 <button
             style={{
@@ -467,76 +469,31 @@ const exportToExcel=()=>{
                 </div>
             </div>
 
-{/* <div className='row'>
-        <div className='col-md-3'>
-            <h4 style={{color:"green"}}>From Date = {fromDate1?fromDate1:defaultValue}</h4>
-        </div>
-        <div className='col-md-3'>
-            <h4 style={{color:"green"}}>To Date = {todate?todate:defaultValue}</h4>
-        </div>
-        <div className='col-md-3'>
-            <h4 style={{color:"green"}} >Payment Type ={selectPayMode?selectPayMode:"All"}</h4>
-        </div>
-</div> */}
+            <div className="tabulator-container" style={{borderRadius:"5px"}}>
 
-
-
-<div className="col-md-12">
-       {itemsValue.length>0 && 
-
-<div className="fixTableHead" >
-<table className='table-container'ref={pdfRef}>
-  <thead>
-    <tr >
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Date</th>
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Inv No</th>
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Customer Name</th>
-      { paymode.current.value=='' &&
-        <th style={{fontWeight:"bold",fontSize:"16px"}}>Payment Type</th>
-        }
-      <th style={{fontWeight:"bold",fontSize:"16px"}}>Address</th>
-      <th style={{fontWeight:"bold",textAlign:"right",fontSize:"16px"}}> Sales Value</th>
-    </tr>
-  </thead>
-
-
- 
-  <tbody>
-    {itemsValue.map((month, index) => (
-      <tr key={index}>
-        <td >{month.Date}</td>
-        <td >{month.invNo}</td>
-        <td >{month.customerName}</td>
-        { paymode.current.value=='' &&
-        <td >{month.paymentMode}</td>
-        }
-        <td >{month.address}</td>
-        <td className="salesvalue">{
-            new Intl.NumberFormat('en-IN', {
-                style: 'decimal',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(parseFloat(month.salesValue), 0)
-            }
-        </td>
-      </tr>
-    ))}
-  </tbody>
-
-  
-  <tfoot>
-    <tr >
-      {footers.map((footer) => (
-        <th colSpan="4">{footer.name}</th>
-      ))}
-      <th colSpan="5" style={{textAlign:"right"}}>{totalSalesValue(itemsValue)}</th>
-    </tr>
-  </tfoot>
-  </table>
-</div>
+{
+  itemsValue.length>0&&(
+    <ReactTabulator
+    ref={pdfRef} columns={columns} 
+        data={itemsValue}
+         options={{
+           columnHeaderVertAlign:"bottom",
+           layout:"fitColumns",
+           responsiveLayout:"hide",
+           placeholder:"No records found",
+           height:"350px",
+           
+           footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 0 0 5px 5px;   display: flex; justify-content: space-between; align-items: center;'>
+    <div style='padding-left: 10px;'>Total</div>
+    <div style='padding-right: 10px;'>${totalSalesValue(itemsValue)}</div>
+  </div>`,
+  // footer: (table) => getFooterData(table)
+        }}
+    />
+  )
 }
 </div>
-</div> 
+</div>
 <Modal  className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>
     <Modal.Header>

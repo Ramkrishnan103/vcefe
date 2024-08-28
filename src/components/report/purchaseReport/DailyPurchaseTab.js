@@ -20,6 +20,9 @@ import * as XLSX from 'xlsx';
 import {fetchCompanyConfig} from "../../../store/action/companyConfigAction";
 import ReactSelect from "../../../shared/select/reactSelect";
 import { fetchDailyPurchase } from '../../../store/action/dailyPurchaseAction';
+import { ReactTabulator } from 'react-tabulator';
+import 'react-tabulator/lib/styles.css'; // Import Tabulator styles
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator styles
 
 const DailyPurchaseTab = (props) => {
     const {
@@ -41,6 +44,18 @@ const DailyPurchaseTab = (props) => {
     showPageSize:"",
     showPageOrientation:""
   })
+  const formatDecimal = (cell, formatterParams, onRendered) => {
+    const value = cell.getValue();
+   
+    return value.toFixed(2);
+  };
+  const columns=[
+    {title:"Date",field:"date",headerSort:false,width:"20%"},
+    {title:"InvNo",field:"invNo",headerSort:false,width:"20%"},
+    {title:"Supplier Name",field:"supplierName",headerSort:false,width:"20%"},
+    {title:"Payment Type",field:"paymentType",headerSort:false,hozAlign:"center", headerHozAlign: "center",width:"20%"},
+    {title:"Purchase Value",field:"purchaseValue",headerSort:false,hozAlign:"right", headerHozAlign: "right",formatter: formatDecimal,width:"20%"}
+  ]
   const [loadingPdf,setLoadingPdf]=useState(false)
     console.log(dailyPurchase)
     useEffect(() => {
@@ -56,10 +71,10 @@ const DailyPurchaseTab = (props) => {
     const itemsValue = dailyPurchase?.length >= 0 && dailyPurchase.map(dailypurchase => {
         return (
             {
-                Date:dailypurchase?.date === null ? null : moment( dailypurchase?.date).format("DD-MM-YYYY") ,
+                date:dailypurchase?.date === null ? null : moment( dailypurchase?.date).format("DD-MM-YYYY") ,
                invNo: dailypurchase.attributes.invNo,
                supplierName:dailypurchase.attributes.supplierName,
-               paymentMode:dailypurchase.attributes.paymentType,
+               paymentType:dailypurchase.attributes.paymentType,
                purchaseValue:dailypurchase.attributes.purchaseValue,
               
             }
@@ -108,14 +123,14 @@ const DailyPurchaseTab = (props) => {
         fetchDailyPurchase(filter, true);
       };
    
-      const footers = [
-        {
-          name: getFormattedMessage("totalPurchase.title"),
-          selector: (row) => row.totalValue,
-           sortField: "totalValue",
-           sortable: true, 
-        }
-      ];
+      // const footers = [
+      //   {
+      //     name: getFormattedMessage("totalPurchase.title"),
+      //     selector: (row) => row.totalValue,
+      //      sortField: "totalValue",
+      //      sortable: true, 
+      //   }
+      // ];
       
     const totalPurchaseValue = (data) => {
       console.log("data",data)
@@ -381,11 +396,7 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
         <>
           <div className='warehouse_purchase_report_table'>
   
-              <div  className='row'>
-                  <div className='col-md-10'></div>
-                 
-              </div>
-  
+             
                <div className='row'>
                   <div className='col-md-2' >
                           <h5   className='mt-2'>From Date</h5>
@@ -406,9 +417,7 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
                           <input id2='dateRequired2' type='date' ref={tooDate} defaultValue={defaultValue}  className='form-control  rounded text-align-center  align-items-center mr-15 mb-5'></input>
                   </div>
   
-                  <div className='col-md-1'></div>
-                    
-                 
+               
                   <div className='col-md-2 mx-auto ' >
                  
           <button
@@ -479,54 +488,25 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
                  </div>
             
  
-  <div className="col-md-12">
-       {itemsValue.length>0 && 
-        <div className='fixTableHead'>
-     
-       <table className='table-container' ref={pdfRef}>
-        <thead >
-        <tr>
-            <th style={{textAlign:"left"}}>Date</th>
-            <th style={{textAlign:"left"}}>invNo</th>
-            <th style={{textAlign:"left"}}>Supplier Name</th>
-            { 
-            paymode?.current?.value===''&&
-            <th style={{textAlign:"left"}}> Payment Type</th>
-            }
-            <th style={{textAlign:"right"}}>Purchase Value</th>
-        </tr>     
-        </thead>
-       
-        <tbody >
-                {(itemsValue).map((item, index) => (
-                  <tr key={index}>
-                    <td >{item.Date}</td>
-                    <td >{item.invNo}</td>
-                    <td >{item.supplierName}</td>
-                    {
-                      paymode?.current?.value===''&&
-                      <td >{item.paymentMode}</td>
-                    }
-                    
-                    <td className="purchaseValue" >{new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.purchaseValue)}</td>
-                  
-                  </tr>
-                ))}
-
-        </tbody>
-       
-        <tfoot>
-        
-                <tr >
-                  {footers.map((footer, index) => (
-                    <th colSpan={paymode?.current?.value === '' ? "4" : "3"} key={index}>{footer.name}</th>
-                  ))}
-                  <th colSpan={paymode?.current?.value === '' ? "1" : "2"}>{totalPurchaseValue(itemsValue)}</th>
-                </tr>
-        </tfoot>
-      </table>
-      </div>
-}
+  <div className="tabulator-container">
+       {itemsValue.length>0 && (
+        <ReactTabulator ref={pdfRef} columns={columns} 
+        data={itemsValue}
+         options={{
+           columnHeaderVertAlign:"bottom",
+           layout:"fitColumns",
+           responsiveLayout:"hide",
+           placeholder:"No records found",
+           height:"350px",
+           footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 0 0 5px 5px;display: flex; justify-content: space-between; align-items: center;'>
+    <div style='padding-left: 10px;'>Total</div>
+    <div style='padding-right: 10px;'>${totalPurchaseValue(itemsValue)}</div>
+  </div>`
+ 
+        }}
+        />
+       )}
+      
 </div>
 </div>
 <Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
