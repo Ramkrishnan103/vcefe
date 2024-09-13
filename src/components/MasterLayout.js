@@ -40,7 +40,7 @@ const MasterLayout = (props) => {
             <AsideDefault asideConfig={newRoutes} frontSetting={frontSetting} isResponsiveMenu={isResponsiveMenu}
                           menuClick={menuClick} menuIconClick={menuIconClick} isMenuCollapse={isMenuCollapse}/>
             <div className={`${isMenuCollapse === true ? 'wrapper-res' : 'wrapper'} d-flex flex-column flex-row-fluid`}>
-                <div className='d-flex align-items-stretch justify-content-between header'>
+                <div className='d-flex align-items-stretch justify-content-between header allpage-header'>
                     <div className='container-fluid d-flex align-items-stretch justify-content-xxl-between flex-grow-1'>
                         <button type='button' className='btn d-flex align-items-center d-xl-none px-0' title='Show aside menu'
                              onClick={menuClick}>

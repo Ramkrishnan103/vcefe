@@ -6,8 +6,9 @@ import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
 
-export const fetchRecentSales = (productID) => async (dispatch) => {
-    apiConfig.get(`recentPurchase?itemId=${productID}`).then((response) => {
+export const fetchRecentSales = (productID, mode) => async (dispatch) => {
+    debugger
+    apiConfig.get(`${mode === 'purchase' ? 'recentPurchase' : 'recentSales'}?itemId=${productID}`).then((response) => {
         dispatch({
             type: recentSales.FETCH_RECENT_SALES,
             payload: response.data.data,
@@ -16,7 +17,7 @@ export const fetchRecentSales = (productID) => async (dispatch) => {
     .catch(({ response }) => {
         dispatch(
             addToast({
-                text: response.message,
+                text: response?.message,
                 type: toastType.ERROR,
             })
         );

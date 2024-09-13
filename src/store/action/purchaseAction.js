@@ -255,5 +255,5 @@ export const deletePurchase = (purchaseId) => async (dispatch) => {
             dispatch(
                 addToast({ text: response.data.message, type: toastType.ERROR })
             );
-        });
+        });
 };

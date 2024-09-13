@@ -1,0 +1,85 @@
+#purchase_invoice .form-control-sm {  
+    padding: 0.25rem 0.5rem;  
+    font-size: 0.875rem;  
+    line-height: 1.5;  
+    /* border-radius: 0.2rem;   */
+  }  
+  
+  #purchase_invoice .ml-2 {  
+    margin-left: 0.5rem;  
+  }  
+  
+  #purchase_invoice input{
+    /* border: 2px solid; */
+    width: 75%;
+    border-radius: 5px !important;
+}
+
+#purchase_invoice input:focus{
+    background-color: var(--bs-body-bg) !important;
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 .25rem #4caf5087 !important;
+    color: var(--bs-body-color) !important;
+    outline: 0 !important;
+}
+
+#purchase_invoice .modal-header:after{
+    border-bottom: none !important;
+}
+
+/* #purchase_invoice tbody {
+    display:block;
+    height:50px;
+    overflow:auto;
+}
+#purchase_invoice thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+#purchase_invoice thead {
+    width: calc( 100% - 1em )
+}
+#purchase_invoice table {
+    width:400px;
+} */
+
+
+.purchase-table{
+    min-height: calc(100vh - 535px);
+    max-height: 150px;
+
+}
+
+.purchase_records tr th {
+    border: none;
+    text-transform: none !important;
+}
+
+.purchase_records tbody{
+    color: black;
+    background: #F9F9F9;
+}
+
+.purchase_records thead tr {
+    border-bottom: 1px solid #0AB5C0;
+}
+
+.purchase_footer button{
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 12px;
+}
+
+/* .purchase_records table{
+    box-shadow: 3px 1px 7px 0px #999;
+} */
+
+.purchase_records table tr th {
+    color: white !important;
+    background: #6571FF !important;
+}
+
+.purchase-table tbody td{
+    border-bottom: 1px solid #e1e1e1;
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Image, Form, Button } from "react-bootstrap-v5";
 import { connect, useDispatch } from "react-redux";
-import { deleteProductImage } from "../../store/action/productImageAction";
+import { deleteUserImage } from "../../store/action/usersImageAction";
 import { addToast } from "../../store/action/toastAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,7 +11,7 @@ const UserImage = (props) => {
   const {
     fetchFiles,
     users,
-    deleteProductImage,
+    deleteUserImage,
     transferImage,
     singleImageSwitch,
   } = props;
@@ -32,7 +32,8 @@ const UserImage = (props) => {
       // product &&
       //   product[0]?.images?.imageUrls &&
       //   product[0]?.images?.imageUrls?.map((item) => item)
-      users && users[0]?.imageUrl != "" && [users[0]?.imageUrl]
+      users && users[0]?.imageUrl != "" && [users[0]?.imageUrl],
+      
     );
     transferImage(
       users &&
@@ -54,7 +55,7 @@ const UserImage = (props) => {
   }, [images]);
 
   useEffect(() => {
-    setImageId(imageId && deleteProductImage);
+    setImageId(imageId && deleteUserImage);
   }, [oldImages]);
 
   const onRemove = (index) => {
@@ -62,7 +63,7 @@ const UserImage = (props) => {
     let imgNewFiles = newImages.filter((previewImage, i) => i !== index);
     dispatch(
       addToast({
-        text: getFormattedMessage("product.image.success.delete.message"),
+        text: getFormattedMessage("product.image.delete.success.message"),
       })
     );
     setImages(imgFiles);
@@ -75,11 +76,11 @@ const UserImage = (props) => {
 
   const oldRemoveOld = (index) => {
     let newFiles = oldImages.filter((file, i) => i !== index);
-    let imageId = imageIdArray.filter((id, i) => i === index);
-    let leftImageIdArray = imageIdArray.filter((id, i) => i !== index);
-    deleteProductImage(imageId[0]);
+    // let imageId = imageIdArray.filter((file, i) => i === index);
+    // let leftImageIdArray = imageIdArray.filter((file, i) => i !== index);
+    // deleteUserImage(imageId[0]);
     setOldImages(newFiles);
-    setImageIdArray(leftImageIdArray);
+    //setImageIdArray(leftImageIdArray);
     transferImage(newFiles);
   };
 
@@ -89,7 +90,7 @@ const UserImage = (props) => {
     singleImageSwitch === "single-image"
       ? setImages([...e.target.files])
       : setImages([...e.target.files, ...images]);
-
+console.log(images)
     dispatch(
       addToast({
         text: getFormattedMessage("product.image.success.upload.message"),
@@ -117,6 +118,7 @@ const UserImage = (props) => {
       <div className="imagePreviewContainer pt-3 p-0 d-flex flex-wrap">
         {newImages &&
           newImages.map((newImage, i) => (
+           
             <div
               className="previewItem custom-preview position-relative cursor-pointer"
               key={i}
@@ -133,6 +135,7 @@ const UserImage = (props) => {
           ))}
         {oldImages &&
           oldImages.map((oldImage, i) => {
+           
             return (
               <div
                 className="previewItem custom-preview position-relative cursor-pointer"
@@ -154,4 +157,4 @@ const UserImage = (props) => {
   );
 };
 
-export default connect(null, { deleteProductImage })(UserImage);
+export default connect(null, { deleteUserImage })(UserImage);

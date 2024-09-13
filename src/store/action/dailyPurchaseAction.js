@@ -17,6 +17,7 @@ import {
 import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 
+
 export const fetchDailyPurchase =
     (values,filter = {}, isLoading = true) =>
     async (dispatch) => {

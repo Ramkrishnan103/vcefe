@@ -4,7 +4,7 @@ import { getFormattedMessage } from "../sharedMethod";
 import remove from "../../assets/images/delete.gif";
 
 const DeleteModel = (props) => {
-  const { onClickDeleteModel, deleteUserClick, name } = props;
+  const { onClickDeleteModel, deleteUserClick, name, payroll } = props;
 
   const escFunction = useCallback((event) => {
     if (event.keyCode === 27) {
@@ -34,9 +34,11 @@ const DeleteModel = (props) => {
       focusCancelBtn
       customIcon={remove}
     >
-      <span className="sweet-text">
+      {payroll ?<span className="sweet-text">
+        {getFormattedMessage("delete-modal.msg.payroll")} {name} ?
+      </span> : <span className="sweet-text">
         {getFormattedMessage("delete-modal.msg")} {name} ?
-      </span>
+      </span>}
     </SweetAlert>
   );
 };

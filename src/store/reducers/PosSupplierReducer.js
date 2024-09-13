@@ -11,8 +11,8 @@ export default (state = [], action) => {
         case posSupplierActionType.ADD_POS_SUPPLIERS:
             return [...state, action.payload];
         case posSupplierActionType.DELETE_POS_SUPPLIERS:
-            return state.filter(item => item.id !== action.payload);         
-       
+            return state.filter(item => item.id !== action.payload);
+
         default:
             return state;
 

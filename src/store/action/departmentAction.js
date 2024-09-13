@@ -76,5 +76,5 @@ export const addDepartment = (data, isLoading = true) => async (dispatch) => {
                         type: toastType.ERROR,
                     })
                 );
-        });
-    }
+        });
+    }

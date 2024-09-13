@@ -3,8 +3,8 @@ import { Form, Button, Col, Row, InputGroup, Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import { DatePicker } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-// import { fetchDepartment, addDepartment } from '../../store/action/departmentAction';
-// import { fetchDesignation, addDesignation } from '../../store/action/designationAction';
+import { fetchDepartment, addDepartment } from '../../store/action/departmentAction';
+import { fetchDesignation, addDesignation } from '../../store/action/designationAction';
 import { connect, useSelector } from 'react-redux';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -65,7 +65,7 @@ const EmployeeInfo = (props) => {
         console.log("ALL FORMDATA", allFormData);
     }, [allFormData]);
 
-    const designationslist = designations?.length >= 0 && designations?.map(item => {
+    const designationslist = designations?.length >= 0 && designations?.filter(item => item?.attributes?.isActive).map(item => {
         return (
             {
                 value: item?.designationId,
@@ -93,7 +93,7 @@ const EmployeeInfo = (props) => {
 
     }, [designations]);
 
-    const departmentList = despartments?.length >= 0 && despartments?.map(item => {
+    const departmentList = despartments?.length >= 0 && despartments?.filter(item => item?.attributes?.isActive).map(item => {
         return (
             {
                 value: item?.departmentId,
@@ -106,10 +106,10 @@ const EmployeeInfo = (props) => {
     const validateForm = () => {
         const newErrors = {};
         debugger
-        if (!allFormData[0]?.employmentType ) newErrors.employmentType = 'Employment Type must be selected';
-        if (!allFormData[0]?.designation ) newErrors.designation = 'Designation must be selected';
-        if (!allFormData[0]?.dateOfJoining ) newErrors.dateOfJoining = 'Join Date must be selected';
-        if (!allFormData[0]?.department ) newErrors.department = 'Department must be selected';
+        if (!allFormData[0]?.employmentType) newErrors.employmentType = 'Employment Type must be selected';
+        if (!allFormData[0]?.designation) newErrors.designation = 'Designation must be selected';
+        if (!allFormData[0]?.dateOfJoining) newErrors.dateOfJoining = 'Join Date must be selected';
+        if (!allFormData[0]?.department) newErrors.department = 'Department must be selected';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -155,11 +155,14 @@ const EmployeeInfo = (props) => {
             addDepartment(depData);
             setDepCreate(true);
             setShowModal(false);
+            setDisabled(true);
         } else if (field == "Designation") {
             addDesignation(desData);
             setDesigCreate(true);
             setShowModal(false);
+            setDisabled(true);
         }
+        setDepartment('');
     };
 
     const onChangeInput = (e) => {
@@ -190,36 +193,12 @@ const EmployeeInfo = (props) => {
                     {/* First Section */}
                     <Col md={6}>
                         <Form.Group controlId="employmentType">
-                            <Form.Label>Employment Type <span style={{ color: 'red' }}>*</span></Form.Label>
-                            <Select
-                                options={employmentTypes}
-                                value={employmentTypes.filter((option) => option.value === allFormData[0]?.employmentType)}
-                                onChange={(selectedOption) => {
-                                    setFormValues({ ...formValues, employmentType: selectedOption });
-                                    changeValue(selectedOption.value, 'employmentType');
-                                }}
-                            />
-                            {errors.employmentType && <Form.Text className="text-danger">{errors.employmentType}</Form.Text>}
-                        </Form.Group>
-
-                        <Form.Group controlId="dateOfJoining">
-                            <Form.Label>Date of Joining <span style={{ color: 'red' }}>*</span></Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="dateOfJoining"
-                                // value={form.dob}
-                                value={allFormData ? allFormData[0]?.dateOfJoining : ''}
-                                onChange={handleInputChange}
-                            />
-                            {errors.dateOfJoining && <Form.Text className="text-danger">{errors.dateOfJoining}</Form.Text>}
-                        </Form.Group>
-
-                        <Form.Group controlId="department">
                             <Form.Label>Department <span style={{ color: 'red' }}>*</span></Form.Label>
                             <InputGroup className="mb-3">
                                 <Select
                                     className='department-select'
                                     options={departmentList}
+                                    id='department'
                                     styles={{ width: '89%' }}
                                     // value={formValues.department}
                                     value={departmentList.length > 0 && departmentList?.filter((option) => option.value === allFormData[0]?.department)}
@@ -235,17 +214,54 @@ const EmployeeInfo = (props) => {
                             {errors.department && <Form.Text className="text-danger">{errors.department}</Form.Text>}
                         </Form.Group>
 
-                        <Form.Group controlId="workLocation">
-                            <Form.Label>Work Location</Form.Label>
+                        <Form.Group controlId="dateOfJoining">
+                            <Form.Label>Employment Type <span style={{ color: 'red' }}>*</span></Form.Label>
                             <Select
-                                options={workLocations}
-                                // value={formValues.workLocation}
-                                value={workLocations.filter((option) => option.value === allFormData[0]?.workLocation)}
+                                options={employmentTypes}
+                                id='employmentType'
+                                value={employmentTypes.filter((option) => option.value === allFormData[0]?.employmentType)}
                                 onChange={(selectedOption) => {
-                                    setFormValues({ ...formValues, workLocation: selectedOption });
-                                    changeValue(selectedOption.value, 'workLocation');
+                                    setFormValues({ ...formValues, employmentType: selectedOption });
+                                    changeValue(selectedOption.value, 'employmentType');
                                 }}
+                                className="mb-3"
                             />
+                            {errors.employmentType && <Form.Text className="text-danger">{errors.employmentType}</Form.Text>}
+
+                        </Form.Group>
+
+                        <Form.Group controlId="department">
+                            <Form.Label>Date of Joining <span style={{ color: 'red' }}>*</span></Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="dateOfJoining"
+                                id='dateOfJoining'
+                                // value={form.dob}
+                                value={allFormData ? allFormData[0]?.dateOfJoining : ''}
+                                onChange={handleInputChange}
+                                className="mb-3"
+                            />
+                            {errors.dateOfJoining && <Form.Text className="text-danger">{errors.dateOfJoining}</Form.Text>}
+                        </Form.Group>
+
+                        <Form.Group controlId="workLocation">
+                            <Form.Label>Document Type</Form.Label>
+                            <div className="d-flex">
+                                {DocumentTypes.map(doc => (
+                                    <Form.Check
+                                        key={doc.value}
+                                        type="radio"
+                                        label={doc.label}
+                                        name="documentType"
+                                        value={doc.value}
+                                        // checked={formValues.documentType === doc.value}
+                                        checked={allFormData ? allFormData[0]?.documentType === doc.value : false}
+                                        onChange={handleInputChange}
+                                        className="me-3"
+                                    />
+                                ))}
+                            </div>
+                            <Button variant="primary" type="submit" id='employee_save' style={{ visibility: 'hidden' }} onClick={handleSubmit}>Save</Button>
                         </Form.Group>
                     </Col>
 
@@ -254,22 +270,12 @@ const EmployeeInfo = (props) => {
                         {/* Empty Row */}
 
                         <Form.Group controlId="dateOfLeft">
-                            <Form.Label>Date of Left</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="dateOfLeft"
-                                // value={form.dob}
-                                value={allFormData ? allFormData[0]?.dateOfLeft : ''}
-                                onChange={handleInputChange}
-                                disabled={allFormData[0]?.isActive}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="designation">
-                            <Form.Label>Designation <span style={{ color: 'red' }}>*</span></Form.Label>
+                        <Form.Label>Designation <span style={{ color: 'red' }}>*</span></Form.Label>
                             <InputGroup className="mb-3">
                                 <Select
                                     options={designationslist}
                                     className='position-relative department-select'
+                                    id='designation'
                                     // value={formValues.designation}
                                     value={designationslist.length > 0 && designationslist?.filter((option) => option.value === allFormData[0]?.designation)}
                                     onChange={(selectedOption) => {
@@ -288,25 +294,34 @@ const EmployeeInfo = (props) => {
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button> */}
                             {errors.designation && <Form.Text className="text-danger">{errors.designation}</Form.Text>}
+                            
+                        </Form.Group>
+                        <Form.Group controlId="designation">
+                        <Form.Label>Work Location</Form.Label>
+                            <Select
+                                options={workLocations}
+                                // value={formValues.workLocation}
+                                value={workLocations.filter((option) => option.value === allFormData[0]?.workLocation)}
+                                onChange={(selectedOption) => {
+                                    setFormValues({ ...formValues, workLocation: selectedOption });
+                                    changeValue(selectedOption.value, 'workLocation');
+                                }}
+                                className="mb-3"
+                            />
+                           
                         </Form.Group>
                         <Form.Group controlId="documentType">
-                            <Form.Label>Document Type</Form.Label>
-                            <div className="d-flex">
-                                {DocumentTypes.map(doc => (
-                                    <Form.Check
-                                        key={doc.value}
-                                        type="radio"
-                                        label={doc.label}
-                                        name="documentType"
-                                        value={doc.value}
-                                        // checked={formValues.documentType === doc.value}
-                                        checked={allFormData ? allFormData[0]?.documentType === doc.value : false}
-                                        onChange={handleInputChange}
-                                        className="me-3"
-                                    />
-                                ))}
-                            </div>
-                            <Button variant="primary" type="submit" id='employee_save' style={{ visibility: 'hidden' }} onClick={handleSubmit}>Save</Button>
+                        <Form.Label>Date of Left</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="dateOfLeft"
+                                id='dateOfLeft'
+                                // value={form.dob}
+                                value={allFormData ? allFormData[0]?.dateOfLeft : ''}
+                                onChange={handleInputChange}
+                                disabled={allFormData[0]?.isActive}
+                                className="mb-3"
+                            />
                         </Form.Group>
                     </Col>
                 </Row>
@@ -370,7 +385,4 @@ const mapStateToProps = (state) => {
     return { despartments, designations }
 };
 
-export default connect(mapStateToProps, {
-    //  fetchDepartment, fetchDesignation
-    // addDepartment, addDesignation
- })(EmployeeInfo);
+export default connect(mapStateToProps, { fetchDepartment, fetchDesignation, addDepartment, addDesignation })(EmployeeInfo);

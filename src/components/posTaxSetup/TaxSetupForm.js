@@ -25,13 +25,12 @@ const TaxSetupForm = (props) => {
     singleTaxSetup,
     hide,
     product_unit,
-
+    handleTaxClose
   } = props;
 
 
   const innerRef = createRef();
 
-  console.log("single taxSetup ", singleTaxSetup)
   // const newUnit = singleUnit && base.filter((da) => singleUnit.base_unit === da.attributes.name);
 
   const [taxsetupValue, setTaxSetupValue] = useState({
@@ -41,9 +40,6 @@ const TaxSetupForm = (props) => {
      remarks: singleTaxSetup ? singleTaxSetup.remarks : "",
     // base_unit: ''
   });
-
-  
-  console.log("taxSetUp value => ..",taxsetupValue)
   
   const [errors, setErrors] = useState({
     taxPercentage: "",
@@ -63,6 +59,12 @@ const TaxSetupForm = (props) => {
     if (!taxsetupValue["taxName"].trim()) {
       errorss["taxName"] = getFormattedMessage(
         "globally.input.taxNameError.label"
+       
+      );
+    }
+    else if (!taxsetupValue["taxPercentage"]) {
+      errorss["taxPercentage"] = getFormattedMessage(
+        "globally.input.taxPercentageerr.label"
        
       );
     }
@@ -108,6 +110,11 @@ const TaxSetupForm = (props) => {
     return formData;
   };
 
+  const handleformClose = () =>{
+    if(handleTaxClose){ handleTaxClose(false) }
+    // handleTaxClose ? handleTaxClose(false) : hide(false);
+    handleClose ? handleClose(false) : hide(false);
+  }
 
 
   const onSubmit = (event) => {
@@ -117,15 +124,19 @@ const TaxSetupForm = (props) => {
       if (!disabled && valid) {
         editTaxSetup(singleTaxSetup.taxId,prepareFormData(taxsetupValue), handleClose );
         console.log("lasskanww")
-        clearField(false);
+       // clearField(false);
       }
     } else {
       if (valid) {
          setTaxSetupValue(taxsetupValue);
          console.log(!show)
 
-        addTaxSetup(prepareFormData(taxsetupValue),handleClose);
-        clearField(false);
+        addTaxSetup(prepareFormData(taxsetupValue), () => {
+          handleClose,
+          handleformClose,
+          clearField();  
+      });
+        //clearField(false);
        
       }
     }
@@ -137,6 +148,7 @@ const TaxSetupForm = (props) => {
       taxName: "",
       // base_unit: ''
     });
+    handleformClose();
     setErrors("");
     // handleClose(false);
     handleClose ? handleClose(false) : hide(false);
@@ -167,7 +179,7 @@ const TaxSetupForm = (props) => {
           <div className="row">
             <div className="col-md-12 mb-3">
               <label className="form-label">
-                {getFormattedMessage("globally.input.taxpercentage.label")}:{" "}
+                {getFormattedMessage("globally.input.taxpercentage.label")}{" "}
               </label>
               <span className="required" />
               <input
@@ -190,7 +202,7 @@ const TaxSetupForm = (props) => {
             </div>
             <div className="col-md-12 mb-3">
               <label className="form-label">
-                {getFormattedMessage("globally.input.taxname.label")}:{" "}
+                {getFormattedMessage("globally.input.taxname.label")}{" "}
               </label>
               <span className="required" />
               <input

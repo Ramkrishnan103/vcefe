@@ -94,8 +94,8 @@ export const fetchTaxSetups = (taxId, singleUnit) => async (dispatch) => {
     });
 };
 
-export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
-  
+export const addTaxSetup = (taxsetup,handleClose, handleTaxClose) => async (dispatch) => {
+  debugger
   console.log("handleClose=>",handleClose)
   await apiConfig
     .post(apiBaseURL.TAXSETUP, taxsetup)
@@ -106,9 +106,12 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
       if(response?.data?.success===true){
         dispatch(
           addToast({
-            text: getFormattedMessage("TaxSetup.success.create.message"),
+            text: response?.data?.message,
           })
         );
+        handleClose && handleClose(false);
+        handleTaxClose && handleTaxClose(false);
+        dispatch(fetchTaxSetup());
       }else{
         dispatch(
           addToast({ text: response?.data?.message, type: toastType?.ERROR })
@@ -119,16 +122,16 @@ export const addTaxSetup = (taxsetup,handleClose) => async (dispatch) => {
         type: taxSetupActionType.ADD_TAXSETUP,
         payload: response?.data?.data,
       });
-      dispatch(fetchTaxSetup(Filters.OBJ));
-      handleClose(false);
+      dispatch(fetchTaxSetup());
+     // handleClose(false);
      
       
       dispatch(addInToTotalRecord(1));
     })
     .catch(({ response }) => {
-      dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
-      );
+      // dispatch(
+      //   addToast({ text: response?.data?.message, type: toastType.ERROR })
+      // );
     });
 };
 
@@ -140,25 +143,26 @@ export const editTaxSetup =
       .then((response) => {
         console.log(apiBaseURL.TAXSETUP,taxSetups)
         console.log("response",response);
-        debugger;
+        
         if(response?.data?.success===true){
           dispatch(
             addToast({
-              text: getFormattedMessage("taxSetup.success.edit.message"),
+              text: response?.data?.message,
             })
           );
+          handleClose(false)
         }else{
           dispatch(
             addToast({ text: response?.data?.message, type: toastType?.ERROR })
           )
          
         }
-        handleClose(false);
+       // handleClose(false);
          dispatch(fetchTaxSetup());
-        dispatch({
-            type: taxSetupActionType.EDIT_TAXSETUP,
-            payload: response?.data?.data,
-        });
+        // dispatch({
+        //     type: taxSetupActionType.EDIT_TAXSETUP,
+        //     payload: response?.data?.data,
+        // });
         console.log("handleClose=>",handleClose)
       
       dispatch(addInToTotalRecord(1));
@@ -166,7 +170,7 @@ export const editTaxSetup =
       .catch(({ response }) => {
         
         dispatch(
-          addToast({text: response.data.message, type: toastType.ERROR})
+          addToast({text: response?.data?.message, type: toastType.ERROR})
         );
       });
   };
@@ -179,7 +183,7 @@ export const deleteTaxSetup = (taxId) => async (dispatch) => {
       if(response?.data?.success===true){
         dispatch(
           addToast({
-            text: getFormattedMessage("taxSetup.success.delete.message"),
+            text: response?.data?.message,
           })
         );
       }else{
@@ -194,7 +198,7 @@ export const deleteTaxSetup = (taxId) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };

@@ -88,7 +88,7 @@ console.log("Data =>" ,data)
     if (singleEmpDepartment) {
       if (!disabled && valid) {
         console.log("Hiii")
-        handleClose(!show)
+        // handleClose(!show)
         editEmpDepartment(singleEmpDepartment.departmentId, prepareFormData(empDepartmentValue),handleClose);
         // handleClose
         // clearField(false);
@@ -97,7 +97,7 @@ console.log("Data =>" ,data)
     else {
       if (valid) {
         // setLedgerValue( ledgerValue );
-        handleClose(!show)
+        //handleClose(!show)
         addEmpDepartmentData(prepareFormData(empDepartmentValue),handleClose);
        
         // clearField(false);
@@ -114,7 +114,14 @@ console.log("Data =>" ,data)
         <Modal
          show={show}
         >
-        <Form >
+        <Form 
+         onKeyPress={(e) => {
+          if (e.key === "Enter") {
+            // singleProductCategory ? onEdit(e) : onSubmit(e);
+            onSubmit(e);
+          }
+        }}
+        >
 
           <Modal.Header  >
             <Modal.Title>{title} </Modal.Title>
@@ -170,7 +177,7 @@ console.log("Data =>" ,data)
                  onChange={(e) => handleInputChange(e)}
               />
               <label className="form-label mt-1">
-                {getFormattedMessage("globally.input.isActive.label")}
+                {getFormattedMessage("globally.input.isActive.?.label")}
               </label>
 
               <span className="text-danger d-block fw-400 fs-small mt-2"></span>

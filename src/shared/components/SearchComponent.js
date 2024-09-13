@@ -21,6 +21,7 @@ const SearchComponent = (props) => {
             )}
             aria-label="Search"
             onChange={(e) => handleSearchData(e)}
+            autoComplete="off"
           />
           <span className="position-absolute d-flex align-items-center top-0 bottom-0 left-0 text-gray-600 ms-3">
             <FontAwesomeIcon icon={faSearch} />

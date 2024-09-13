@@ -1,8 +1,10 @@
-import {purchaseActionType} from '../../constants';
+import { purchaseActionType } from '../../constants';
 
 export default (state = {}, action) => {
     switch (action.type) {
         case purchaseActionType.FETCH_PURCHASES:
+            return action.payload;
+        case purchaseActionType.FETCH_PURCHASE_LISTING:
             return action.payload;
         case purchaseActionType.FETCH_PURCHASE:
             return action.payload;

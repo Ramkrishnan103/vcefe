@@ -183,7 +183,7 @@ export const fetchSuppliers =
                             type: toastType.ERROR,
                         })
                     );
-                    navigate("/app/supplier/edit:",supplierId);
+                    navigate("/app/suppliers/edit/"+supplierId);
                 }
                 else{
                     dispatch(
@@ -196,11 +196,11 @@ export const fetchSuppliers =
                     navigate("/app/supplier");
                 }
                 
-                dispatch({
-                    type: posSupplierActionType.EDIT_POS_SUPPLIERS,
-                    payload: response?.data?.data,
-                });      
-               
+                // dispatch({
+                //     type: posSupplierActionType.EDIT_POS_SUPPLIERS,
+                //     payload: response?.data?.data,
+                // });      
+                
                 
                 dispatch(setSavingButton(false));
             })

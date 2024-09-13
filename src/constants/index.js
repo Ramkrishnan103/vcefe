@@ -17,12 +17,17 @@ export const apiBaseURL = {
   CUSTOMERS_REPORT: "/customer-report",
   CUSTOMERS: "/customers",
   USERS: "/user",
+  EMPLOYEES: "/employee",
   EXPENSES_CATEGORIES: "/expense-categories",
   EXPENSES: "/expenses",
   PRODUCTS: "/items",
   POS_PRODUCTS: "/stockItems",
   POS_PRODUCTS_FILTER: "/stockItems?category1=&category2=&category3=&itemname=",
   PRODUCTS_IMAGE: "/itemImage",
+  EMPLOYEE_IMAGE: "/employeeImage",
+  EMPLOYEE_ADHAAR: "/employeeAadhar",
+  EMPLOYEE_PAN: "/employeePan",
+  EMPLOYEE_OTHERS: "/employeeOthers",
   PRODUCTS_STOCK: "/openingstock",
   IMPORT_PRODUCT: "/import-products",
   IMPORT_SUPPLIER: "/import-suppliers",
@@ -34,7 +39,6 @@ export const apiBaseURL = {
   QUOTATIONS: "/quotations",
   QUOTATIONS_DETAILS: "quotation-info",
   ADJUSTMENTS: "/adjustments",
-  EMPLOYEES: "/employee",
   SETTINGS: "/settings",
   CACHE_CLEAR: "/cache-clear",
   CHANGE_PASSWORD: "change-password",
@@ -44,6 +48,7 @@ export const apiBaseURL = {
   UPDATE_PROFILE: "update-profile",
   FRONT_SETTING: "front-setting",
   PRODUCT_IMAGE_DELETE: "products-image-delete",
+  USERS_IMAGE_DELETE:"users-image-delete",
   CASH_PAYMENT: "sales",
   CHANGE_LANGUAGE: "change-language",
   TODAY_SALE_COUNT: "today-sales-purchases-count",
@@ -115,22 +120,39 @@ export const apiBaseURL = {
   COMPANY_CONFIG: "/companyconfig",
   GET_ALL_PRICES: "/priceList",
   TAXSETUP: "/taxsetup",
-  DASHBOARD:"/dashBoard",
-  TOP5SELLINGITEMS:"/top5SellingItems",
-  ACYEAR :"/acyear",
+  DASHBOARD: "/dashBoard",
+  TOP5SELLINGITEMS: "/top5SellingItems",
+  ACYEAR: "/acyear",
   ALLCOUNTER: "/counter",
   WEEK_SALE_PURCHASES: "/thisWeekSalesPurchase",
   LEDGER: "/ledgers",
+  DEPARTMENTS: "/empDepartment",
+  DESIGNATIONS: "/empDesignation",
   CLOSINGSTOCKREPORT: "/closingStockReport",
-
-  //MARK FROM NILA 29-7-24
-SALARY:'/salaryConfig',
-EMPDEPARTMENT: "/empDepartment",
+  SALARY: '/salaryConfig',
+  EMPDEPARTMENT: "/empDepartment",
   EMPDESIGNATION: "/empDesignation",
-  SALARYDETAILS :"/salaryDetails",
+  SALARYDETAILS: "/salaryDetails",
   PAYROLLDETAILS: 'payrollDetails',
-  SALARYLOCK: "/salaryLock"
+  SALARYLOCK: "/salaryLock",
+  PERMISSIONS_CONFIG :"/permissionConfig",
+  USER_PERMISSION: "/userPermission"
 };
+
+export const permissionConfigActionType ={
+  FETCH_PERMISSION_CONFIG :"FETCH_PERMISSION_CONFIG"
+}
+
+export const userPermissionActionType = {
+  ADD_USERS_PERMISSIONS :"ADD_USERS_PERMISSIONS",
+  // MARK FROM RAM [04-09-2024]
+  FETCH_USERS_PERMIISIONS:"FETCH_USERS_PERMIISIONS"
+  // MARK TO RAM [04-09-2024]
+}
+
+export const getUserPermissionActionType ={
+  FETCH_GET_USER_PERMISSION:"FETCH_GET_USER_PERMISSION"
+}
 
 export const closingStockReportActionType = {
   FETCH_CLOSING_STOCK_REPORT: "FETCH_CLOSING_STOCK_REPORT",
@@ -141,6 +163,7 @@ export const acYearActionType = {
   FETCH_ACYEAR: "FETCH_AC_YEAR",
   ADD_ACYEAR: "ADD_AC_YEAR"
 }
+
 export const empDepartmentActionType = {
   FETCH_EMPDEPARTMENT: "FETCH_EMPDEPARTMENT",
   ADD_EMPDEPARTMENT: "ADD_EMPDEPARTMENT",
@@ -156,6 +179,7 @@ export const empDesignationActionType = {
   EDIT_EMPDESIGNATION: "EDIT_EMPDESIGNATION",
   DELETE_EMPDESIGNATION: "DELETE_EMPDESIGNATION"
 }
+
 export const top5SeliingItemsActionType = {
   FETCH_TOP5SELLINGITEMS: "FETCH_TOP5SELLINGITEMS"
 }
@@ -180,6 +204,10 @@ export const MonthlyPurchaseActionType = {
 export const DailyPurchaseActionType = {
   FETCH_DAILY_PURCHASE: "FETCH_DAILY_PURCHASE",
 };
+
+export const monthlyPurchaseOrderActionType={
+  FETCH_MONTHLY_PURCHASE_ORDER:"FETCH_MONTHLY_PURCHASE_ORDER"
+}
 
 export const authActionType = {
   LOGIN_USER: "LOGIN_USER",
@@ -324,6 +352,13 @@ export const productImageActionType = {
   DELETE_PRODUCT_IMAGE: "DELETE_PRODUCT_IMAGE",
 };
 
+export const usersImageActionType = {
+  DELETE_USERS_IMAGE: "DELETE_USERS_IMAGE",
+};
+
+
+
+
 export const purchaseActionType = {
   FETCH_PURCHASES: "FETCH_PURCHASES",
   FETCH_PURCHASE: "FETCH_PURCHASE",
@@ -332,6 +367,7 @@ export const purchaseActionType = {
   DELETE_PURCHASE: "DELETE_PURCHASE",
   PURCHASE_DETAILS: "PURCHASE_DETAILS",
   PURCHASE_PDF_ACTION: "PURCHASE_PDF_ACTION",
+  FETCH_PURCHASE_LISTING: "FETCH_PURCHASE_LISTING",
 };
 
 export const transferActionType = {
@@ -376,6 +412,24 @@ export const userActionType = {
   EDIT_USER: "EDIT_USER",
   DELETE_USER: "DELETE_USER",
 };
+
+export const employeeActionType = {
+  FETCH_EMPLOYEES: "FETCH_EMPLOYEES",
+  // FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
+  ADD_EMPLOYEE: "ADD_EMPLOYEE",
+  EDIT_EMPLOYEE: "EDIT_EMPLOYEE",
+  DELETE_EMPLOYEE: "DELETE_EMPLOYEE",
+}
+
+export const singleEmployeeActionType = {
+  FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
+}
+
+export const singleSalary = {
+  FETCH_SINGLE_SALARY: "FETCH_SINGLE_SALARY",
+  ADD_SALARY: "ADD_SALARY",
+  EDIT_SALARY: "EDIT_SALARY"
+}
 
 export const taxSetupActionType = {
   FETCH_TAXSETUP: "FETCH_TAXSETUP",
@@ -441,6 +495,15 @@ export const ledgerActionType = {
   ADD_LEDGER: "ADD_LEDGER",
   DELETE_LEDGER: "DELETE_LEDGER"
 };
+
+export const posSupplierActionType = {
+  FETCH_POS_SUPPLIER: "FETCH_POS_SUPPLIER",
+  FETCH_POS_SUPPLIERS: "FETCH_POS_SUPPLIERS",
+  EDIT_POS_SUPPLIERS: "EDIT_POS_SUPPLIERS",
+  ADD_POS_SUPPLIERS: "ADD_POS_SUPPLIERS",
+  DELETE_POS_SUPPLIERS: "DELETE_POS_SUPPLIERS"
+}
+
 export const departmentActionType = {
   FETCH_DEPARTMENTS: "FETCH_DEPARTMENTS",
   ADD_DEPARTMENT: "ADD_DEPARTMENT",
@@ -475,7 +538,16 @@ export const saleActionType = {
   FETCH_SALE_PAYMENT: "FETCH_SALE_PAYMENT",
   EDIT_SALE_PAYMENT: "EDIT_SALE_PAYMENT",
   DELETE_SALE_PAYMENT: "DELETE_SALE_PAYMENT",
+  FETCH_SALES_LISTING: "FETCH_SALES_LISTING",
 };
+
+export const saleSingleActionType = {
+  FETCH_SALE: "FETCH_SALE",
+}
+
+export const purchaseSingleActionType = {
+  FETCH_PURCHASE: "FETCH_PURCHASE",
+}
 
 export const holdListActionType = {
   FETCH_HOLDS: "FETCH_HOLDS",
@@ -618,6 +690,7 @@ export const constants = {
   SET_SAVING: "SET_SAVING",
   SET_UPDATING: "SET_UPDATING",
   SET_DEFAULT_COUNTRY: "SET_DEFAULT_COUNTRY",
+  LOADER: "LOADER",
 };
 
 export const dateLabelSelector = {
@@ -629,13 +702,6 @@ export const dateLabelSelector = {
   LAST_MONTH: "last_month",
   CUSTOM: "custom",
 };
-export const employeeActionType = {
-  FETCH_EMPLOYEES: "FETCH_EMPLOYEES",
-  // FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
-  ADD_EMPLOYEE: "ADD_EMPLOYEE",
-  EDIT_EMPLOYEE: "EDIT_EMPLOYEE",
-  DELETE_EMPLOYEE: "DELETE_EMPLOYEE",
-}
 
 export const dateFormat = {
   DEFAULT_MOMENT: "YYYY-MM-DD hh:mm:ss",
@@ -692,7 +758,6 @@ export const Permissions = {
   MANAGE_SETTING: "manage_setting",
   MANAGE_PURCHASE: "manage_purchase",
   MANAGE_PURCHASE_RETURN: "manage_purchase_return",
-  MANAGE_EMPLOYEES: "manage_employees",
   MANAGE_POS_SCREEN: "manage_pos_screen",
   MANAGE_SALE: "manage_sale",
   MANAGE_SALE_RETURN: "manage_sale_return",
@@ -706,6 +771,7 @@ export const Permissions = {
   MANAGE_SMS_API: "manage_sms_apis",
   MANAGE_SMS_TEMPLATES: "manage_sms_templates",
   MANAGE_LANGUAGES: "manage_language",
+  MANAGE_EMPLOYEES: "manage_employees",
 };
 
 //POS Screen Constants
@@ -743,24 +809,7 @@ export const posRegisterReportDetailsAction = {
 export const posCashPaymentActionType = {
   POS_CASH_PAYMENT: "POS_CASH_PAYMENT",
 };
-export const employeeFormData = {
-  FORM_DATA: "FORM_DATA",
-}
-export const singleEmployeeActionType = {
-  FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
-}
 
-export const singleSalary = {
-  FETCH_SINGLE_SALARY: "FETCH_SINGLE_SALARY",
-  ADD_SALARY: "ADD_SALARY",
-  EDIT_SALARY: "EDIT_SALARY"
-}
-export const userPermissionActionType = {
-  ADD_USERS_PERMISSIONS :"ADD_USERS_PERMISSIONS",
- 
-  FETCH_USERS_PERMIISIONS:"FETCH_USERS_PERMIISIONS"
-  
-}
 export const settingsKey = {
   LANGUAGE: "language",
   DEFAULT_LOCALE: "en",
@@ -943,12 +992,13 @@ export const priceListActionType = {
 export const counterList = {
   GET_ALL_COUNTER: "GET_ALL_COUNTER",
 }
-export const purchaseSingleActionType = {
-  FETCH_PURCHASE: "FETCH_PURCHASE",
-}
 
 export const cartItem = {
   CART_ITEMS: "CART_ITEMS"
+}
+
+export const employeeFormData = {
+  FORM_DATA: "FORM_DATA",
 }
 
 export const update = {
@@ -966,8 +1016,8 @@ export const taxFilterActionType = {
 export const cartCalculation = {
   CART_CALCULATION: "CART_CALCULATION",
 }
-//Mark from Nila 29-7-24
-export const posCustomerActionType={
+
+export const posCustomerActionType = {
   FETCH_CUSTOMER: "FETCH_CUSTOMER",
   EDIT_CUSTOMER: "EDIT_CUSTOMER",
   FETCH_CUSTOMERS: "FETCH_CUSTOMERS",
@@ -975,25 +1025,25 @@ export const posCustomerActionType={
   DELETE_CUSTOMER: "DELETE_CUSTOMER"
 }
 
-export const salaryActionType={
-  FETCH_SALARY:"FETCH_SALARY",
-  ADD_SALARY:"ADD_SALARY",
+export const salaryActionType = {
+  FETCH_SALARY: "FETCH_SALARY",
+  ADD_SALARY: "ADD_SALARY",
   FETCH_SINGLE_SALARY: "FETCH_SINGLE_SALARY",
   EDIT_SALARY: "EDIT_SALARY",
 }
 
-export const salaryDetailActionType  = {
-  FETCH_SALARYDEATILS :"FETCH_SALARYDEATILS",
-  FETCH_SLARAYdETAILS_FILTER:"FETCH_SLARAYdETAILS_FILTER",
-  ADD_SALARYDEATILS :"ADD_SALARYDEATILS",
-  LOCK_SALARYDEATILS :"LOCK_SALARYDEATILS",
-  DELETE_SALARYDETIALS:"DELETE_SALARYDETIALS"
+export const salaryDetailActionType = {
+  FETCH_SALARYDEATILS: "FETCH_SALARYDEATILS",
+  FETCH_SLARAYdETAILS_FILTER: "FETCH_SLARAYdETAILS_FILTER",
+  ADD_SALARYDEATILS: "ADD_SALARYDEATILS",
+  LOCK_SALARYDEATILS: "LOCK_SALARYDEATILS",
+  DELETE_SALARYDETIALS: "DELETE_SALARYDETIALS"
 }
 
 export const salaryListingall = {
-  FETCH_SLRAYDETAILS_FILTER:"FETCH_SLARAYDETAILS_FILTER",
+  FETCH_SLARAYDETAILS_FILTER: "FETCH_SLARAYDETAILS_FILTER",
 }
 
 export const payrollReport = {
-  FETCH_REPORT:"FETCH_REPORT",
+  FETCH_REPORT: "FETCH_REPORT",
 }

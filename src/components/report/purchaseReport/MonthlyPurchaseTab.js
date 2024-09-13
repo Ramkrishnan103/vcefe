@@ -1,5 +1,4 @@
-import React, { useEffect,forwardRef, useState, useRef, useCallback } from 'react';
- 
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -38,11 +37,9 @@ const MonthlyPurchaseTab = ({
   companyConfig,
   fetchCompanyConfig
 }) => {
-
   const navigate = useNavigate();
   const searchRef = useRef();
   const pdfRef = useRef(null);
-  const tableRef = useRef(null);
   const [fieldValue,setFieldValue]=useState({
     showPageSize:"",
     showPageOrientation:""
@@ -179,10 +176,6 @@ const MonthlyPurchaseTab = ({
   const totalPurchaseValue = (items) => {
     return items.reduce((total, item) => total + parseFloat(item.purchaseValue || 0), 0).toFixed(2);
   };
-  // const onRef = useCallback((ref) => {
-  //   tableRef.current = ref;
-  // }, []);
-  
   const generatePDF = useCallback((companyDetails, reportDetails, orientation) => {
     const { companyName, address, phoneNumber } = companyDetails;
     const { title, yearRange } = reportDetails;
@@ -194,7 +187,6 @@ const MonthlyPurchaseTab = ({
 
 
     const input = pdfRef.current;
-    console.log("input",input)
     html2canvas(input, { scale: 1.5,useCORS:true }).then((canvas) => {
       const resizedCanvas = document.createElement('canvas');
       const resizedCtx = resizedCanvas.getContext('2d');
@@ -275,6 +267,26 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
         unit: 'mm',
         format: isLandscape ? [297, 210] : [210, 297]
     });
+console.log(itemsValue)
+//     const acYearsValues =acYear?.length >=0 && acYear.map(acyear => {
+//         return(
+//             {
+//                 acFrom:acyear?.attributes?.acFrom,
+//                 acYear:acyear?.attributes?.acYear
+//             }
+//         )
+//     })
+// console.log(acYearsValues)
+    //  const columns1 = [
+    //     {
+    //         name: getFormattedMessage('monthlySales.title'),
+    //         selector: row => row.acYears,
+    //         sortField: 'acYears',
+    //         sortable: true,
+            
+    //     }]
+
+
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -388,26 +400,25 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
   return (
     <>
     <div className="warehouse_purchase_report_table">
-      <div className="row ">
-        <div className="  col-md-3 ">
+      <div className="row mb-3">
+        <div className=" col-sm-12 col-md-3 col-lg-3 d-flex align-items-center">
           <input
             className="form-control wd-100"
             placeholder="Search"
             onChange={handleSearchChange}
             ref={searchRef}
-            style={{ paddingLeft: '30px' }}
+            style={{ paddingLeft: '30px',position:"relative" }}
           />
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
-            style={{ marginTop: "-66px", marginLeft: "10px" }}
+            style={{ marginLeft: "10px", fontSize: '1rem',position:"absolute",left:"20px" }}
           />
         </div>
-        <div className="col-md-1"></div>
-        <div className="col-md-1">
-          <h3 className="mt-3">Ac Year</h3>
-          </div>
-          <div className="col-md-3">
-          <InputGroup className="flex-nowrap dropdown-side-btn text-black">
+       
+        <div className="col-sm-12 col-md-6 col-lg-3 d-flex align-items-center">
+          <h3 className="mb-0">Ac Year</h3>
+        
+          <InputGroup className="ms-2 flex-nowrap ">
             <ReactSelect
               className="position-relative"
               placeholder={placeholderText("globally.input.AcYear.label")}
@@ -417,8 +428,8 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
             />
           </InputGroup>
         </div>
-        <div className="col-md-1"></div>
-        <div className="col-md-3 ">
+        
+        <div className="col-sm-12 col-md-12 col-lg-6 d-flex justify-content-center align-items-center">
           <button
             style={{
               display: "flex",
@@ -426,7 +437,7 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-              width: "220px",
+             
               height: "60px",
               gap: "13px",
               background: "white"
@@ -450,17 +461,17 @@ const generateAndPrintPDF = useCallback((companyDetails, reportDetails, orientat
               style={{ color: "red", paddingLeft: "10px" }}
               onClick={handleClick}
             />
+            
           </button>
         </div>
       </div>
 
      <div className="tabulator-container">
           {itemsValue.length > 0 && (
-           <ReactTabulator 
+           
+<ReactTabulator ref={pdfRef}
 columns={columns}
 data={itemsRecord? filteredItems : itemsValue}
-ref={tableRef}
-
 options={{
   columnHeaderVertAlign: "bottom",
   layout: 'fitColumns',
@@ -471,8 +482,9 @@ options={{
     <div style='padding-left: 10px;'>Total</div>
     <div style='padding-right: 10px;'>${totalPurchaseValue(itemsRecord? filteredItems : itemsValue)}</div>
   </div>`
- }}
-//  onRef={ref => { tableRef.current = ref; }}
+ 
+ 
+}}
 style={{
   width: '100%',
   borderCollapse: 'collapse'
@@ -480,7 +492,8 @@ style={{
 />
           )}
           </div>
-          </div>
+       
+    </div>
     <Modal className="pdfTable" show={loadingPdf} onHide={() => setLoadingPdf(false)} centered>
   <Form>
     <Modal.Header>

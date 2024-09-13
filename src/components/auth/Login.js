@@ -1,12 +1,12 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { Image } from "react-bootstrap-v5";
-
+import * as EmailValidator from "email-validator";
 import { loginAction } from "../../store/action/authAction";
 import TabTitle from "../../shared/tab-title/TabTitle";
 import { fetchFrontSetting } from "../../store/action/frontSettingAction";
-import { Tokens } from "../../constants";
+import { Tokens, userActionType } from "../../constants";
 import { createBrowserHistory } from "history";
 import {
   getFormattedMessage,
@@ -15,25 +15,30 @@ import {
 import FooterLogin from "../footer/FooterLogin";
 import Footer from "../footer/Footer";
 import VStoreImage from "../../assets/images/vstore.png";
-import Logindes from "../../assets/images/logindes.png"
+import Logindes from "../../assets/images/logindes1.png";
+// import multitaskingconcept from "../../assets/images/multitaskingconcept.png";
 import "../../assets/scss/custom/custom.scss";
+import { fetchCompanyConfig } from "../../store/action/companyConfigAction";
 
-const Login = () => {
+const Login = (props) => {
+  const { fetchCompanyConfig,companyConfig} =props;
+
+  console.log("Company Config :", companyConfig)
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const history = createBrowserHistory();
   const { frontSetting } = useSelector((state) => state);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem(Tokens.ADMIN);
-  const passwordRef=useRef();
 
   const words = ["Billings", "Inventory", "Business"];
   let i = 0;
   let timer;
 
   const [loginInputs, setLoginInputs] = useState({
-   
     email: "",
+    userName:"",
     password: "",
   });
 
@@ -49,7 +54,23 @@ const Login = () => {
     // type();
   }, []);
 
-  
+  // const type = () =>{
+  //   var app = document.getElementById('app');
+
+  //   var typewriter = new Typewriter(app, {
+  //       loop: true
+  //   });
+
+  //   typewriter.typeString('Billings')
+  //       .pauseFor(2500)
+  //       .deleteAll()
+  //       .typeString('Inventory')
+  //       .pauseFor(2500)
+  //       .deleteAll()
+  //       .typeString('Business')
+  //       .pauseFor(2500)
+  //       .start();
+  // }
 
   const typingEffect = () => {
     let word = words[i].split("");
@@ -60,7 +81,7 @@ const Login = () => {
         deletingEffect();
         return false;
       };
-      timer = setTimeout(loopTyping, 250);
+      timer = setTimeout(loopTyping, 126);
     };
     loopTyping();
   };
@@ -80,50 +101,50 @@ const Login = () => {
         typingEffect();
         return false;
       };
-      timer = setTimeout(loopDeleting, 250);
+      timer = setTimeout(loopDeleting, 126);
     };
     loopDeleting();
   };
 
   const [errors, setErrors] = useState({
     email: "",
+    userName:"",
     password: "",
   });
 
   const handleValidation = () => {
-    let errors = {};
-    let isValid = true; 
-   
-    if (!loginInputs.email){
-      errors["email"] = getFormattedMessage(
-        "globally.input.email.validate.label"
-      );
-      isValid = false;
-      console.log("hiiiii",isValid)
-    }
+    let errorss = {};
+    let isValid = false;
+    if ((loginInputs["email"])&&(loginInputs["userName"])) {
+      if (!loginInputs["email"]) {
+        errorss["email"] = getFormattedMessage(
+          "globally.input.email.validate.label"
+        );
+      } 
+      else (!loginInputs["userName"]) 
+        errorss["userName"] = getFormattedMessage(
+          "globally.input.email.validate.label"
+        );
+       
   
-    // Validate password
-    const password = loginInputs["password"];
-    if (!password) {
-      errors["password"] = getFormattedMessage(
+  }
+    else if (!loginInputs["password"]) {
+      errorss["password"] = getFormattedMessage(
         "user.input.password.validate.label"
       );
-      passwordRef.current.focus();
-      isValid = false;
-    } 
-  
-    // Set the errors and loading state
-    setErrors(errors);
+    } else {
+      isValid = true;
+    }
+    setErrors(errorss);
     setLoading(false);
-  
     return isValid;
   };
-  
- 
+
   const prepareFormData = () => {
     // const formData = new FormData();
     let formData = {
       "email": loginInputs.email,
+      "userName":loginInputs.userName,
       "password": loginInputs.password
     }
     // formData.append("email", loginInputs.email);
@@ -140,9 +161,10 @@ const Login = () => {
       dispatch(loginAction(prepareFormData(loginInputs), navigate, setLoading));
       const dataBlank = {
         email: "",
+        userName:"",
         password: "",
       };
-      setLoginInputs(dataBlank);
+      // setLoginInputs(dataBlank);
     }
   };
 
@@ -159,9 +181,15 @@ const Login = () => {
     alert('hello')
   }
 
+  useEffect(() => {
+    fetchCompanyConfig();
+  },[])
+
+  const companyName = companyConfig?.companyName
+
   return (
     <div className="content d-flex flex-column flex-column-fluid login-bg">
-      <div className="d-flex flex-column-fluid " style={{background:"white"}}>
+      <div className="d-flex flex-column-fluid">
         <div className="d-flex w-30 flex-grow-1 align-items-center justify-content-center">
           <div className="px-5 width-450 px-sm-7 py-10 mx-auto">
             <h1 className="text-dark text-center mb-7 login-title">
@@ -172,7 +200,7 @@ const Login = () => {
                 <div><div><b>your Inventory</b></div></div>
                 <div><div><b>your Business</b></div></div>
               </div> */}
-              <div className="flex" >
+              <div className="flex">
                 <span className="logintitle1" >Manage your</span>
                 <p className="header-sub-title" id="word"></p>
                 <p className="header-sub-title blink">&nbsp;</p>
@@ -186,6 +214,10 @@ const Login = () => {
               width="40%"
               height="auto"
             />
+            {/* <img
+              className="multitaskingconcept"
+              src={multitaskingconcept}
+            /> */}
             <img
               className="login-logo"
               src={VStoreImage}
@@ -193,17 +225,23 @@ const Login = () => {
               width="40%"
               height="auto"
             />
-            {/* <label className="login-version">
-              Release Version VS01-04/03/2024
-            </label> */}
+           {/* <div className="row">
+            <div className="col-md-1"></div>
+            <div className="col-md-5"> */}
+            <label className="login-version fw-bold ">
+            <i className="version">v2.0 Aug 2024</i>
+            </label>
+            {/* </div>
+           </div> */}
           </div>
         </div>
 
         <div className="d-flex flex-grow-1 align-items-center justify-content-end login-right" style={{ width: "60%" }}>
           <div className="bg-theme-white rounded-15 width-450 shadow-md px-3 px-sm-4 py-10 mxStyle">
             <h1 className="text-dark text-center mb-7">
-              {getFormattedMessage("login-form.title-company")}
+               {companyName ? ("Hello,"+companyName ):'Hello,' }
             </h1>
+
             <form>
               <div className="mb-sm-7 mb-4">
                 <label className="form-label">
@@ -215,15 +253,18 @@ const Login = () => {
                     "globally.input.login.email.placeholder.label"
                   )}
                   required
-                  value={loginInputs.email}
+                  value={loginInputs.email }
+                  value1={loginInputs.userName}
                   className="form-control"
                   type="text"
                   name="email"
+                  name1="userName"
                   autoComplete="off"
                   onChange={(e) => handleChange(e)}
                 />
                 <span className="text-danger d-block fw-400 fs-small mt-2">
                   {errors["email"] ? errors["email"] : null}
+                  {errors["userName"] ? errors["userName"] : null}
                 </span>
               </div>
 
@@ -247,7 +288,6 @@ const Login = () => {
                   className="form-control"
                   type="password"
                   name="password"
-                  ref={passwordRef}
                   placeholder={placeholderText(
                     "user.input.password.placeholder.label"
                   )}
@@ -274,7 +314,7 @@ const Login = () => {
                     >
                       {loading ? (
                         <span className="d-block">
-                          {getFormattedMessage("login.loading.label")}
+                          {getFormattedMessage("globally.loading.label")}
                         </span>
                       ) : (
                         <span>
@@ -296,4 +336,9 @@ const Login = () => {
   );
 };
 
-export default Login;
+const mapStateToProps =(state) => {
+  const {companyConfig} =state;
+  return {companyConfig}
+}
+
+export default connect(mapStateToProps,{fetchCompanyConfig}) (Login);

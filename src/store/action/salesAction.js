@@ -1,5 +1,5 @@
 import apiConfig from "../../config/apiConfig";
-import { apiBaseURL, saleActionType, toastType, cartItem } from "../../constants";
+import { apiBaseURL, saleActionType, toastType, cartItem, saleSingleActionType } from "../../constants";
 import { addToast } from "./toastAction";
 import {
     addInToTotalRecord,
@@ -11,12 +11,14 @@ import requestParam from "../../shared/requestParam";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { callSaleApi } from "./saleApiAction";
 import { setSavingButton } from "./saveButtonAction";
+import { setLoader } from "./loaderAction";
 
 export const fetchSales =
     (filter = {}, isLoading = true) =>
         async (dispatch) => {
+            dispatch(setLoader(true));
             if (isLoading) {
-                dispatch(setLoading(true));
+                // dispatch(setLoading(true));
             }
             const admin = true;
             let url = apiBaseURL.SALES;
@@ -38,23 +40,67 @@ export const fetchSales =
                         type: saleActionType.FETCH_SALES,
                         payload: response.data.data,
                     });
-                    dispatch(
-                        setTotalRecord(
-                            response.data.meta.total !== undefined &&
-                                response.data.meta.total >= 0
-                                ? response.data.meta.total
-                                : response.data.data.total
-                        )
-                    );
-                    dispatch(callSaleApi(false));
-                    if (isLoading) {
-                        dispatch(setLoading(false));
+                    if (response?.data?.success) {
+                        dispatch(
+                            setTotalRecord(
+                                response.data.meta.total !== undefined &&
+                                    response.data.meta.total >= 0
+                                    ? response.data.meta.total
+                                    : response.data.data.total
+                            )
+                        );
+                        dispatch(callSaleApi(false));
+                        if (isLoading) {
+                            // dispatch(setLoading(false));
+                        }
+                        dispatch(setLoader(false));
+                    } else {
+                        dispatch(setLoader(false));
+                        // dispatch(setLoading(false));
                     }
                 })
                 .catch(({ response }) => {
                     dispatch(
                         addToast({
-                            text: response.data.message,
+                            text: response?.data?.message,
+                            type: toastType.ERROR,
+                        })
+                    );
+                });
+        };
+
+export const fetchPosSalesListing =
+    (filter = {}, isLoading = true) =>
+        async (dispatch) => {
+            // dispatch(setLoader(true));
+            if (isLoading) {
+                // dispatch(setLoading(true));
+            }
+            let url = apiBaseURL.SALES;
+            console.log(url)
+
+            apiConfig
+                .get(url)
+                .then((response) => {
+                    console.log("Response => ", response)
+                    if (response?.data?.success) {
+                        dispatch({
+                            type: saleActionType.FETCH_SALES_LISTING,
+                            payload: response?.data?.data,
+                        });
+
+                        if (isLoading) {
+                            dispatch(setLoading(false));
+                        }
+                        // dispatch(setLoader(true));
+                    } else {
+                        // dispatch(setLoader(true));
+                    }
+                })
+                .catch(({ response }) => {
+                    dispatch(
+                        addToast({
+                            text: response?.data?.message,
                             type: toastType.ERROR,
                         })
                     );
@@ -72,7 +118,7 @@ export const fetchSale =
                 .then((response) => {
                     dispatch({
                         type: saleActionType.FETCH_SALE,
-                        payload: response.data.data,
+                        payload: response?.data?.data,
                     });
                     if (isLoading) {
                         dispatch(setLoading(false));
@@ -81,7 +127,44 @@ export const fetchSale =
                 .catch(({ response }) => {
                     dispatch(
                         addToast({
-                            text: response.data.message,
+                            text: response?.data?.message,
+                            type: toastType.ERROR,
+                        })
+                    );
+                });
+        };
+
+export const fetchSingleSale =
+    (saleId, singleSale, isLoading = true) =>
+        async (dispatch) => {
+            dispatch(setLoader(true));
+            if (isLoading) {
+                // dispatch(setLoading(true));
+            }
+            await apiConfig
+                .get(apiBaseURL.SALES + "?salestxNo=" + saleId)
+                .then((response) => {
+                    dispatch({
+                        type: saleSingleActionType.FETCH_SALE,
+                        payload: response?.data?.data,
+                    });
+                    if (response?.data?.success) {
+                        if (isLoading) {
+                            // dispatch(setLoading(false));
+                        }
+                        dispatch(fetchPosSalesListing());
+                        dispatch(setLoader(false));
+                    }
+                    else {
+                        dispatch(setLoader(false));
+                        dispatch(fetchPosSalesListing());
+                        dispatch(addToast({ text: response?.data?.message, type: toastType.ERROR }));
+                    }
+                })
+                .catch(({ response }) => {
+                    dispatch(
+                        addToast({
+                            text: response?.data?.message,
                             type: toastType.ERROR,
                         })
                     );
@@ -97,18 +180,20 @@ export const addSale = (sale, navigate) => async (dispatch) => {
                 type: saleActionType.ADD_SALE,
                 payload: response.data.data,
             });
-            if (response.data.success == true) {
+            if (response?.data?.success == true) {
                 dispatch({ type: cartItem.CART_ITEMS, payload: [] });
                 dispatch(
                     addToast({
                         text: getFormattedMessage("sale.success.create.message"),
                     })
                 );
+                dispatch(fetchPosSalesListing());
                 dispatch(addInToTotalRecord(1));
                 navigate("/app/sales");
                 dispatch(setSavingButton(false));
-            }else{
-                dispatch(addToast({ text: response.data.message, type: toastType.ERROR }));
+            } else {
+                dispatch(addToast({ text: response?.data?.message, type: toastType.ERROR }));
+                dispatch(fetchPosSalesListing());
             }
         })
         .catch(({ response }) => {

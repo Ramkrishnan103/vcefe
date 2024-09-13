@@ -16,7 +16,7 @@ const DeleteEmployee = (props) => {
     return (
         <div>
             {deleteModel && <DeleteModel onClickDeleteModel={onClickDeleteModel} deleteModel={deleteModel}
-                                         deleteUserClick={deleteUserClick} name={getFormattedMessage('users.table.user.column.title')}/>}
+                                         deleteUserClick={deleteUserClick} name={getFormattedMessage('Employee')}/>}
         </div>
     )
 };

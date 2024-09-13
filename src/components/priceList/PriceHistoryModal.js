@@ -59,6 +59,7 @@ const PriceHistoryModal = (props) => {
         <button
           onClick={() => onClickPriceHistory(false)}
           className="btn back-btn-custom"
+          style={{ cursor: "pointer" }}
         >
           <img className="goBackIcon" src={goBackIcon} />
           {getFormattedMessage("globally.back-btn")}

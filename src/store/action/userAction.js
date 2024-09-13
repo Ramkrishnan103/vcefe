@@ -11,6 +11,7 @@ import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
 import id from "faker/lib/locales/id_ID";
+import { addUserPermission } from "./userPermissionAction";
 
 export const fetchUsers =
     (filter = {}, isLoading = true, allUser) =>
@@ -68,22 +69,22 @@ export const fetchUsers =
     };
 
 export const fetchUser =
-    (usersId, isLoading = true) =>
+    (userId, singleUser,isLoading = true) =>
     async (dispatch) => {
         if (isLoading) {
             dispatch(setLoading(true));
         }
-        console.log('fetcheduser',apiBaseURL.USERS + "?usersId=" + usersId)
-        apiConfig
-            .get(apiBaseURL.USERS + "?usersId=" + usersId)
+        console.log('fetcheduser',apiBaseURL.USERS + "?usersId=" + userId)
+       await apiConfig
+            .get(apiBaseURL.USERS + "?usersId=" + userId)
            // console.log(usersId)
              //   console.log(apiBaseURL.USERS + "?usersId=2"   )
             .then((response) => {
-                debugger;
+                console.log(apiBaseURL.USERS + "?usersId=" + userId)
                 console.log(response)
                 dispatch({
                     type: userActionType.FETCH_USER,
-                    payload: response.data.data,
+                    payload: response?.data?.data,
                 });
                 if (isLoading) {
                     dispatch(setLoading(false));
@@ -92,7 +93,7 @@ export const fetchUser =
             .catch(({ response }) => {
                 dispatch(
                     addToast({
-                        text: response.data.message,
+                        text: response?.data?.message,
                         type: toastType.ERROR,
                     })
                 );
@@ -100,9 +101,58 @@ export const fetchUser =
     };
 
 
-    
-export const addUser = (supplier, navigate) => async (dispatch) => {
+//    export const addUser = (users, navigate,userImage) => async (dispatch) => {
+//     console.log('Action :: Add user',navigate)
+//             dispatch(setSavingButton(true));
+//             await apiConfig
+//                 .post(apiBaseURL.USERS, users)
+//                 //console.log(apiBaseURL.USERS,supplier)
+//                 .then((response) => {
+//                     console.log(response)
+//                     if (!response?.data?.success) {
+//                         dispatch(
+//                           addToast({ text: response?.data?.message, type: toastType.ERROR })
+//                         );
+//                         dispatch(setSavingButton(false));
+//                       } else {
+//                         userImage.append("userId", response?.data?.data?.id);
+//                      //   productStock.itemId = response?.data?.data?.items_id;
+//                         dispatch(addUsersImage(userImage, navigate));
+//                         dispatch({
+//                         type: userActionType.ADD_USER,
+//                         payload: response.data.data,
+//                     });
+//                     navigate("/app/users");
+//                 }      
+//             })
+//                 //     dispatch(
+//                 //         addToast({
+//                 //             text: getFormattedMessage(
+//                 //                 "user.success.create.message"
+//                 //             ),
+//                 //         })
+//                 //     );
+//                 //     navigate("/app/users");
+//                 //     dispatch(addInToTotalRecord(1));
+//                 //     dispatch(setSavingButton(false));
+//                 // })
+//                 .catch(({ response }) => {
+//                     dispatch(setSavingButton(false));
+//                     response &&
+//                         dispatch(
+//                             addToast({
+//                                 text: response.data.message,
+//                                 type: toastType.ERROR,
+//                             })
+//                         );
+//                 });
+//         };
+
+        
+export const addUser = (supplier, navigate,formData) => async (dispatch) => {
+    console.log('my form data===>',formData)
     dispatch(setSavingButton(true));
+    debugger
     await apiConfig
         .post(apiBaseURL.USERS, supplier)
        
@@ -111,8 +161,21 @@ export const addUser = (supplier, navigate) => async (dispatch) => {
             console.log(response)
             dispatch({
                 type: userActionType.ADD_USER,
-                payload: response.data.data,
+                payload: response?.data?.data,
             });
+            const newForDataForPermission  = formData?.permission?.map((each)=>{
+                // console.log('newForDataForPermission ::: useridResponse',response);
+                // console.log('newForDataForPermission ::: userid',response?.data?.id);
+                return {
+                    
+                    ...each,
+                    userId : response?.data?.data?.id,
+                    createdBy:response?.data?.data?.id,
+                    updatedBy:response?.data?.data?.id
+                }
+            });
+            console.log('newForDataForPermission',newForDataForPermission);
+            dispatch(addUserPermission({permission :newForDataForPermission,xMode:formData?.xMode}))
             dispatch(
                 addToast({
                     text: getFormattedMessage(
@@ -121,6 +184,7 @@ export const addUser = (supplier, navigate) => async (dispatch) => {
                 })
             );
             navigate("/app/users");
+            // dispatch(fetchUsers());
             dispatch(addInToTotalRecord(1));
             dispatch(setSavingButton(false));
         })
@@ -240,79 +304,185 @@ export const addImportUsers = (importData) => async (dispatch) => {
 //         });
 // };
 
-export const editUser = 
-(userId, users, navigate) => async (dispatch) => {
-    console.log("hi",userId)
+export const addUsersImage =
+  (userImage, navigate) => async (dispatch) => {
+    // dispatch(setSavingButton(true));
+    await apiConfig
+      .post(apiBaseURL.USERS_IMAGE, userImage)
+      .then((response) => {
+        console.log("image response===>",response)
+        // dispatch(addProductStock(productStock, navigate));
+        // navigate("/app/products");
+
+        // dispatch(addInToTotalRecord(1));
+        // dispatch(setSavingButton(false));
+
+        dispatch(
+          addToast({
+            text: getFormattedMessage("Users.success.create.message"),
+          })
+        );
+
+      })
+      .catch(({ response }) => {
+        dispatch(setSavingButton(false));
+        dispatch(
+          addToast({ text: response.data.message, type: toastType.ERROR })
+        );
+      });
+  };
+
+  export const editUser =
+  (userId, users, navigate, usersImage,formData) => async (dispatch) => {
+    console.log("ACTION :: EDIT USERS");
+    debugger
     dispatch(setSavingButton(true));
-     const { firstName, lastName, userName, roleName,  email, pwd,remarks,isActive } = users;
-        const data = {
-            firstName,
-            lastName,
-            userName,
-            roleName,
-           
-            email,
-            pwd,
-            
-            remarks,
-            
-            isActive,
-            id:userId,
-        };
-    apiConfig
-        .post(apiBaseURL.USERS,data )
-       
-        .then((response) => {
-            console.log(response)
+    // const { firstName, lastName, userName, roleName, mobileNo, email, pwd,address1,address2,remarks,imageUrl } = users;
+    //         const data = {
+    //             firstName,
+    //             lastName,
+    //             userName,
+    //             roleName,
+    //             mobileNo,
+    //             email,
+    //             pwd,
+    //             address1,
+    //             address2,
+    //             remarks,
+    //             imageUrl,
+                
+    //             id:userId,
+    //         };
+     apiConfig
+      .post(apiBaseURL.USERS, users)
+   
+      .then((response) => {
+        console.log(apiBaseURL.USERS, users)
+        console.log(response)
+        // usersImage.append("userId", userId);
+        
+        // dispatch(addUsersImage(usersImage, navigate));
 
-            if(response?.data?.success==false){
-                dispatch(
-                    addToast({
-                        text: response?.data?.message,
-                        type: toastType.ERROR,
-                    })
-                );
+        const newForDataForPermission  = formData?.permission?.map((each)=>{
+            // console.log('newForDataForPermission ::: useridResponse',response);
+            // console.log('newForDataForPermission ::: userid',response?.data?.id);
+            return {
+                ...each,
+                userId : response?.data?.data?.id ,
+                createdBy:response?.data?.data?.id,
+                updatedBy:response?.data?.data?.id
             }
-            else{
-                dispatch(
-                    addToast({
-                        text: getFormattedMessage("user.success.edit.message"),
-                    })
-                );
-            }
-            dispatch({
-                type: userActionType.EDIT_USER,
-                payload: response?.data?.data,
-            });   
-           
-           
-            navigate("/app/users");
-            dispatch(setSavingButton(false));
-        })
-        .catch(({ response }) => {
-            dispatch(setSavingButton(false));
-            dispatch(
-                addToast({ text: response.data.message, type: toastType.ERROR })
-            );
         });
-};
+        console.log('newForDataForPermission',newForDataForPermission);
+        dispatch(addUserPermission({permission :newForDataForPermission,xMode:formData?.xMode}))
 
-export const deleteUser = (userId) => async (dispatch) => {
-    apiConfig
-        .delete(apiBaseURL.USERS + "?userId=" + userId)
-        .then((response) => {
-            console.log(response)
+        navigate("/app/users");
+        dispatch(
+          addToast({
+            text: getFormattedMessage("user.success.edit.message"),
+          })
+        );
+           
+        dispatch({
+          type: userActionType.EDIT_USER,
+          payload: response.data.data,
+        });
+        dispatch(setSavingButton(false));
+      })
+      .catch(({ response }) => {
+        dispatch(setSavingButton(false));
+        dispatch(
+          addToast({
+            text: response?.data?.message,
+            type: toastType.ERROR,
+          })
+        );
+      });
+  };
+
+
+// export const editUser = 
+// (userId, users, navigate,userImage) => async (dispatch) => {
+//     dispatch(setSavingButton(true));
+//      const { firstName, lastName, userName, roleName, mobileNo, email, pwd,address1,address2,remarks,imageUrl } = users;
+//         const data = {
+//             firstName,
+//             lastName,
+//             userName,
+//             roleName,
+//             mobileNo,
+//             email,
+//             pwd,
+//             address1,
+//             address2,
+//             remarks,
+//             imageUrl,
+            
+//             id:userId,
+//         };
+//     apiConfig
+//         .post(apiBaseURL.USERS,data )
+       
+//         .then((response) => {
+//             console.log(response)
+//             userImage.append("USersID", userId);
+//             dispatch(addUsersImage(userImage, navigate));
+//             navigate("/app/users") 
+           
+//             dispatch(
+//                 addToast({
+//                     text: getFormattedMessage("user.success.edit.message"),
+//                 })
+//             );
+//             dispatch({
+//                 type: userActionType.EDIT_USER,
+//                 payload: response.data.data,
+//             });
+//             // navigate("/app/users");
+//             // dispatch(setSavingButton(false));
+//         })
+//         .catch(({ response }) => {
+//             dispatch(setSavingButton(false));
+//             dispatch(
+//                 addToast({ text: response.data.message, type: toastType.ERROR })
+//             );
+//         });
+// };
+
+
+export const deleteUser = (userId, formData) => async (dispatch) => {
+    try {
+debugger
+const permissionResponse = await dispatch(
+    addUserPermission({
+        permission: formData?.permission,
+        xMode: formData?.xMode,
+    })
+);
+
+        const response = await apiConfig.delete(apiBaseURL.USERS + "?usersId=" + userId);
+
+        if (response?.data?.success === true) {
             dispatch(removeFromTotalRecord(1));
-            dispatch({ type: userActionType.DELETE_USER, payload: userId });
+
             dispatch(
                 addToast({
-                    text: getFormattedMessage("user.success.delete.message"),
+                    text: response?.data?.message,
+                    type: toastType.success,
                 })
             );
-        })
-        .catch(({ response }) => {
+        } else {
             dispatch(
-                addToast({ text: response.data.message, type: toastType.ERROR })
+                addToast({ text: response?.data?.message, type: toastType.ERROR })
             );
-        });
+        }
+
+        dispatch(fetchUsers());
+
+    } catch (error) {
+        const errorMessage = error?.response?.data?.message || "An error occurred";
+        dispatch(
+            addToast({ text: errorMessage, type: toastType.ERROR })
+        );
+    }
 };

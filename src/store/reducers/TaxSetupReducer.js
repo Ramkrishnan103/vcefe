@@ -10,7 +10,7 @@ export default (state = [], action) => {
             return [...state, action.payload];
         case taxSetupActionType.EDIT_TAXSETUP:
             return state.map(item => item.id === +action.payload.id ? action.payload : item);
-        case taxSetupActionType.DELETE_TAXSETUP:
+        case taxSetupActionType.DELETE_UNIT:
             return state.filter(item => item.id !== action.payload);
         default:
             return state;

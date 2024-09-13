@@ -8,14 +8,6 @@ import productCategoryReducers from "./productCategoryReducers";
 import roleReducer from "./roleReducer";
 import permissionReducer from "./permissionReducer";
 import warehouseReducer from "./warehouseReducrs";
-import employeeReducer from "./employeeReducer";
-// import employeeFormReducer from "./employeeFormReducer";
-// import employeeSingleReducer from "./employeeSingleReducer";
-// import departmentReducer from "./departmentReducer";
-// import designationReducer from "./designationReducer";
-// import empDepartmentReducer from "./empDepartmentReducer";
-
-// import empDesignationReducer from "./empDesignationReducer";
 import unitsReducers from "./unitsReducres";
 import taxSetupReducer from "./TaxSetupReducer";
 import supplierReducer from "./supplierReducer";
@@ -126,13 +118,32 @@ import brandFromReducers from "./brandFromReducers";
 import ledgerReducer from "./ledgerReducer";
 import recentSalesReducer from "./recentSalesReducer";
 import closingStockReportReducer from "./closingStockReportReducer";
+import employeeReducer from "./employeeReducer";
+import departmentReducer from "./departmentReducer";
+import designationReducer from "./designationReducer";
+import employeeFormReducer from "./employeeFormReducer";
+import employeeSingleReducer from "./employeeSingleReducer";
+import posSupplierReducer from "./PosSupplierReducer";
 // import productGroupsReducres from "./productGroupsReducres";
-
-//Mark from Nila 30-7-2024
-import posCustomerReducer from "./posCustomerReducer";
+// import posCustomerReducer from "./posCustomerReducer";
+import empDepartmentReducer from "./empDepartmentReducer";
+import empDesignationReducer from "./empDesignationReducer";
 import salaryReducer from "./salaryReducer";
+import PosSupplierReducer from "./PosSupplierReducer";
+import salarySingleReducer from "./salarySingleReducer";
+import posCustomerReducer from "./posCustomerReducer";
 import SalaryStructureReducer from "./SalaryStructureReducer";
+import salaryListingallReducer from "./salarListingAllReducer";
+import loaderReducer from "./loaderReducer";
+import payrollReportReducer from "./payrollReportReducer.js";
+import saleSingleReducer from "./saleSingleReducer.js";
+import purchaseSingleReducer from "./purchaseSingleReducer.js";
+import userPermissionReducer from "./userPermissionReducer.js";
+
 export default combineReducers({
+  // MARK FROM RAM [30-08-2024]
+  usersPermission:userPermissionReducer,
+  //MARK TO RAM [30-08-2024]
   companyConfig: companyConfigReducer,
   monthlySales: monthlySalesReducer,
   dailySales: dailySalesReducer,
@@ -253,18 +264,21 @@ export default combineReducers({
   recentSales: recentSalesReducer,
   closingStocks: closingStockReportReducer,
   employee: employeeReducer,
- 
-  // employeeFormData: employeeFormReducer,
-  // singleEmployee: employeeSingleReducer,
- 
-  //Mark from Nila 30-7-2024
+  despartments: departmentReducer,
+  designations: designationReducer,
+  employeeFormData: employeeFormReducer,
+  singleEmployee: employeeSingleReducer,
   posCustomer:posCustomerReducer,
   salary:salaryReducer,
-  // singleSalary: salarySingleReducer,
+  empDepartment : empDepartmentReducer,
+  empDesignation:empDesignationReducer,
+  posSupplier: PosSupplierReducer,
+  singleSalary: salarySingleReducer,
   salaryDetail:SalaryStructureReducer,
-  // salaryListingall: salaryListingallReducer,
-  // payrollReport: payrollReportReducer,
-  // loader: loaderReducer,
-  // saleSingle: saleSingleReducer,
-  // purchaseSingle: purchaseSingleReducer,
+  salaryListingall: salaryListingallReducer,
+  payrollReport: payrollReportReducer,
+  loader: loaderReducer,
+  saleSingle: saleSingleReducer,
+  purchaseSingle: purchaseSingleReducer,
+  usersPermission:userPermissionReducer,
 });

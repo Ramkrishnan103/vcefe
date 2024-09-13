@@ -150,7 +150,7 @@ const Header = (props) => {
                                     //     {getFormattedMessage('header.pos.title')}
                                     // </button>
                                     // :
-                                    <Link to='/app/pos' onClick={() => clearCart()}
+                                    <Link to='/app/posMain' onClick={() => clearCart()}
                                         className='px-sm-3 px-2 d-flex text-decoration-none pos-button pos-button-highlight'>
                                         {getFormattedMessage('header.pos.title')}
                                     </Link>

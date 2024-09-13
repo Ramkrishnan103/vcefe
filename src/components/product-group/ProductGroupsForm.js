@@ -22,6 +22,7 @@ const ProductGroupsForm = (props) => {
     editProductGroup,
     singleUnit,
     hide,
+    handleGroupClose
   } = props;
   const innerRef = createRef();
 
@@ -68,6 +69,11 @@ const ProductGroupsForm = (props) => {
     return formData;
   };
 
+  const handleformClose = () =>{
+    handleGroupClose ? handleGroupClose(false) : hide(false);
+    handleClose ? handleClose(false) : hide(false);
+  }
+
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
@@ -78,13 +84,17 @@ const ProductGroupsForm = (props) => {
           prepareFormData(unitValue),
           handleClose
         );
-        clearField(false);
+       // clearField(false);
       }
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductGroup(prepareFormData(unitValue));
-        clearField(false);
+        addProductGroup(prepareFormData(unitValue), () => {
+          handleClose, 
+          handleformClose, 
+          clearField();  
+      });
+        //clearField(false);
       }
     }
   };
@@ -95,7 +105,7 @@ const ProductGroupsForm = (props) => {
       name: "",
     });
     setErrors("");
-    handleClose ? handleClose(false) : hide(false);
+   handleClose ? handleClose(false) : hide(false);
   };
 
   return (

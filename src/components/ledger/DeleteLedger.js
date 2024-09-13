@@ -9,7 +9,7 @@ const DeleteLedger = (props) =>{
     const {deleteLedger,onDelete,onClickDeleteModel,deleteModel} =props;
     console.log("Delete Ledger ...")
 
-    const deleteLedgerClick = () => {
+    const deleteledgerClick = () => {
         deleteLedger(onDelete.id);
         onClickDeleteModel(false);
     };
@@ -17,7 +17,7 @@ console.log(deleteModel)
     return (
         <div>
         {deleteModel && <DeleteModel onClickDeleteModel={onClickDeleteModel} deleteModel={deleteModel}
-                                     deleteUserClick={deleteLedgerClick} title={getFormattedMessage('ledger.title')}
+                                     deleteUserClick={deleteledgerClick} title={getFormattedMessage('ledger.title')}
                                      name={getFormattedMessage('ledger.title')}/>}
     </div>
     )

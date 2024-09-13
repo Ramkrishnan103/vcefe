@@ -27,7 +27,7 @@ import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Import Tabulator
 
 
 
-const DailySalesTab = (props) => {
+const DailySalesTab = (props) => {  
     const {
         isLoading,
         totalRecord,
@@ -396,10 +396,9 @@ const exportToExcel=()=>{
                 <div className='col-md-2'>
                         <input id2='dateRequired2' type='date' ref={tooDate} defaultValue={defaultValue}  className='form-control  rounded text-align-center  align-items-center mr-15 mb-5'></input>
                 </div>
-                <div className='col-md-1' ></div>
-                 
+
                
-                <div className='col-md-1 ' >
+                <div className='col-md-2 mx-auto ' >
                 <button
             style={{
               display: "flex",
@@ -407,10 +406,11 @@ const exportToExcel=()=>{
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-              width: "100px",
+              width: "220px",
               height: "60px",
               gap: "13px",
-              background: "white"
+              background: "white",
+              
             }}
           >
             <FontAwesomeIcon
@@ -423,14 +423,14 @@ const exportToExcel=()=>{
             <FontAwesomeIcon
               icon={faFileExcel}
               className="fa-2x search-icon "
-              style={{ color: "green"}}
+              style={{ color: "green", paddingLeft: "10px" }}
               onClick={exportToExcel}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
               icon={faFilePdf}
               className="fa-2x search-icon"
-              style={{ color: "red"}}
+              style={{ color: "red", paddingLeft: "10px" }}
               onClick={handleClick}
              
             ></FontAwesomeIcon>
@@ -460,12 +460,16 @@ const exportToExcel=()=>{
                     </select>
                 </div>
              
+           
+
+
+               
                 <div className='col-md-2'>
                     <button className=' form-control border-0 bg-success text-white' onClick={loadValues}>Generate</button>
                 </div>
             </div>
 
-            <div className="tabulator-container" >
+            <div className="tabulator-container" style={{borderRadius:"5px"}}>
 
 {
   itemsValue.length>0&&(
@@ -477,7 +481,7 @@ const exportToExcel=()=>{
            layout:"fitColumns",
            responsiveLayout:"hide",
            placeholder:"No records found",
-           height:"auto",
+           height:"350px",
            
            footerElement:`<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77); border-radius: 0 0 5px 5px;   display: flex; justify-content: space-between; align-items: center;'>
     <div style='padding-left: 10px;'>Total</div>

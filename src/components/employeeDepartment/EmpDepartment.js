@@ -28,6 +28,27 @@ const EmpDepartment = (props) => {
     const [isDelete, setIsDelete] = useState(null);
     
   const [filterEmpDepartment, setFilterEmpDepartment] = useState([]);
+  const [formcode, setFormCode] = useState("HR01");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
 
   useEffect(() => {
     setEmpDepartment(empDepartment);
@@ -136,6 +157,7 @@ const EmpDepartment = (props) => {
             )}
             aria-label="Search"
             onChange={(e) => handleSearchData(e)}
+            autoComplete="off"
           />
           <span className="position-absolute d-flex align-items-center top-0 bottom-0 left-0 text-gray-600 ms-3">
             <FontAwesomeIcon icon={faSearch} />

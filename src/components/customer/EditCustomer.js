@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { editCustomer, fetchCustomer } from '../../store/action/customerAction';
 import HeaderTitle from '../header/HeaderTitle';
 import MasterLayout from '../MasterLayout';
-import PosCustomerForm from './PosCustomerForm';
+import CustomerForm from './CustomerForm';
 import { getFormattedMessage } from '../../shared/sharedMethod';
 import TopProgressBar from "../../shared/components/loaders/TopProgressBar";
 
@@ -40,7 +40,7 @@ const EditCustomer = ( props ) => {
         <MasterLayout>
             <TopProgressBar />
             <HeaderTitle title={getFormattedMessage( 'customer.edit.title' )} to='/app/customers' />
-            {customers.length === 1 && <PosCustomerForm singleCustomer={itemsValue} id={id} />}
+            {customers.length === 1 && <CustomerForm singleCustomer={itemsValue} id={id} />}
         </MasterLayout>
     )
 };

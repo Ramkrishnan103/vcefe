@@ -1,8 +1,8 @@
 @import "components/components";
 @import "pages/pages";
 
-.login-bg{
-    background-color: rgb(252, 252, 252);
+.login-bg {
+  background-color: rgb(252, 252, 252);
 }
 
 .login-logo {
@@ -20,7 +20,7 @@
 }
 
 .login-right {
-  background-image: url('../../images/loginbg1.png') !important;
+  background-image: url("../../images/loginbg1.png") !important;
   background-size: 70vw 100vh;
   height: 100vh;
   background-repeat: no-repeat;
@@ -39,34 +39,39 @@
   width: 100%;
 }
 .mxStyle {
-    margin-right: 8.25rem !important;
-    margin-left: 8.25rem !important;
+  margin-right: 8.25rem !important;
+  margin-left: 8.25rem !important;
 }
 
-.loginbtn{
+.loginbtn {
   background-color: #048901 !important;
 }
 
-.logindes{
-  width: 573px;
-    left: 10px;
-    /* position: relative; */
-    margin-bottom: 30%;
-    margin-left: -39px;
+.logindes {
+  width: 400px;
+  left: 10px;
+  /* position: relative; */
+  margin-bottom: 30%;
+  margin-left: 52px;
 }
 
-.login-title{
+.login-title {
   // position: relative;
   // bottom: 200px;
   font-size: 27px;
 }
 
+.version {
+  font-size: smaller;
+  margin-left: 23%;
+}
+
 // #flip {
-//   // font-family:'Comic Sans MS'; 
+//   // font-family:'Comic Sans MS';
 //   height:50px;
 //   overflow:hidden;
 //   // margin-left:-70px;
-  
+
 // }
 
 // #flip > div > div {
@@ -75,7 +80,7 @@
 //   height:45px;
 //   margin-bottom:55px;
 //   display:inline-block;
-  
+
 // }
 
 // #flip div:first-child {
@@ -102,8 +107,6 @@
 //   99.99% {margin-top:0px;}
 //   100% {margin-top:-270px;}
 // }
-
-
 
 // .login-right {
 //     float: right;
@@ -137,20 +140,24 @@
   animation: blink 0.5s infinite;
 }
 
-@keyframes blink{
-  to { opacity: .0; }
+@keyframes blink {
+  to {
+    opacity: 0;
+  }
 }
 .flex {
-	display: flex;
+  display: flex;
 }
 
-#word{
+#word {
   // margin-left: 50%;
   margin-left: 2%;
 }
 
-@keyframes rev{
-  0% { margin-left: 55%; }
+@keyframes rev {
+  0% {
+    margin-left: 55%;
+  }
 }
 
 .header-sub-title {
@@ -162,41 +169,57 @@
   margin-bottom: 0 !important;
   font-weight: 700;
 }
-.logintitle1{
+.logintitle1 {
   margin-top: 2%;
 }
 
-.logintitle3{
+.logintitle3 {
   margin-left: 85%;
   margin-top: -8%;
 }
 
-.word0{
+.word0 {
   color: #079cdb;
 }
 
-.word1{
+.word1 {
   color: #048901;
 }
 
-.word2{
+.word2 {
   color: red;
 }
 
-.logindes{ 
+.word3 {
+  color: orangered;
+}
+
+.logindes {
   animation: wiggle 1s infinite;
-  animation-timing-function: linear;   
+  animation-timing-function: linear;
 }
 
 @keyframes wiggle {
-  0% { transform: translate(2px, 0); }
-  50% { transform: translate(-2px, 0); }
-  100% { transform: translate(2px, 0); }
+  0% {
+    transform: translate(2px, 0);
+  }
+  50% {
+    transform: translate(-2px, 0);
+  }
+  100% {
+    transform: translate(2px, 0);
+  }
 }
 
 @keyframes shake {
-  0% { transform: rotate(0.5deg); }
-  50% { transform: rotate(-0.5deg); }
-  100% { transform: rotate(0.5deg); }
+  0% {
+    transform: rotate(0.5deg);
+  }
+  50% {
+    transform: rotate(-0.5deg);
+  }
+  100% {
+    transform: rotate(0.5deg);
+  }
 }
 //

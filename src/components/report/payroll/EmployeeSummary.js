@@ -3,7 +3,7 @@ import BeauteSoft from "./BeauteSoft";
 const EmployeeSummary=()=>{
   return(
 <div>
-  <BeauteSoft/>
+  {/* <BeauteSoft/> */}
 </div>
 
   )

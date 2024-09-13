@@ -11,10 +11,13 @@ import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
 import { callImportProductApi } from "./importProductApiAction";
+import { setLoader } from "./loaderAction";
 
 export const fetchProducts =
   (filter = {}, isLoading = true) =>
     async (dispatch) => {
+      debugger
+      dispatch(setLoader(true));
       if (isLoading) {
         dispatch(setLoading(true));
       }
@@ -44,6 +47,11 @@ export const fetchProducts =
           //             : response.data.data.total
           //     )
           // );
+          if(response?.data?.success) {
+            dispatch(setLoader(false));
+          }else{
+            dispatch(setLoader(false));
+          }
           if (isLoading) {
             dispatch(setLoading(false));
           }
@@ -90,6 +98,7 @@ export const fetchProduct =
 
 export const addProduct =
   (product, navigate, productImage, productStock) => async (dispatch) => {
+    debugger
     dispatch(setSavingButton(true));
     await apiConfig
       .post(apiBaseURL.PRODUCTS, product)
@@ -143,7 +152,7 @@ export const addProductImage =
       .post(apiBaseURL.PRODUCTS_IMAGE, productImage)
       .then((response) => {
         dispatch(addProductStock(productStock, navigate));
-        navigate("/app/products");
+        // navigate("/app/products");
 
         dispatch(addInToTotalRecord(1));
         dispatch(setSavingButton(false));
@@ -153,7 +162,7 @@ export const addProductImage =
         //     text: getFormattedMessage("product.success.create.message"),
         //   })
         // );
-        navigate("/app/products");
+        // navigate("/app/products");
       })
       .catch(({ response }) => {
         dispatch(setSavingButton(false));
@@ -177,7 +186,7 @@ export const addProductStock = (productStock, navigate) => async (dispatch) => {
       //     text: getFormattedMessage("product.success.create.message"),
       //   })
       // );
-      navigate("/app/products");
+      // navigate("/app/products");
 
       dispatch(addInToTotalRecord(1));
       dispatch(setSavingButton(false));
@@ -194,28 +203,32 @@ export const editProduct =
   (productId, product, navigate, productImage) => async (dispatch) => {
     console.log("ACTION :: EDIT PRODUCTS");
     dispatch(setSavingButton(true));
-    await apiConfig
+     apiConfig
       .post(apiBaseURL.PRODUCTS, product)
       .then((response) => {
-        productImage.append("itemId", productId);
-        dispatch(addProductImage(productImage, navigate));
-        navigate("/app/products");
-        dispatch(
-          addToast({
-            text: getFormattedMessage("product.success.edit.message"),
-          })
-        );
-        dispatch({
-          type: productActionType.EDIT_PRODUCT,
-          payload: response.data.data,
-        });
-        dispatch(setSavingButton(false));
+        if (response?.data?.success) {
+          productImage.append("itemId", productId);
+          dispatch(addProductImage(productImage, navigate));
+          dispatch(
+            addToast({ text: response?.data?.message, type: toastType.SUCCESS })
+          );
+          navigate("/app/products");
+          dispatch({
+            type: productActionType.EDIT_PRODUCT,
+            payload: response.data.data,
+          });
+          dispatch(setSavingButton(false));
+        } else {
+          dispatch(
+            addToast({ text: response?.data?.message, type: toastType.ERROR })
+          );
+        }
       })
       .catch(({ response }) => {
         dispatch(setSavingButton(false));
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );

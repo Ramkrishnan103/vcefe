@@ -16,14 +16,12 @@ import {
 import Spinner from "../../shared/components/loaders/Spinner";
 import TopProgressBar from "../../shared/components/loaders/TopProgressBar";
 import { fetchEmployee } from "../../store/action/employeeAction";
-// import { fetchDepartment } from "../../store/action/departmentAction";
-// import { fetchDesignation } from "../../store/action/designationAction";
+import { fetchDepartment } from "../../store/action/departmentAction";
+import { fetchDesignation } from "../../store/action/designationAction";
 import moment from "moment";
 
 const EmployeeDetail = (props) => {
-  const { employee, fetchEmployee, isLoading, frontSetting, allConfigData, designations, despartments 
-    // fetchDepartment, fetchDesignation
-    , singleEmployee} =
+  const { employee, fetchEmployee, isLoading, frontSetting, allConfigData, designations, despartments, fetchDepartment, fetchDesignation, singleEmployee} =
     props;
   const { id } = useParams();
   // const result = employee && employee.reduce((obj, cur) => ({...obj, [cur.type]: cur}), {})
@@ -43,8 +41,8 @@ const EmployeeDetail = (props) => {
 
   const sliderImage = product &&
     product?.attributes &&
-    product?.attributes?.product_image !== "" && [
-      product?.attributes?.product_image,
+    product?.attributes?.empImgUrl !== "" && [
+      product?.attributes?.empImgUrl,
     ]; // product?.attributes?.product_image?.imageUrls?.map((img) => img);
   const warehouse =
     product &&
@@ -168,7 +166,7 @@ const EmployeeDetail = (props) => {
                       <td className="py-4">
                         {product &&
                           product?.attributes &&
-                          moment(product?.attributes?.dateOfJoin).format("DD-MM-YYYY")}
+                          moment(product?.attributes?.dateOfJoin, "DD-MM-YYYY" ).format("DD-MM-YYYY")}
                       </td>
                     </tr>
                     <tr>
@@ -231,7 +229,7 @@ const EmployeeDetail = (props) => {
                 </table>
               </div>
               <div className="col-xxl-5 d-flex justify-content-center m-auto">
-                {/* {sliderImage && sliderImage.length !== 0 ? (
+                {sliderImage && sliderImage.length !== 0 ? (
                   <Carousel>
                     {sliderImage.length !== 0 &&
                       sliderImage.map((img, i) => {
@@ -246,7 +244,7 @@ const EmployeeDetail = (props) => {
                   <div>
                     <Image src={user} width="413px" />
                   </div>
-                )} */}
+                )}
               </div>
             </>
           )}
@@ -327,7 +325,4 @@ const mapStateToProps = (state) => {
   return { employee, isLoading, frontSetting, allConfigData, despartments, designations, singleEmployee };
 };
 
-export default connect(mapStateToProps, { fetchEmployee, 
-  
-  // fetchDepartment, fetchDesignation 
-})(EmployeeDetail);
+export default connect(mapStateToProps, { fetchEmployee, fetchDepartment, fetchDesignation })(EmployeeDetail);

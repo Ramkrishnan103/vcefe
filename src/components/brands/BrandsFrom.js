@@ -1,7 +1,7 @@
 import React, { useState, createRef, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { Form, Modal } from "react-bootstrap-v5";
-import { editBrand, fetchBrand } from "../../store/action/brandsAction";
+import { addBrand, editBrand, fetchBrand } from "../../store/action/brandsAction";
 import ImagePicker from "../../shared/image-picker/ImagePicker";
 import user from "../../assets/images/brand_logo.png";
 import { getFormattedMessage } from "../../shared/sharedMethod";
@@ -17,6 +17,8 @@ const BrandsFrom = (props) => {
     editBrand,
     singleBrand,
     hide,
+    handleBrandClose,
+    addBrand
   } = props;
   const innerRef = createRef();
   const [formValue, setFormValue] = useState({
@@ -113,8 +115,14 @@ const BrandsFrom = (props) => {
     return formData;
   };
 
+  const handleformClose = () => {
+    handleBrandClose ? handleBrandClose(false) : hide(false);
+    handleClose ? handleClose(false) : hide(false);
+  }
+
   const onSubmit = (event) => {
     event.preventDefault();
+    debugger
     const valid = handleValidation();
     // formValue.image = selectImg;
     if (singleBrand && valid) {
@@ -127,15 +135,22 @@ const BrandsFrom = (props) => {
         );
         debugger;
         // if (brandForm) {
-        clearField(false);
+        // clearField(false);
         // }
       }
     } else {
+      debugger
       if (valid) {
         setFormValue(formValue);
-        addBrandData(prepareFormData(formValue));
+        // addBrandData(prepareFormData(formValue),handleClose, handleBrandClose);
+        addBrand(prepareFormData(formValue), () => {
+          handleClose, 
+          handleformClose,
+          clearField();
+        });
+
         // if (brandForm) {
-        clearField(false);
+        // clearField(false);
         // }
       }
     }
@@ -216,4 +231,4 @@ const BrandsFrom = (props) => {
   );
 };
 
-export default connect(null, { fetchBrand, editBrand })(BrandsFrom);
+export default connect(null, { fetchBrand, editBrand, addBrand })(BrandsFrom);

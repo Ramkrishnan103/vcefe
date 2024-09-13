@@ -8,12 +8,14 @@ import HeaderTitle from '../header/HeaderTitle';
 import { Filters } from '../../constants';
 import EmployeeForm from './EmployeeForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Loader from '../loader/Loader';
 
 export default function CreateEmployees() {
     return (
         <MasterLayout>
             {/* <HeaderTitle title={getFormattedMessage('emp.creation')} to='/app/employees' /> */}
             {/* <UsersForm addUsersData={addUsersData} /> */}
+            <Loader/>
             <EmployeeForm/>
         </MasterLayout>
     )

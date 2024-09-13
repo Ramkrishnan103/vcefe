@@ -1,8 +1,10 @@
-import {saleActionType} from '../../constants';
+import { saleActionType } from '../../constants';
 
 export default (state = {}, action) => {
     switch (action.type) {
         case saleActionType.FETCH_SALES:
+            return action.payload;
+        case saleActionType.FETCH_SALES_LISTING:
             return action.payload;
         case saleActionType.FETCH_SALE:
             return action.payload;

@@ -24,7 +24,7 @@ console.log("ID => ", id)
         address:  singleCustomer  ?  singleCustomer [0]?.address : "",
         area:singleCustomer  ?  singleCustomer [0]?.area : "",
         city:singleCustomer  ?  singleCustomer [0]?.city : "",
-        state:singleCustomer  ?  singleCustomer [0]?.state : "",
+        state:singleCustomer  ?  singleCustomer [0]?.state : "Tamil Nadu",
         location:singleCustomer  ?  singleCustomer [0]?.location : "Local State",
        gstNo: singleCustomer ? singleCustomer[0]?.gstNo : "",
       email: singleCustomer ? singleCustomer[0]?.email:"",
@@ -139,6 +139,25 @@ return formData;
     navigate("/app/posCustomer")
   };
  
+  console.log("customer vavlue  => ",CustomerValue.state)
+
+  const mobileNo1handleChange = (e) => {
+    const value = e.target.value;
+    
+    // Allow only digits and limit the length to 15 characters
+    if (/^\d*$/.test(value) && value.length <= 15) {
+      setCustomerValue({ ...CustomerValue, [e.target.name]: value });
+    }
+  };
+
+  const mobileNo1handleKeyDown = (e) => {
+    if (e.target.name === 'mobileNo' && (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-')) {
+      e.preventDefault();
+    }
+  };
+
+
+
   return(
     <div>
       <div className="d-md-flex align-items-center justify-content-between mb-5">
@@ -212,12 +231,14 @@ return formData;
               type="text"
               name="customerName"
               value={CustomerValue.customerName}
+              maxLength={100}
               // placeholder={placeholderText(
               //   "globally.input.Ledgername.placeholder.label"
               // )}
               autoComplete="off"
               className="form-control"
               onChange={handleInputChange}
+              autoFocus
             />
             <span className="text-danger d-block fw-400 fs-small mt-2">
               {errors["customerName"] ? errors["customerName"] : null}
@@ -233,6 +254,7 @@ return formData;
               type="text"
               name="customerCode"
               value={CustomerValue.customerCode}
+              maxLength={50}
               // placeholder={placeholderText(
                 // "globally.input.alterLanguage.placeholder.label"
               // )}
@@ -254,6 +276,7 @@ return formData;
               autoComplete="off"
               className="form-control"
               value={CustomerValue.address}
+              maxLength={100}
               // placeholder={placeholderText(
                 // "globally.input.address.placeholder.label"
               // )}
@@ -273,6 +296,7 @@ return formData;
                 autoComplete="off"
                 className="form-control"
                 value={CustomerValue.area}
+                maxLength={50}
                 onChange={handleInputChange}
               />
             </div>
@@ -291,6 +315,7 @@ return formData;
               autoComplete="off"
               className="form-control"
               value={CustomerValue.city}
+              maxLength={50}
               // placeholder={placeholderText(
               //   "globally.input.city.placeholder.label"
               // )}
@@ -311,7 +336,7 @@ return formData;
               autoComplete="off"
               className="form-control"
               value={CustomerValue.state}
-             
+              maxLength={50}
               onChange={handleInputChange}
             />
             <span className="text-danger d-block fw-400 fs-small mt-2">
@@ -327,7 +352,7 @@ return formData;
             <ReactSelect
                         name='location'
                         value={locationType.find(option => option.value === CustomerValue.location)} 
-                        
+                        maxLength={50}
                         data={locationType} 
                         onChange={handleDropdownChange} 
                       />
@@ -348,6 +373,7 @@ return formData;
               className="form-control"
               autoComplete="off"
               value={CustomerValue.gstNo}
+              maxLength={15}
               // placeholder={placeholderText(
               //   "globally.input.gstNo.placeholder.label"
               // )}
@@ -368,6 +394,7 @@ return formData;
               autoComplete="off"
               className="form-control"
               value={CustomerValue.email}
+              maxLength={100}
               // placeholder={placeholderText(
               //   "globally.input.email.placeholder.label"
               // )}
@@ -391,8 +418,11 @@ return formData;
               className="form-control"
               pattern="[0-9]*"
               value={CustomerValue.mobileNo}
+              htmlSize={15}
               // placeholder={placeholderText("globally.input.phone-number1.placeholder.label")}
-              onChange={handleInputChange}
+             // onChange={handleInputChange}
+              onChange={(e) => mobileNo1handleChange(e)}
+              onKeyDown={mobileNo1handleKeyDown}
               // onKeyDown={mobileNo1handleKeyDown}
             />
             <span className="text-danger d-block fw-400 fs-small mt-2"></span>

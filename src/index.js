@@ -7,7 +7,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import App from './App';
 import reducers from './store/reducers/index'
 import storage from 'redux-persist/lib/storage'
-
 import { persistReducer, persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react'
 import reportWebVitals from './reportWebVitals';

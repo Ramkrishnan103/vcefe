@@ -7,10 +7,6 @@ import EditWarehouse from "./components/warehouse/EditWarehouse";
 import ProductCategory from "./components/productCategory/ProductCategory";
 import Units from "./components/units/Units";
 import Learn1 from "./components/learning/Learn1";
-import Suppliers from "./components/supplier/Suppliers";
-import CreateSupplier from "./components/supplier/CreateSupplier";
-import EditSupplier from "./components/supplier/EditSupplier";
-//Mark from Nila 31-7-24
 // import Customers from "./components/customer/Customers";
 // import CreateCustomer from "./components/customer/CreateCustomer";
 // import EditCustomer from "./components/customer/EditCustomer";
@@ -33,8 +29,8 @@ import Purchases from "./components/purchase/Purchases";
 import CreatePurchase from "./components/purchase/CreatePurchase";
 import EditPurchase from "./components/purchase/EditPurchase";
 import PurchaseDetails from "./components/purchase/PurchaseDetails";
-// import PosMainPage from "./frontend/components/PosMainPage";
-// import PrintData from "./frontend/components/printModal/PrintData";
+import PosMainPage from "./frontend/components/PosMainPage";
+import PrintData from "./frontend/components/printModal/PrintData";
 import Sales from "./components/sales/Sales";
 import CreateSale from "./components/sales/CreateSale";
 import EditSale from "./components/sales/EditSale";
@@ -102,32 +98,43 @@ import UsersForm from "./components/posUsers/UsersForm";
 import CreateUsers from "./components/posUsers/CreateUsers";
 import EditUsers from "./components/posUsers/EditUsers";
 import Ledger from "./components/ledger/Ledger";
-
-import CreateLedger from "./components/ledger/CreateLedger";
-import EditLedger from "./components/ledger/EditLedger";
-import PosClosingStockReport from "./components/report/closingStockReport/PosClosingStockReport"
-
-import PosCustomer from "./components/PosCustomer/PosCustomer";
-import CreatePosCustomer from './components/PosCustomer/CreatePosCustomer'
-import PosCustomerForm from "./components/PosCustomer/PosCustomerForm"
-import EditPosCustomer from './components/PosCustomer/EditPosCustomer'
-import SalaryList from "./components/SalaryStructure/SalaryList";
-import CreateSalaryStructure from "./components/SalaryStructure/CreateSalaryStructure"
-import Salary from "./components/salaryPreparation/Salary";
-import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
+import ClosingStockReport from "./components/report/closingStockReport/ClosingStockReport"
 import Employees from "./components/Employees/Employees";
 import CreateEmployees from "./components/Employees/CreateEmployees";
 import EmployeeDetail from "./components/Employees/EmployeeDetail";
 import EditEmployees from "./components/Employees/EditEmployees";
+// import SupplierList from "./components/posSuppliers/SupplierList";
+import PosCreateSupplier from "./components/posSuppliers/PosCreateSupplier";
+import PosEditSupplier from "./components/posSuppliers/PosEditSupplier";
+import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
+import EmpDepartmentCreate from "./components/employeeDepartment/EmpDepartmentCreate";
+import EditEmpDepartment from "./components/employeeDepartment/EditEmpDepartment";
+import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
+import CreateLedger from "./components/ledger/CreateLedger";
+import EditLedger from "./components/ledger/EditLedger";
+import PosClosingStockReport from "./components/report/closingStockReport/PosClosingStockReport"
+import PosCustomer from "./components/PosCustomer/PosCustomer";
+import CreatePosCustomer from './components/PosCustomer/CreatePosCustomer'
+import PosCustomerForm from "./components/PosCustomer/PosCustomerForm"
+import EditPosCustomer from './components/PosCustomer/EditPosCustomer'
+import SalaryList from "./components/salaryStructure/SalaryList";
+import CreateSalaryStructure from "./components/salaryStructure/CreateSalaryStructure"
+import Salary from "./components/salaryPreparation/Salary";
+import SalaryPreparationListPage from "./components/salaryPreparation/SalaryPreparationListPage";
+import SupplierList from "./components/posSuppliers/SupplierList";
+// import PosCreateSupplier from "./components/posSuppliers/PosCreateSupplier";
+// import PosEditSupplier from "./components/posSuppliers/PosEditSupplier";
+import ViewSalary from "./components/salaryStructure/ViewSalary";
+import PayrollReports from './components/report/payroll/PayrollReports';
 import PaySlip from "./components/report/purchaseReport/PaySlip";
-// import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
-// import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
-import RazorPay from "./components/razorPay/RazorPay";
-import PayrollReports from './components/report/payroll/PayrollReports'
-import PayrollSummary from "./components/report/payroll/PayrollSummary";
-import PayrollDetailed from "./components/report/payroll/PayrollDetailed";
-import EmployeeSummary from "./components/report/payroll/EmployeeSummary";
-
+import WholeSaleList from "./components/wholeSale/WholeSaleList";
+import CreateWholeSales from "./components/wholeSale/CreateWholeSales";
+import EditWholeSales from "./components/wholeSale/EditWholeSales";
+import CreateLegderDemo from "./components/evaluation/CreateLedgerDemo";
+import EditLegderDemo from "./components/evaluation/EditLedgerDemo";
+import DeleteLedgerDemo from "./components/evaluation/DeleteLedgerDemo";
+import LedgerFormDemo from "./components/evaluation/LedgerFormDemo";
+import LedgerDemo from "./components/evaluation/LedgerDemo";
 
 export const route = [
   {
@@ -141,11 +148,6 @@ export const route = [
     permission: "",
   },
   {
-    path: "razorPay",
-    ele: <RazorPay />,
-    permission: "",
-  },
-  {
     path: "ledgers/create",
     ele: <CreateLedger />,
     permission: Permissions.MANAGE_CUSTOMERS,
@@ -155,6 +157,16 @@ export const route = [
     ele: <EditLedger />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
+  {
+    path: "employees/edit/:id",
+    ele: <EditEmployees />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  // {
+  //   path: "salary/view/:id",
+  //   ele: <ViewSalary />,
+  //   permission: Permissions.MANAGE_CUSTOMERS,
+  // },
   {
     path: "brands",
     ele: <Brands />,
@@ -225,50 +237,11 @@ export const route = [
     ele: <DailySales />,
     permission: Permissions.MANAGE_UNITS,
   },
-
-  //Mark by Nila 15/8/24
-  {
-    path: "report/payroll",
-    ele: <PayrollReports />,
-    permission: Permissions.MANAGE_REPORTS,
-  },
-  {
-    path: "PayrollSummary",
-    ele: <PayrollSummary />,
-    permission: Permissions.MANAGE_REPORTS,
-  },
-  {
-    path: "PayrollDetailed",
-    ele: <PayrollDetailed />,
-    permission: Permissions.MANAGE_REPORTS,
-  },
-  {
-    path: "EmployeeSummary",
-    ele: <EmployeeSummary />,
-    permission: Permissions.MANAGE_REPORTS,
-  },
- 
   {
     path: "product-groups",
     ele: <ProductGroups />,
     permission: Permissions.MANAGE_UNITS,
   },
-  {
-    path: "suppliers",
-    ele: <Suppliers />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  {
-    path: "suppliers/create",
-    ele: <CreateSupplier />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  {
-    path: "suppliers/edit/:id",
-    ele: <EditSupplier />,
-    permission: Permissions.MANAGE_SUPPLIERS,
-  },
-  //Mark from Nila 31-7-24
   // {
   //   path: "customers",
   //   ele: <Customers />,
@@ -284,8 +257,6 @@ export const route = [
   //   ele: <EditCustomer />,
   //   permission: Permissions.MANAGE_CUSTOMERS,
   // },
-  //Mark to Nila 31-7-24
-
   {
     path: "user",
     ele: <User />,
@@ -296,6 +267,18 @@ export const route = [
     ele: <Users />,
     permission: Permissions.MANAGE_USER,
   },
+  /////////////////////////////////////////////////////////////////
+  {
+    path: "employees",
+    ele: <Employees />,
+    permission: Permissions.MANAGE_USER,
+  },
+  {
+    path: "employees/create",
+    ele: <CreateEmployees />,
+    permission: ""
+  },
+  /////////////////////////////////////////////////////////////////
   // {
   //     path: "user/create",
   //     ele: <CreateUser />,
@@ -345,6 +328,16 @@ export const route = [
     path: "products/detail/:id",
     ele: <ProductDetail />,
     permission: Permissions.MANAGE_PRODUCTS,
+  },
+  {
+    path: "employees/detail/:id",
+    ele: <EmployeeDetail />,
+    permission: Permissions.MANAGE_USER,
+  },
+  {
+    path: "salary/detail/:id",
+    ele: <ViewSalary />,
+    permission: Permissions.MANAGE_USER,
   },
   {
     path: "adjustments",
@@ -397,6 +390,21 @@ export const route = [
     permission: Permissions.MANAGE_EXPENSES,
   },
   {
+    path: "wholesale",
+    ele: <WholeSaleList />,
+    permission: Permissions.MANAGE_PURCHASE,
+  },
+  {
+    path: "wholesale/create",
+    ele: <CreateWholeSales />,
+    permission: Permissions.MANAGE_PURCHASE,
+  },
+  {
+    path: "wholesale/edit/:id",
+    ele: <EditWholeSales />,
+    permission: Permissions.MANAGE_PURCHASE,
+  },
+  {
     path: "purchases",
     ele: <Purchases />,
     permission: Permissions.MANAGE_PURCHASE,
@@ -416,16 +424,16 @@ export const route = [
     ele: <PurchaseDetails />,
     permission: Permissions.MANAGE_PURCHASE,
   },
-  // {
-  //   path: "pos",
-  //   ele: <PosMainPage />,
-  //   permission: Permissions.MANAGE_POS_SCREEN,
-  // },
-  // {
-  //   path: "/payment",
-  //   ele: <PrintData />,
-  //   permission: "",
-  // },
+  {
+    path: "posMain",
+    ele: <PosMainPage />,
+    permission: Permissions.MANAGE_POS_SCREEN,
+  },
+  {
+    path: "/payment",
+    ele: <PrintData />,
+    permission: "",
+  },
   {
     path: "user-detail",
     ele: <UserDetail />,
@@ -676,70 +684,83 @@ export const route = [
     ele: <PosClosingStockReport />,
     permission: Permissions.MANAGE_REPORTS,
   },
-  //29-7-24  Mark from Nila
   {
     path: "posCustomer",
-    ele: <PosCustomer/>,
-    permission: "",
+    ele: <PosCustomer />,
+    permission:  Permissions.MANAGE_CUSTOMERS,
   },
   {
     path: "posCustomer/create",
-    ele: <CreatePosCustomer/>,
+    ele: <CreatePosCustomer />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
   {
     path: "posCustomer/edit/:id",
-    ele: <EditPosCustomer/>,
+    ele: <EditPosCustomer />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
+  // MARK FROM RAM [02-09-2024]
   {
-    path: "salary",
-    ele: <SalaryList/>,
-    permission: "",
+    path: "salarystructure",
+    ele: <SalaryList />,
+    permission: Permissions.MANAGE_CUSTOMERS,
   },
+  // MARK TO RAM [02-09-2024]
   {
     path: "salary/create",
-    ele: <CreateSalaryStructure/>,
+    ele: <CreateSalaryStructure />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
 
   //Ram
   {
     path: "payroll",
-    ele: <Salary/>,
+    ele: <Salary />,
     permission: "",
   },
   {
     path: "salaryPreparationListPage",
-    ele: <SalaryPreparationListPage/>,
+    ele: <SalaryPreparationListPage />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
   {
-    path: "employees",
-    ele: <Employees />,
-    permission: Permissions.MANAGE_USER,
-  },
-  {
-    path: "employees/create",
-    ele: <CreateEmployees />,
-    permission: ""
-  },
-  {
-    path: "employees/edit/:id",
-    ele: <EditEmployees />,
+    path: "supplier",
+    ele: <SupplierList />,
     permission: Permissions.MANAGE_CUSTOMERS,
   },
   {
-    path: "employees/detail/:id",
-    ele: <EmployeeDetail />,
-    permission: Permissions.MANAGE_USER,
+    path: "suppliers/create",
+    ele: <PosCreateSupplier />,
+    permission: Permissions.MANAGE_CUSTOMERS,
   },
-  // Nila 12-8-24
+  {
+    path: "suppliers/edit/:id",
+    ele: <PosEditSupplier />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path: "empDepartment",
+    ele: <EmpDepartment />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path: "empDesignation",
+    ele: <EmpDesignation />,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path:"salaryPreparation",
+    ele:<Salary/>,
+    permission: Permissions.MANAGE_CUSTOMERS,
+  },
+  {
+    path: "report/payroll",
+    ele: <PayrollReports />,
+    permission: Permissions.MANAGE_REPORTS,
+  },
   {
     path: "paySlip",
     ele: <PaySlip />,
     permission: Permissions.MANAGE_USER,
   }
- 
- 
 ];

@@ -10,8 +10,8 @@ const CreateProductCategory = (props) => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
 
-    const addProductcData = (productValue) => {
-        addProductCategory(productValue);
+    const addProductcData = (productValue,handleClose) => {
+        addProductCategory(productValue,handleClose);
     };
 
     return (

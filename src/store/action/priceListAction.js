@@ -198,7 +198,6 @@ export const fetchPriceHistory =
   (isLoading = true, PriceListHistoryItemId) =>
   async (dispatch) => {
     debugger
-    
     const url = `/priceListHistory?PriceListHistoryItemId=${PriceListHistoryItemId}`;
     await apiConfig
       .get(url)
@@ -264,4 +263,4 @@ export const fetchPriceListSpecific =
       });
   };
 
-
+// MARK TO RAM [26-08-2024]

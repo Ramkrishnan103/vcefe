@@ -140,7 +140,7 @@ export const addCustomer = (customer,navigate) => async (dispatch) => {
                       })
 
                   );
-                  navigate("/app/posCustomer/edit/:",customerId);
+                  navigate("/app/posCustomer/edit/"+customerId);
               }
               else{
                   dispatch(

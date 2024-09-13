@@ -8,6 +8,7 @@ import {
     removeFromTotalRecord,
 } from "./totalRecordAction";
 import { setLoading } from "./loadingAction";
+import { setLoader } from "./loaderAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
 
@@ -16,6 +17,7 @@ export const fetchEmployees =
         async (dispatch) => {
             if (isLoading) {
                 dispatch(setLoading(true));
+                // dispatch(setLoader(true));
             }
             let url = apiBaseURL.EMPLOYEES;
             if (
@@ -46,6 +48,10 @@ export const fetchEmployees =
                         );
                     if (isLoading) {
                         dispatch(setLoading(false));
+                        dispatch(setLoader(false));
+                    }
+                    debugger
+                    if(response?.data?.success) {
                     }
                 })
                 .catch(({ response }) => {
@@ -65,7 +71,7 @@ export const fetchEmployees =
                 });
         }
 
-export const addEmployee = (empData, navigate) => async (dispatch) => {
+export const addEmployee = (empData, navigate, empImg, adhaar, pan, others) => async (dispatch) => {
     debugger
     dispatch(setSavingButton(true));
     await apiConfig
@@ -85,6 +91,15 @@ export const addEmployee = (empData, navigate) => async (dispatch) => {
                         ),
                     })
                 );
+                (empImg != '' && empImg != undefined) && empImg.append("empNo", response?.data?.data?.empNo);
+                (adhaar != '' && adhaar != undefined) && adhaar.append("empNo", response?.data?.data?.empNo);
+                (pan != '' && pan != undefined) && pan.append("empNo", response?.data?.data?.empNo);
+                (others != '' && others != undefined) && others.append("empNo", response?.data?.data?.empNo);
+                debugger
+                (empImg != '' && empImg != undefined) && dispatch(addEmployeeImage(empImg));
+                (adhaar != '' && adhaar != undefined) && dispatch(addEmployeeAdhaar(adhaar));
+                (pan != '' && pan != undefined) && dispatch(addEmployeePan(pan));
+                (others != '' && others != undefined) && dispatch(addEmployeeOther(others));
                 window.location.href = "#/app/employees";
                 // dispatch(fetchEmployees());
                 // dispatch(addInToTotalRecord(1));
@@ -112,12 +127,98 @@ export const addEmployee = (empData, navigate) => async (dispatch) => {
         });
 };
 
+export const addEmployeeImage =
+    (empImg, navigate) => async (dispatch) => {
+        // dispatch(setSavingButton(true));
+        debugger
+        await apiConfig
+            .post(apiBaseURL.EMPLOYEE_IMAGE, empImg)
+            .then((response) => {
+                // navigate("/app/products");
+
+                // dispatch(addInToTotalRecord(1));
+                // dispatch(setSavingButton(false));
+                window.location.href = "#/app/employees";
+            })
+            .catch(({ response }) => {
+                dispatch(setSavingButton(false));
+                dispatch(
+                    addToast({ text: response?.data?.message, type: toastType.ERROR })
+                );
+            });
+    };
+
+export const addEmployeeAdhaar =
+    (aadhar, navigate) => async (dispatch) => {
+        // dispatch(setSavingButton(true));
+        debugger
+        await apiConfig
+            .post(apiBaseURL.EMPLOYEE_ADHAAR, aadhar)
+            .then((response) => {
+                // navigate("/app/products");
+
+                // dispatch(addInToTotalRecord(1));
+                // dispatch(setSavingButton(false));
+                window.location.href = "#/app/employees";
+            })
+            .catch(({ response }) => {
+                dispatch(setSavingButton(false));
+                dispatch(
+                    addToast({ text: response?.data?.message, type: toastType.ERROR })
+                );
+            });
+    };
+
+export const addEmployeePan =
+    (pan, navigate) => async (dispatch) => {
+        // dispatch(setSavingButton(true));
+        debugger
+        await apiConfig
+            .post(apiBaseURL.EMPLOYEE_PAN, pan)
+            .then((response) => {
+                // navigate("/app/products");
+
+                // dispatch(addInToTotalRecord(1));
+                // dispatch(setSavingButton(false));
+                window.location.href = "#/app/employees";
+            })
+            .catch(({ response }) => {
+                dispatch(setSavingButton(false));
+                dispatch(
+                    addToast({ text: response?.data?.message, type: toastType.ERROR })
+                );
+            });
+    };
+    
+export const addEmployeeOther =
+    (other, navigate) => async (dispatch) => {
+        // dispatch(setSavingButton(true));
+        debugger
+        await apiConfig
+            .post(apiBaseURL.EMPLOYEE_OTHERS, other)
+            .then((response) => {
+                // navigate("/app/products");
+
+                // dispatch(addInToTotalRecord(1));
+                // dispatch(setSavingButton(false));
+                window.location.href = "#/app/employees";
+
+            })
+            .catch(({ response }) => {
+                dispatch(setSavingButton(false));
+                dispatch(
+                    addToast({ text: response?.data?.message, type: toastType.ERROR })
+                );
+            });
+    };
+    
 export const fetchEmployee =
     (empId, singleProduct, isLoading = true) =>
         async (dispatch) => {
             debugger
             console.log("Fetch Product Action empId", empId);
             console.log("Fetch Product Action singleProduct", singleProduct);
+            dispatch(setLoader(true));
             if (isLoading) {
                 dispatch(setLoading(true));
             }
@@ -133,7 +234,9 @@ export const fetchEmployee =
                         if (isLoading) {
                             dispatch(setLoading(false));
                         }
+                        dispatch(setLoader(false));
                     } else {
+                        dispatch(setLoader(false));
                         dispatch(
                             addToast({
                                 text: response?.data?.message,
@@ -150,12 +253,13 @@ export const fetchEmployee =
                             type: toastType.ERROR,
                         })
                     );
+                    dispatch(setLoader(false));
                 });
         };
 
 
 export const editEmployee =
-    (product) => async (dispatch) => {
+    (product,empImg, adhaar, pan, others) => async (dispatch) => {
         console.log("ACTION :: EDIT PRODUCTS");
         dispatch(setSavingButton(true));
         await apiConfig
@@ -174,6 +278,15 @@ export const editEmployee =
                             text: getFormattedMessage(response?.data?.message),
                         })
                     );
+                    (empImg != '' && empImg != undefined)&& empImg.append("empNo", response?.data?.data?.empNo);
+                    (adhaar != '' && adhaar != undefined )&& adhaar.append("empNo", response?.data?.data?.empNo);
+                    (pan != '' && pan != undefined) && pan.append("empNo", response?.data?.data?.empNo);
+                    (others != '' && others != undefined) && others.append("empNo", response?.data?.data?.empNo);
+                    debugger
+                    (empImg != '' && empImg != undefined) && dispatch(addEmployeeImage(empImg));
+                    (adhaar != '' && adhaar != undefined) && dispatch(addEmployeeAdhaar(adhaar));
+                    (pan != '' && pan != undefined) && dispatch(addEmployeePan(pan));
+                    (others != '' && others != undefined) && dispatch(addEmployeeOther(others));
                     window.location.href = "#/app/employees";
                 } else {
                     dispatch(

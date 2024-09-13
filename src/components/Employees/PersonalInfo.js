@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Form, Button, InputGroup, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { connect, useSelector } from 'react-redux';
-import { fetchEmployees } from '../../store/action/employeeAction';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { fetchEmployees, fetchEmployee } from '../../store/action/employeeAction';
+import { fetchCompanyConfig } from '../../store/action/companyConfigAction';
+import { addToast } from '../../store/action/toastAction';
+import { useParams } from 'react-router';
 
 const PersonalInfo = (props) => {
-    const { isValid, changeValue, formValue, fetchEmployees, employee } = props;
+    const { isValid, changeValue, formValue, fetchEmployees, employee, fetchCompanyConfig, companyConfig, fetchEmployee, singleUser } = props;
     const [form, setForm] = useState({
         employeeName: '',
         prefix: 'Mr',
@@ -20,10 +23,17 @@ const PersonalInfo = (props) => {
         photograph: null,
         isActive: false,
     });
-
+    const dispatch = useDispatch();
     const [errors, setErrors] = useState({});
     const [avatar, setAvatar] = useState(null);
     const allFormData = useSelector((state) => state.employeeFormData);
+    const company = useSelector((state) => state.companyConfig);
+    const singleEmployee = useSelector((state) => state.singleEmployee);
+    const [empID, setEmpID] = useState(null);
+    const [config, setConfig] = useState(null);
+    const [imageSrc, setImageSrc] = useState('');
+    const [profile, setProfile] = useState();
+    const { id } = useParams();
 
     const handleChange = (e) => {
         let { name, value, type, checked, files } = e.target;
@@ -31,9 +41,15 @@ const PersonalInfo = (props) => {
         if (name === 'employeeName') {
             value = value.toUpperCase();
         }
-        if (name === 'mobile' && value.length >= 15) {
-            e.preventDefault();
-            return;
+        // if (name === 'mobile' && value.length >= 15) {
+        //     e.preventDefault();
+        //     return;
+        // }
+        const today = new Date().toISOString().split('T')[0];
+        debugger
+        if (name == "dob" && value > today) {
+            value = today;
+            dispatch(addToast({ text: "DOB should not be a future date.!", type: "error" }));
         }
         setForm({
             ...form,
@@ -45,6 +61,36 @@ const PersonalInfo = (props) => {
         }
     };
 
+    const handleImageUpload = (event) => {
+        debugger
+        const formData = new FormData();
+        const file = event.target.files[0];
+        let arr = {};
+        formData.append('image', file);
+        // changeValue(file.name, 'profileImageName');
+        arr['profileImageName'] = file?.name;
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageSrc(reader.result);
+                // changeValue(reader.result, 'profileImage');
+                arr['profileImage'] = reader?.result;
+                // setFileName(file.name);
+            };
+            reader.readAsDataURL(file);
+            setProfile(file);
+            // changeValue(file, 'profileImage');
+        }
+        // changeValue(formData, 'photograph');
+        arr['photograph'] = formData;
+        console.log(arr);
+        // for(let i in arr) {
+        changeValue(arr, 'profileImageDetails');
+        // changeValue(arr.profileImage, 'profileImage');
+        // }
+    };
+
     useEffect(() => {
         console.log("ALL FORMDATA", allFormData);
     }, [allFormData]);
@@ -54,43 +100,75 @@ const PersonalInfo = (props) => {
     }, [formValue]);
 
     useEffect(() => {
+        fetchCompanyConfig();
+        debugger
+        if (id && singleEmployee == undefined) {
+            // fetchEmployee(id);
+        }
         fetchEmployees();
     }, []);
 
+    // useEffect(() => {
+    //     debugger
+    //     console.log("CONFIG", companyConfig);
+    //     console.log(companyConfig?.attributes?.shortName + "10001")
+    //     setConfig(companyConfig?.attributes?.shortName + "10001");
+    //     if (allFormData[0]?.employeeID == undefined || allFormData[0]?.employeeID == "") {
+    //         changeValue(companyConfig?.attributes?.shortName + "10001", "employeeID");
+    //     }
+    // }, [companyConfig]);
+
     useEffect(() => {
+        console.log(company);
+    }, [company]);
+
+    useEffect(() => {
+        debugger
         console.log("EMPLOYEE", employee);
+        console.log(allFormData);
         // let all = [...form];
-        console.log(employee[employee.length - 1]?.attributes?.empId);
+        // console.log(employee[employee?.length - 1]?.attributes?.empId);
         // console.log(all.employeeID == employee[employee.length - 1]?.attributes?.empId);
-        const match = employee[employee.length - 1]?.attributes?.empId.match(/^(\D+)(\d+)$/);
+        if (employee != null && allFormData[0]?.employeeID == undefined || allFormData[0]?.employeeID == "") {
+            const match = employee[employee?.length - 1]?.attributes?.empId.match(/^(\D+)(\d+)$/);
+            if (match) {
+                const prefix = match[1]; // The prefix (non-digit characters)
+                const num = parseInt(match[2], 10); // The numeric part
 
-        if (match) {
-            const prefix = match[1]; // The prefix (non-digit characters)
-            const num = parseInt(match[2], 10); // The numeric part
+                // Increment the numeric part
+                const incrementedNum = num + 1;
 
-            // Increment the numeric part
-            const incrementedNum = num + 1;
+                // Pad the number with leading zeros if necessary
+                const newNum = incrementedNum.toString().padStart(match[2].length, '0');
 
-            // Pad the number with leading zeros if necessary
-            const newNum = incrementedNum.toString().padStart(match[2].length, '0');
+                // Combine the prefix and the new number
+                const newCode = `${prefix}${newNum}`;
 
-            // Combine the prefix and the new number
-            const newCode = `${prefix}${newNum}`;
-
-            console.log(newCode); // Outputs: VINFO0012
-            setForm({ ...form, employeeID: newCode });
-            changeValue(newCode, 'employeeID');
+                console.log(newCode); // Outputs: VINFO0012
+                setForm({ ...form, employeeID: newCode });
+                changeValue(newCode, 'employeeID');
+                setEmpID(newCode);
+            } else {
+                console.log('Invalid code format');
+                changeValue(company?.attributes?.shortName.toUpperCase() + '100', 'employeeID');
+            }
         } else {
-            console.log('Invalid code format');
+            // changeValue(allFormData[0]?.employeeID, 'employeeID');
         }
     }, [employee]);
+
+    useEffect(() => {
+        // setForm({ ...form, employeeID: empID });
+    }, [empID]);
 
     const validate = () => {
         const newErrors = {};
         debugger
         if (!allFormData[0]?.employeeName) newErrors.employeeName = 'Employee Name is required';
+        if (allFormData[0]?.employeeName?.length > 50) newErrors.employeeName = 'Employee Name must be 50 characters max.';
         if (!allFormData[0]?.employeeID) newErrors.employeeID = 'Employee ID is required';
         if (!allFormData[0]?.mobile) newErrors.mobile = 'Mobile No is required';
+        if (allFormData[0]?.mobile?.length > 15) newErrors.mobile = 'Mobile no must be 15 characters max.';
         if (!allFormData[0]?.gender) newErrors.gender = 'Gender is required';
         if (allFormData[0]?.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(allFormData[0]?.email)) {
             newErrors.email = 'Invalid email address';
@@ -109,6 +187,18 @@ const PersonalInfo = (props) => {
             console.log(form);
             setErrors({});
         }
+    };
+
+    const keyDown = (e) => {
+        if(e.key == "ArrowDown"){
+            e.preventDefault();
+        }else if(e.key == "ArrowUp"){
+            e.preventDefault();
+        }
+    }
+
+    const handleWheel = (e) => {
+        e.target.blur();
     };
 
     return (
@@ -134,11 +224,13 @@ const PersonalInfo = (props) => {
                             <Form.Control
                                 type="text"
                                 name="employeeID"
+                                id='employeeID'
                                 // value={form.employeeID}
-                                value={allFormData ? allFormData[0]?.employeeID : ''}
+                                value={allFormData ? (allFormData[0]?.employeeID != null || allFormData[0]?.employeeID != undefined) ? allFormData[0]?.employeeID : companyConfig?.attributes?.shortName.toUpperCase() + '100' : config}
                                 onChange={handleChange}
                                 isInvalid={!!errors.employeeID}
                                 disabled
+                                className="mb-2"
                             />
                             <Form.Control.Feedback type="invalid">
                                 {errors.employeeID}
@@ -152,6 +244,8 @@ const PersonalInfo = (props) => {
                                 // value={form.dob}
                                 value={allFormData ? allFormData[0]?.dob : ''}
                                 onChange={handleChange}
+                                className="mb-2"
+                                max={new Date().toISOString().split('T')[0]}
                             />
                         </Form.Group>
 
@@ -165,6 +259,7 @@ const PersonalInfo = (props) => {
                                 onChange={handleChange}
                                 size='100'
                                 isInvalid={!!errors.email}
+                                className="mb-2"
                             />
                             <Form.Control.Feedback type="invalid">
                                 {errors.email}
@@ -179,6 +274,7 @@ const PersonalInfo = (props) => {
                                 value={allFormData ? allFormData[0]?.address : ''}
                                 onChange={handleChange}
                                 size='200'
+                                className="mb-2"
                             />
                         </Form.Group>
 
@@ -191,6 +287,7 @@ const PersonalInfo = (props) => {
                                 value={allFormData ? allFormData[0]?.state : ''}
                                 onChange={handleChange}
                                 size='50'
+                                className="mb-2"
                             />
                         </Form.Group>
                     </Col>
@@ -205,6 +302,7 @@ const PersonalInfo = (props) => {
                                     value={allFormData ? allFormData[0]?.salutation : ''}
                                     onChange={handleChange}
                                     style={{ color: 'white', background: '#6571FF' }}
+                                    className="mb-2"
                                 >
                                     <option style={{ color: 'black', background: 'white' }}>Mr</option>
                                     <option style={{ color: 'black', background: 'white' }}>Mrs</option>
@@ -214,13 +312,15 @@ const PersonalInfo = (props) => {
                                 <Form.Control
                                     type="text"
                                     name="employeeName"
+                                    id='employeeName'
                                     // value={form.employeeName}
                                     value={allFormData ? allFormData[0]?.employeeName : ''}
                                     onChange={handleChange}
                                     isInvalid={!!errors.employeeName}
                                     style={{ width: '80%' }}
                                     autoFocus
-                                    size='50'
+                                    // size='50'
+                                    className="mb-2"
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     {errors.employeeName}
@@ -232,10 +332,12 @@ const PersonalInfo = (props) => {
                             <Form.Control
                                 as="select"
                                 name="gender"
+                                id='gender'
                                 // value={form.gender}
                                 value={allFormData ? allFormData[0]?.gender : ''}
                                 onChange={handleChange}
                                 style={errors.gender ? { border: '1px solid red' } : {}}
+                                className="mb-2"
                             >
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
@@ -252,11 +354,15 @@ const PersonalInfo = (props) => {
                             <Form.Control
                                 type="number"
                                 name="mobile"
+                                id='mobile'
                                 // value={form.mobile}
                                 value={allFormData ? allFormData[0]?.mobile : ''}
                                 onChange={handleChange}
                                 isInvalid={!!errors.mobile}
-                                htmlSize={15}
+                                onKeyDown={(e) => keyDown(e)}
+                                onWheel={(e) => handleWheel(e)}
+                                // htmlSize={15}
+                                className="mb-2"
                             />
                             <Form.Control.Feedback type="invalid">
                                 {errors.mobile}
@@ -272,21 +378,28 @@ const PersonalInfo = (props) => {
                                 value={allFormData ? allFormData[0]?.city : ''}
                                 onChange={handleChange}
                                 size='50'
+                                className="mb-2"
                             />
                         </Form.Group>
 
                         <Form.Group controlId="formPhotograph">
-                            <Form.Label>Photograph <span style={{ fontSize: '10px' }}>{"(JPG,PNG - MAX. 2MB)"}</span></Form.Label>
-                            <Form.Control
+                            <Form.Label className='w-100'>Photograph <span style={{ fontSize: '10px' }}>{"(JPG,PNG - MAX. 2MB)"}</span></Form.Label>
+                            {/* <Form.Control
                                 type="file"
                                 name="photograph"
-                                onChange={handleChange}
-                            />
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                            /> */}
+                            <div class="file-upload d-flex">
+                                <label for="upload" class="file-upload__label">Upload</label>
+                                <input id="upload" class="file-upload__input" type="file" name="file-upload" onChange={handleImageUpload} />
+                                <span className='file-upload__name'>{allFormData ? allFormData[0]?.profileImageDetails?.profileImageName : ''}</span>
+                            </div>
                         </Form.Group>
                     </Col>
                     <Col md={2} className="d-flex flex-column align-items-center">
                         <div className="avatar-container" style={{ marginBottom: '20px' }}>
-                            {avatar ? (
+                            {/* {avatar ? (
                                 <Image src={avatar} roundedCircle fluid style={{ width: '100px', height: '100px' }} />
                             ) : (
                                 <div style={{
@@ -300,7 +413,25 @@ const PersonalInfo = (props) => {
                                 }}>
                                     Avatar
                                 </div>
-                            )}
+                            )} */}
+                            {/* {allFormData && (allFormData[0]?.empimg == '' || allFormData[0]?.empimg == undefined) ? imageSrc != '' ? ( */}
+                            {/* <Image src={allFormData ? allFormData[0]?.profileImageDetails?.profileImage : imageSrc} alt='avatar' roundedCircle fluid style={{ width: '100px', height: '100px' }} /> */}
+                            <Image src={imageSrc ? imageSrc : allFormData[0]?.profileImageDetails?.profileImage} alt='avatar' roundedCircle fluid style={{ width: '100px', height: '100px' }} />
+                            {/* ) : (
+                                <div style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    backgroundColor: '#f0f0f0',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    Avatar
+                                </div>
+                            ) : (
+                                <Image src={allFormData[0]?.empimg} roundedCircle fluid style={{ width: '100px', height: '100px' }} />
+                            )} */}
                         </div>
                         <Button variant="primary" type="submit" id='personal_save' style={{ visibility: 'hidden' }} onClick={handleSubmit}>Save</Button>
                     </Col>
@@ -312,7 +443,7 @@ const PersonalInfo = (props) => {
 };
 
 const mapStateToProps = (state) => {
-    const { employee } = state;
-    return { employee }
+    const { employee, companyConfig } = state;
+    return { employee, companyConfig }
 };
-export default connect(mapStateToProps, { fetchEmployees })(PersonalInfo);
+export default connect(mapStateToProps, { fetchEmployees, fetchCompanyConfig, fetchEmployee })(PersonalInfo);

@@ -18,11 +18,12 @@ export const posAllProductAction = () => async (dispatch) => {
         })
         .catch(({response}) => {
             dispatch(addToast(
-                {text: response.data.message, type: toastType.ERROR}));
+                {text: response?.data?.message, type: toastType.ERROR}));
         });
 };
 
 export const posAllProduct = (warehouse) => async (dispatch) => {
+    debugger
     let url = apiBaseURL.POS_PRODUCTS;
     apiConfig.get(url)
     // apiConfig.get(`products?page[size]=0&warehouse_id=${warehouse}`)
@@ -39,7 +40,7 @@ export const posAllProduct = (warehouse) => async (dispatch) => {
         })
         .catch(({response}) => {
             dispatch(addToast(
-                {text: response.data.message, type: toastType.ERROR}));
+                {text: response?.data?.message, type: toastType.ERROR}));
         });
 };
 
@@ -59,7 +60,7 @@ export const fetchBrandClickable = (brandId, categoryId, warehouse) => async (di
         })
         .catch(({response}) => {
             dispatch(addToast(
-                {text: response.data.message, type: toastType.ERROR}));
+                {text: response?.data?.message, type: toastType.ERROR}));
         });
 };
 
@@ -79,6 +80,6 @@ export const fetchFilterProduct = (filter1, filter2, filter3) => async (dispatch
         })
         .catch(({response}) => {
             dispatch(addToast(
-                {text: response.data.message, type: toastType.ERROR}));
+                {text: response?.data?.message, type: toastType.ERROR}));
         });
 };

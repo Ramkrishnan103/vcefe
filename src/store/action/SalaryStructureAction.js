@@ -2,15 +2,15 @@
 import apiConfig from "../../config/apiConfig";
 import { apiBaseURL, empDesignationActionType, payrollReport, salaryDetailActionType, salaryListingall, toastType } from "../../constants";
 import { getFormattedMessage } from "../../shared/sharedMethod";
-// import { setLoader } from "./loaderAction";
-// import { setLoading } from "./loadingAction";
+import { setLoader } from "./loaderAction";
+import { setLoading } from "./loadingAction";
 import { addToast } from "./toastAction";
 
 export const fetchSalaryDetails =
   (filter = {}, isLoading = true) =>
     async (dispatch) => {
       if (isLoading) {
-        // dispatch(setLoading(true));
+        dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.SALARYDETAILS;
@@ -28,7 +28,7 @@ export const fetchSalaryDetails =
 
 
           if (isLoading) {
-            // dispatch(setLoading(false));
+            dispatch(setLoading(false));
           }
 
         })
@@ -83,7 +83,7 @@ export const fetchSalaryDetailsFilter =
   (value, filter = {}, isLoading = true, mode) =>
     async (dispatch) => {
       if (isLoading) {
-        // dispatch(setLoading(true));
+        dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.SALARYDETAILS + value;
@@ -252,10 +252,11 @@ export const deleteSalaryDetails = (data, navigate) => async (dispatch) => {
       } else {
         dispatch(
           addToast({
-            type: toastType.ERROR,
             text: getFormattedMessage(response?.data?.message),
           })
         );
+        dispatch(fetchSalaryDetails());
+        dispatch(removeFromTotalRecord(1));
       }
 
     })
@@ -274,7 +275,7 @@ export const fetchSalaryDetailsReportFilter =
   (value, filter = {}, isLoading = true, mode) =>
     async (dispatch) => {
       if (isLoading) {
-        // dispatch(setLoading(true));
+        dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.PAYROLLDETAILS + value;
@@ -305,7 +306,7 @@ export const fetchSalaryDetailsReportFilter =
             )
           }
           if (isLoading) {
-            // dispatch(setLoading(false));
+            dispatch(setLoading(false));
           }
           // window.location.href = "#/app/salaryPreparationListPage";
         })

@@ -5,6 +5,7 @@ import {
   editProductCategory,
   fetchProductCategory,
   fetchProductCategories,
+  addProductCategory
 } from "../../store/action/productCategoryAction";
 import ImagePicker from "../../shared/image-picker/ImagePicker";
 import user from "../../assets/images/productCategory_logo.jpeg";
@@ -22,6 +23,8 @@ const ProductCategoryForm = (props) => {
     addProductcData,
     editProductCategory,
     singleProductCategory,
+    handleCategoryClose,
+    addProductCategory,
     hide,
   } = props;
   const innerRef = createRef();
@@ -113,6 +116,12 @@ const ProductCategoryForm = (props) => {
     return formData;
   };
 
+  const handleformClose = () =>{
+    if(handleCategoryClose){ handleCategoryClose(false) }
+    // handleCategoryClose && handleCategoryClose ? handleCategoryClose(false) : hide(false);
+    handleClose ? handleClose(false) : hide(false);
+  }
+
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
@@ -125,14 +134,18 @@ const ProductCategoryForm = (props) => {
           prepareFormData(productCategoryValue),
           handleClose
         );
-        clearField(false);
+        //clearField(false);
       }
     } else {
       if (valid) {
         ;
         setProductCategoryValue(productCategoryValue);
-        addProductcData(prepareFormData(productCategoryValue));
-        clearField(false);
+        addProductCategory(prepareFormData(productCategoryValue), () => {
+          handleClose,
+          handleformClose,
+          clearField();  
+      });
+       // clearField(false);
       }
     }
     setSelectImg(null);
@@ -145,6 +158,7 @@ const ProductCategoryForm = (props) => {
       name: "",
       // image: ''
     });
+    handleformClose();
     setImagePreviewUrl(user);
     setErrors("");
     handleClose ? handleClose(false) : hide(false);
@@ -217,4 +231,5 @@ export default connect(null, {
   fetchProductCategory,
   editProductCategory,
   fetchProductCategories,
+  addProductCategory
 })(ProductCategoryForm);

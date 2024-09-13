@@ -9,6 +9,13 @@
   background-color: rgba(0, 158, 247, 0.05) !important;
 }
 
+.allpage-header {
+  position: sticky;
+  top: 0;
+  position: -webkit-sticky;
+  z-index: 1000;
+}
+
 .pos-screen .btn {
   border-radius: 0.625rem;
 }
@@ -1540,10 +1547,10 @@ hr {
 }
 
 .model-dtn1 {
-  top: 29px;
-  right: 59px;
+  top: 40px;
+  right: 74px;
   border-radius: 0 0 0 0 !important;
-  height: -webkit-fill-available;
+  /* height: -webkit-fill-available; */
   /* background: rgba(228, 244, 253, 1); */
   color: black;
   background: transparent;
@@ -1551,7 +1558,7 @@ hr {
   border: none;
 }
 
-.model-dtn1:hover{
+.model-dtn1:hover {
   background: transparent;
   color: black;
 }
@@ -1820,45 +1827,51 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   height: 1px;
 }
 
-.pos-modal-a5-temp2 .modal-content{
+.pos-modal-a5-temp2 .modal-content {
   height: 623px
 }
 
 
-.fixTableHead{
+.fixTableHead {
   overflow-y: scroll;
   height: 42vh;
   border-radius: 8px;
   width: 100%;
 }
+
 /* .table-container tbody{
    border-right: 1px solid gray;
 } */
-.table-container thead  {
+.table-container thead {
   position: sticky;
-  top:0;
+  top: 0;
 }
-.table-container tfoot th{
-  position:sticky;
-  bottom:0;
-  
+
+.table-container tfoot th {
+  position: sticky;
+  bottom: 0;
+
 }
-.table-container{
+
+.table-container {
   border-collapse: collapse;
-  width:100%;
+  width: 100%;
 }
-.table-container td{
-   padding: 8px 15px;
-   border:1px solid gray;
+
+.table-container td {
+  padding: 8px 15px;
+  border: 1px solid gray;
 }
-.table-container thead th{
+
+.table-container thead th {
   padding: 8px 15px;
   /* text-align: center; */
 }
-.table-container thead tr{
- background-color: blue;
-  color:white;
- font-size: 18px;
+
+.table-container thead tr {
+  background-color: blue;
+  color: white;
+  font-size: 18px;
 
 }
 
@@ -1870,20 +1883,56 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 }
 
 
-.fixTableHead tfoot th{
-  background:lightgreen;
-  color:black;
-  padding: 8px 15px;  
- font-weight: bolder;
+.fixTableHead tfoot th {
+  background: lightgreen;
+  color: black;
+  padding: 8px 15px;
+  font-weight: bolder;
   font-size: 16px;
- 
+
 }
 
-.salesvalue{
+.salesvalue {
   text-align: right;
 }
 
+.employee_form {
+  background: white;
+  border-radius: 6px;
+  min-height: 538px;
+  font-family: "Poppins", Helvetica, sans-serif !important;
+}
 
+.css-w8dmq8 {
+  font-family: "Poppins", Helvetica, sans-serif !important;
+}
+
+.MuiTabs-root .Mui-selected {
+  /* color: #1976d2; */
+  background: #9aff9e;
+  border-radius: 0px;
+  color: black !important;
+  border-radius: 29px 29px 0px 0px;
+}
+
+.MuiTabs-flexContainer button {
+  font-weight: bold;
+  color: black;
+  padding: 0% 4% 0% 4%;
+}
+
+.MuiTabs-indicator {
+  display: none !important;
+}
+
+.save-btn {
+  background: white;
+  /* color: rgba(10, 28, 192, 1); */
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  color: green;
+}
 
 /* MARK FROM RAM [27-07-2024] */
 
@@ -1893,7 +1942,7 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
 
 .purchaseWidget {
   background-color: #fff;
-  color: #0AC074; 
+  color: #0AC074;
   height: 140px;
   display: flex;
   flex-direction: row;
@@ -1902,38 +1951,38 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 200ms ease-in; 
+  transition: all 200ms ease-in;
 }
 
 .purchaseWidget:hover {
-  background-color: #0AC074; 
+  background-color: #0AC074;
   color: white;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .purchaseWidget .widget-icon {
-  background-color: #0AC074; 
-  color: white; 
+  background-color: #0AC074;
+  color: white;
   width: 50px;
-  height: 50px; 
+  height: 50px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px; 
-  transition: background-color 0.3s ease, color 0.3s ease; 
+  margin-right: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .purchaseWidget:hover .widget-icon {
-  background-color: white; 
-  color: #0AC074; 
+  background-color: white;
+  color: #0AC074;
 }
 
-/* SALES WIDGET STYLEE */ 
+/* SALES WIDGET STYLEE */
 
 .salesWidget {
-  background-color: white; 
-  color: rgba(10, 28, 192, 1); 
+  background-color: white;
+  color: rgba(10, 28, 192, 1);
   height: 140px;
   display: flex;
   flex-direction: row;
@@ -1942,129 +1991,278 @@ input[type="date"]::-webkit-calendar-picker-indicator::after {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 200ms ease-in; 
+  transition: all 200ms ease-in;
 }
 
 .salesWidget:hover {
-  background-color: rgba(10, 28, 192, 1); 
+  background-color: rgba(10, 28, 192, 1);
   color: white;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .salesWidget .widget-icon {
-  background-color: rgba(10, 28, 192, 1); 
-  color: white; 
-  width: 50px; 
-  height: 50px; 
-  border-radius: 10px; 
+  background-color: rgba(10, 28, 192, 1);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px; 
+  margin-right: 20px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .salesWidget:hover .widget-icon {
-  background-color: white; 
-  color: rgba(10, 28, 192, 1); 
+  background-color: white;
+  color: rgba(10, 28, 192, 1);
 }
 
-/* WIDGET BACK GROUND COLOR CHANGE SALES AND PURCHASE  */
+/* .employee_form .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu), .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n + 3){
+  width: 89%;
+} */
 
-/* MARK TO RAM [27-07-2024] */
+.department-select,
+.department-select {
+  width: 89%;
+}
 
-
-
-.purchaseValue{
+.purchaseValue {
   text-align: right;
 }
-/* MARK TO NILA [27-07-2024] */
 
-/* tableStyles.css */
+/* TABULTOR */
 
-/* Apply Bootstrap font family to table headers and cells */
+.salaryListing .tabulator {
+  margin-bottom: auto !important;
+}
+
+.salaryListing .tabulator-footer {
+  text-align: unset !important;
+  background-color: #0099FB;
+  color: white;
+}
+
+.payroll-footer {
+  /* background: #0099FB; */
+  background: #e0f4e0;
+  color: black;
+  font-weight: 700;
+  padding: 1%;
+  border: 1px solid rgb(99, 166, 77);
+}
+
+.salaryListing .tabulator-header {
+  /* height: 47px; */
+}
+
+.salaryListing .tabulator .tabulator-header .tabulator-col {
+  border: none !important;
+}
+
+.salaryListing .tabulator .tabulator-header .tabulator-header-contents {
+  padding: 1%;
+}
+
+.salaryListing .tabulator-row.tabulator-group {
+  /* background: none;
+    border-bottom: 1px solid #8080806e; */
+}
+
+.salaryListing .tabulator-header,
+.tabulator-col {
+  /* background-color: #8cdd8f !important; */
+  background-color: #6571FF !important;
+  color: white;
+}
+
+.total-netpaid {
+  color: black !important;
+  float: inline-end;
+  font-size: 20px;
+  margin-right: 1%;
+}
+
+.custom-input {
+  border: 2px solid #007bff;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  height: -webkit-fill-available;
+}
+
+.salaryListing .tabulator-editable {
+  /* background: #b4ffb4; */
+  background: #d8ebff;
+}
+
+/* TABULATOR END */
+
+.file-upload {
+  position: relative;
+  display: inline-block;
+}
+
+.file-upload__label {
+  display: block;
+  padding: 0.5em 2em 0.5em;
+  color: #000000;
+  background: #b1b1b1;
+  border-radius: .4em;
+  transition: background .3s;
+
+  /* &:hover {
+     cursor: pointer;
+     background: #000;
+  } */
+}
+
+.file-upload__input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 1;
+  width: 0;
+  height: 100%;
+  opacity: 0;
+}
+
+.file-upload__name {
+  padding-left: 2%;
+  margin: 2%;
+}
+
+.payroll-table .data-table[data-column-id='6'] {
+  margin-right: 1% !important;
+}
 
 .custom-bg-color {
   background-color: rgb(99, 166, 77) !important;
-  color:"black";
+  color: "black";
 }
+
 .custom-bg-color:hover {
-  color: white !important; /* Background color on hover */
-  
+  color: white !important;
+  /* Background color on hover */
+
 }
 
 /* customStyles.css */
 
 /* General header styling */
 
-.payroll-container .tabulator-col{
-  height:70px;
-  background-color:#0d6efd !important;
+.payroll-container .tabulator-col {
+  height: 70px;
+  background-color: #0d6efd !important;
   color: white;
   font-weight: 600;
- 
-  
 }
 
 .payroll-container .tabulator-cell.amount-cell {
-  text-align: right !important; 
+  text-align: right !important;
+  /* Align text to the right */
 }
 
 .payroll-container .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
-  padding-top: 10px;
-  text-align:center;
-  
+  /* padding-top: 10px; */
+  text-align: center;
 }
-.payroll-container .tabulator .tabulator-header{
+
+.payroll-container .tabulator .tabulator-header {
   border-bottom: none !important;
-  
 }
-.payroll-container .tabulator-tabulator{
-  border:none!important;
+
+.payroll-container .tabulator-tabulator {
+  border: none !important;
 }
-.payrolltabs button{
-  color:#000 !important;
+
+.payrolltabs button {
+  color: #000 !important;
 }
+
 .payroll-container .tabulator-footer .tabulator-footer-contents {
- 
+  padding: 5px 0 5px !important;
+}
+
+.payroll-container .tabulator-footer .tabulator-footer-contents {
   background-color: green !important;
-  color:white !important;
-}
- 
-
-.payrolltabs .active{
-  color:white !important;
+  color: white !important;
 }
 
-/* Mark by Nila 21-8-24 */
- .pdfTable .modal-content {
-  width:80% !important;
-  height:fit-content !important;
-  max-width: 600px; 
+.payroll-container .tabulator-footer {
+  padding: 0 !important;
+}
+
+
+.payrolltabs .active {
+  color: white !important;
+}
+
+.wholeSaleForm .search-bar #combo-box-demo {
+  border: 1px solid green !important;
+}
+
+.wholeSaleForm .purchase-search {
+  padding: 0px 0px 0px 0px !important;
+}
+
+.wholeSaleForm .left-content {
+  padding: unset !important;
+}
+
+.wholeSaleForm .subtotal {
+  margin: unset !important;
+}
+
+.wholeSaleForm .left-content {
+  height: 68.95vh !important;
+}
+
+.wholeSaleForm hr {
+  margin: 5px 0;
+}
+
+.pdfTable .modal-content {
+  width: 80% !important;
+  height: fit-content !important;
+  max-width: 600px;
   margin: auto;
 }
 
 .tabulator-container .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
 
-  height:40px;
-  background-color:#0d6efd !important;
+  height: 40px;
+  background-color: #0d6efd !important;
   color: white !important;
   font-weight: 600 !important;
-  font-size:16px !important;
+  font-size: 16px !important;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  
+
 }
+
 .tabulator-container .tabulator-footer .tabulator-footer-contents {
-  padding:5px 0 5px !important;
-  height:40px;
+  padding: 5px 0 5px !important;
+  height: 40px;
 }
-.tabulator-container .tabulator .tabulator-footer{
-  border-top:none !important;
+
+.tabulator-container .tabulator .tabulator-footer {
+  border-top: none !important;
   background-color: green !important;
-  color:white !important;
+  color: white !important;
   font-size: 16px !important;
 }
 
+.printModal .modal-dialog {
+  width: 56%;
+}
 
+.printModal .modal-dialog .modal-header {
+  position: absolute;
+  z-index: 1;
+  right: 10px;
+}

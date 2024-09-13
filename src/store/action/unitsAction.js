@@ -94,7 +94,7 @@ export const fetchUnit = (unitid, singleUnit) => async (dispatch) => {
     });
 };
 
-export const addUnit = (units) => async (dispatch) => {
+export const addUnit = (units,handleClose, handleUnitClose) => async (dispatch) => {
   await apiConfig
     .post(apiBaseURL.UNITS, units)
     .then((response) => {
@@ -104,7 +104,7 @@ export const addUnit = (units) => async (dispatch) => {
         payload: response.data.data,
       });
       dispatch(fetchUnits(Filters.OBJ));
-      if (response?.data?.data == null) {
+      if (response?.data?.success == false) {
         dispatch(
           addToast({
             text: getFormattedMessage(response?.data?.message),
@@ -114,18 +114,20 @@ export const addUnit = (units) => async (dispatch) => {
       } else {
         dispatch(
           addToast({
-            text: getFormattedMessage("unit.success.create.message"),
+            text: response?.data?.message,
           })
         );
+        handleClose && handleClose(false);
+        handleUnitClose && handleUnitClose(false);
       }
 
       dispatch(addInToTotalRecord(1));
     })
     .catch(({ response }) => {
       console.log("addUnit Error Response", response);
-      dispatch(
-        addToast({ text: response?.data?.message, type: toastType.ERROR })
-      );
+      // dispatch(
+      //   addToast({ text: response?.data?.message, type: toastType.ERROR })
+      // );
     });
 };
 
@@ -133,18 +135,20 @@ export const editUnit = (unitid, units, handleClose) => async (dispatch) => {
   apiConfig
     .post(apiBaseURL.UNITS, units)
     .then((response) => {
-      dispatch(fetchUnits());
       // dispatch({
       //     type: unitsActionType.EDIT_UNIT,
       //     payload: response.data.data,
       // });
-      handleClose(false);
+     // handleClose(false);
       if (response?.data?.success == true) {
         dispatch(
           addToast({
-            text: getFormattedMessage("unit.success.edit.message"),
+            text: response?.data?.message,
           })
         );
+        handleClose(false)
+      dispatch(fetchUnits());
+
       } else {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.ERROR })
@@ -153,7 +157,7 @@ export const editUnit = (unitid, units, handleClose) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };
@@ -167,7 +171,7 @@ export const deleteUnit = (unitid) => async (dispatch) => {
       if (response.data.success == true) {
       dispatch(
         addToast({
-          text: getFormattedMessage("unit.success.delete.message"),
+          text: response?.data?.message,
         })
       );
     } else {
@@ -179,7 +183,7 @@ export const deleteUnit = (unitid) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };

@@ -28,28 +28,25 @@ const ReactSelect = (props) => {
     ? data?.map((da) => {
         // console.log("da===>", da);
         return {
-          value: da.value
-            ? da.value
-            : da.category1Id
-            ? da.category1Id
-            : da.category2Id
-            ? da.category2Id
-            : da.category3Id
-            ? da.category3Id
-            : da.unitId
-            ? da.unitId
-            : da.taxId
-            ? da.taxId
-            : da.attributes?.acFrom
-            ? da.attributes?.acFrom
-            : da.businessTypeValue
-            ? da.businessTypeValue
-            // :da.attributes.roleName
-            // ?da.attributes.roleName
-            : da.id,
-
-          label: da.label
-            ? da.label
+          value: da?.value
+            ? da?.value
+            : da?.category1Id
+            ? da?.category1Id
+            : da?.category2Id
+            ? da?.category2Id
+            : da?.category3Id
+            ? da?.category3Id
+            : da?.unitId
+            ? da?.unitId
+            : da?.taxId
+            ? da?.taxId
+            : da?.attributes?.acFrom
+            ? da?.attributes?.acFrom
+            : da?.businessTypeValue
+            ? da?.businessTypeValue
+            : da?.id,
+          label: da?.label
+            ? da?.label
             : da?.attributes?.symbol
             ? da?.attributes?.symbol
             : da?.attributes?.unitName
@@ -58,10 +55,8 @@ const ReactSelect = (props) => {
             ? da?.attributes?.taxName
             : da?.attributes?.acYear
             ? da?.attributes?.acYear
-            : da.businessTypeLabel
-            ? da.businessTypeLabel
-            :da.attributes?.roleName
-            ?da.attributes?.roleName
+            : da?.businessTypeLabel
+            ? da?.businessTypeLabel
             : da?.attributes?.name,
         };
       })
@@ -80,7 +75,7 @@ const ReactSelect = (props) => {
 
   return (
     <Form.Group className="form-group w-100" controlId="formBasic">
-      {title ? <Form.Label>{title} :</Form.Label> : ""}
+      {title ? <Form.Label>{title} </Form.Label> : ""}
       {isRequired ? <span className="required" /> : ""}
       <Select
         placeholder={placeholder}

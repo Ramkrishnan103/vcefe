@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import { InputGroup, Button } from "react-bootstrap-v5";
@@ -26,6 +26,7 @@ import {
   editProduct,
   fetchProduct,
   addProduct,
+  fetchProducts,
 } from "../../store/action/productAction";
 import {
   decimalValidate,
@@ -47,7 +48,9 @@ import ProductGroupsForm from "../product-group/ProductGroupsForm";
 import { addUnit } from "../../store/action/unitsAction";
 import CreateTaxSetup from "../posTaxSetup/CreateTaxSetup";
 import TaxSetupForm from "../posTaxSetup/TaxSetupForm";
-import { addTaxSetup } from "../../store/action/TaxSetupAction";
+import { addTaxSetup, fetchTaxSetup } from "../../store/action/TaxSetupAction";
+import Loader from '../loader/Loader';
+import Select from 'react-select';
 
 const ProductForm = (props) => {
   const {
@@ -76,8 +79,11 @@ const ProductForm = (props) => {
     addProductGroup,
     productGroups,
     taxs,
+    taxSetup,
     fetchTax,
-    to,title
+    fetchTaxSetup,
+    fetchProducts,
+    to, title,
   } = props;
 
   const navigate = useNavigate();
@@ -110,19 +116,26 @@ const ProductForm = (props) => {
     stock: "",
     warehouseId: "",
   });
-
+  const dispatch = useDispatch();
   const [removedImage, setRemovedImage] = useState([]);
   const [isClearDropdown, setIsClearDropdown] = useState(true);
   const [isDropdown, setIsDropdown] = useState(true);
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [checked, setChecked] = useState(false);
-  const [disable, setDisable] = React.useState(true);
+  const [disable, setDisable] = React.useState(false);
   const [brandIsOpen, setBrandOpen] = React.useState(false);
   const [catIsOpen, setCatOpen] = React.useState(false);
   const [groupIsOpen, setGroupOpen] = React.useState(false);
   const [taxIsOpen, setTaxOpen] = React.useState(false);
   const [purchaseIsOpen, setPurchaseOpen] = React.useState(false);
   const [salesIsOpen, setSalesOpen] = React.useState(false);
+  const [category, setCategory] = useState(false);
+  const [unitsBind, setUnitsBind] = useState(false);
+  const [taxBind, setTaxBind] = useState(false);
+  const [sortedtax, setSortedTax] = useState([]);
+  const taxes = useSelector((state) => state.taxSetup);
+  const allProducts = useSelector((state) => state.products);
+  // const [disable, setDisable] = useState(false);
 
   const [errors, setErrors] = useState({
     items_id: 0,
@@ -146,12 +159,41 @@ const ProductForm = (props) => {
   });
 
   useEffect(() => {
+    // fetchProducts();
     fetchAllBrands();
     fetchAllProductCategories();
     fetchAllProductGroups();
     fetchUnits();
-    fetchTax();
+    fetchTaxSetup();
   }, []);
+
+  useState(() => {
+    debugger
+    if (!singleProduct) {
+      console.log("PRODUCTS", allProducts);
+      console.log(allProducts[allProducts.length - 1]?.attributes?.code_barcode);
+      // const match = allProducts[allProducts.length - 1]?.attributes?.code_barcode?.match(/^(\D+)(\d+)$/);
+      // if (match) {
+      //   const prefix = match[1]; // The prefix (non-digit characters)
+      //   const num = parseInt(match[2], 10); // The numeric part
+      //   // Increment the numeric part
+      //   const incrementedNum = num + 1;
+      //   // Pad the number with leading zeros if necessary
+      //   const newNum = incrementedNum.toString().padStart(match[2].length, '0');
+      //   // Combine the prefix and the new number
+      //   const newCode = `${prefix}${newNum}`;
+      //   console.log(newCode); // Outputs: VINFO0012
+      //   setProductValue({ ...productValue, code_barcode: newCode });
+      // } else {
+      //   if (typeof (parseInt(allProducts[allProducts.length - 1]?.attributes?.code_barcode)) && !isNaN(parseInt(allProducts[allProducts.length - 1]?.attributes?.code_barcode))) {
+      //     setProductValue({ ...productValue, code_barcode: parseInt(allProducts[allProducts.length - 1]?.attributes?.code_barcode) + 1 });
+      //   }
+      // }
+      if(allProducts[allProducts.length - 1]?.attributes){
+        setProductValue({ ...productValue, code_barcode: parseInt(allProducts[allProducts.length - 1]?.items_id) + 1 });
+      }
+    }
+  }, [allProducts]);
 
   useEffect(() => {
     if (singleProduct && unit) {
@@ -226,6 +268,8 @@ const ProductForm = (props) => {
         created_by: singleProduct && singleProduct[0]?.created_by,
         updated_by: singleProduct && singleProduct[0]?.updated_by,
       });
+      setDisable(singleProduct[0]?.isEditable ? false : true);
+      dispatch( { type: 'DISABLE_OPTION', payload: true } )
     }
   }, []);
 
@@ -303,6 +347,7 @@ const ProductForm = (props) => {
   const handleValidation = () => {
     let errors = {};
     let isValid = false;
+    debugger
     console.log("handleValidation productValue", productValue);
     console.log("name==>", !productValue["name"]);
     if (!productValue["name"]) {
@@ -313,15 +358,15 @@ const ProductForm = (props) => {
         "product.input.code_barcode.validate.label"
       );
     }
-    if (!productValue["tax"]) {
+    if (!productValue["tax"] && productValue["tax"] == 0 || productValue["tax"]["label"] == undefined) {
       errors["tax"] = getFormattedMessage("product.input.tax.validate.label");
     }
-    if (!productValue["purchase_unit_id"]) {
+    if (!productValue["purchase_unit_id"] || productValue["purchase_unit_id"]["value"] == undefined) {
       errors["purchase_unit_id"] = getFormattedMessage(
         "product.input.purchase_unit.validate.label"
       );
     }
-    if (!productValue["sales_unit_id"]) {
+    if (!productValue["sales_unit_id"] || productValue["sales_unit_id"]["value"] == undefined) {
       errors["sales_unit_id"] = getFormattedMessage(
         "product.input.sales_unit.validate.label"
       );
@@ -331,9 +376,14 @@ const ProductForm = (props) => {
         "product.input.pack_count.validate.label"
       );
     } else {
-      isValid = true;
+      // isValid = true;
     }
     setErrors(errors);
+    console.log("errors", errors);
+    console.log("errorsLength", Object.keys(errors).length);
+    if (Object.keys(errors).length === 0) {
+      isValid = true;
+    }
     return isValid;
   };
 
@@ -349,8 +399,7 @@ const ProductForm = (props) => {
         return;
       }
     }
-    if (name === "pack_count" || name=== "stock_alert") {
-      debugger
+    if (name === "pack_count" || name === "stock_alert") {
       if (value.length > 4) {
         return value.slice(0, -1)
       }
@@ -393,7 +442,38 @@ const ProductForm = (props) => {
 
   const [brandModel, setBrandModel] = useState(false);
   const showBrandModel = (val) => {
+    debugger
     setBrandModel(val);
+  };
+
+  const handleBrandClose = (item) => {
+    debugger
+    setBrandModel(!brandModel)
+  };
+
+  const handleCategoryClose = (item) => {
+    debugger
+    setProductCategoryModel(!productCategoryModel);
+    setCategory(true);
+    fetchAllProductCategories();
+  };
+
+  const handleGroupClose = (item) => {
+    debugger
+    setProductGroupModel(!productGroupModel)
+  };
+
+  const handleTaxClose = (item) => {
+    debugger
+    setTaxModal(!taxModal);
+    fetchTaxSetup();
+    setTaxBind(true);
+  };
+
+  const handleUnitClose = (item) => {
+    debugger
+    setUnitModel(!unitModel);
+    setUnitsBind(true);
   };
 
   const [productGroupModel, setProductGroupModel] = useState(false);
@@ -432,25 +512,25 @@ const ProductForm = (props) => {
   };
 
   const prepareFormData = (data) => {
-    console.log("prepareFormData DATA :: ", prepareFormData);
+    console.log("prepareFormData DATA :: ", data);
     const payload = {
       items_id: data?.items_id ?? 0,
       name: data.name,
-      name_print: data.name_print,
+      name_print: data.name_print == "" ? data.name : data.name_print,
       name_tamil: data.name_tamil,
       code_barcode: data.code_barcode,
       category1_id:
-        data.category1_id && data.category1_id[0]
-          ? data.category1_id[0].value
-          : data.category1_id.value,
+        data.category1_id ? data.category1_id?.value
+          ? data.category1_id?.value
+          : 1 : 1,
       category2_id:
-        data.category2_id && data.category2_id[0]
-          ? data.category2_id[0].value
-          : data.category2_id.value,
+        data.category2_id ? data.category2_id?.value
+          ? data.category2_id?.value
+          : 1 : 1,
       category3_id:
-        data.category3_id && data.category3_id[0]
-          ? data.category3_id[0].value
-          : data.category3_id.value,
+        data.category3_id ? data.category3_id?.value
+          ? data.category3_id?.value
+          : 1 : 1,
       purchase_unit_id:
         data.purchase_unit_id && data.purchase_unit_id[0]
           ? data.purchase_unit_id[0].value
@@ -461,7 +541,7 @@ const ProductForm = (props) => {
           : data.sales_unit_id.value,
       pack_count: parseInt(data.pack_count),
       tax_id: parseInt(data.tax.value),
-      stock_alert: parseInt(data.stock_alert),
+      stock_alert: data?.stock_alert == ""?  0 : parseInt(data.stock_alert),
       isactive: data?.isactive ?? 1,
       product_image: data.product_image,
       remarks: data.remarks,
@@ -550,6 +630,7 @@ const ProductForm = (props) => {
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
+    debugger
     console.log("onSubmit :: valid", valid);
     productValue.images = multipleFiles;
     console.log("onSubmit :: multipleFiles", multipleFiles);
@@ -581,11 +662,67 @@ const ProductForm = (props) => {
     }
   };
 
+  useEffect(() => {
+    debugger
+    console.log("brands", brands);
+    if (brands && brands.length > 0 && brands?.filter((item) => item?.type === "product-product_categories")?.length > 0) {
+      setProductValue({ ...productValue, category1_id: { value: brands?.filter((item) => item?.type === "product-product_categories")[0].category1Id, label: brands?.filter((item) => item?.type === "product-product_categories")[0]?.attributes?.name } || {} });
+    }
+  }, [brands]);
+
+  useEffect(() => {
+    debugger
+    console.log("productCategories", productCategories);
+    if (productCategories && productCategories.length > 0 && category) {
+      let sorted = productCategories?.sort((a, b) => a.category2Id - b.category2Id);
+      let lastdata = sorted.pop();
+      setProductValue({ ...productValue, category2_id: { value: lastdata?.category2Id, label: lastdata?.attributes?.name } || {} });
+    }
+    setCategory(false);
+  }, [productCategories]);
+
+  useEffect(() => {
+    console.log("productGroups", productGroups);
+    if (productGroups && productGroups.length > 0 && productGroups?.filter((item) => item?.type === "product-product_categories")?.length > 0) {
+      setProductValue({ ...productValue, category3_id: { value: productGroups?.filter((item) => item?.type === "product-product_categories")[0].category3Id, label: productGroups?.filter((item) => item?.type === "product-product_categories")[0]?.attributes?.name } || {} });
+    }
+  }, [productGroups]);
+
+  useEffect(() => {
+    console.log("units", units);
+    if (units && units.length > 0 && unitsBind) {
+      let sorted = units?.sort((a, b) => a?.unitId - b?.unitId);
+      let lastdata = sorted.pop();
+      setProductValue({ ...productValue, purchase_unit_id: { value: lastdata?.unitId, label: lastdata?.attributes?.unitName } || {}, sales_unit_id: { value: lastdata?.unitId, label: lastdata?.attributes?.unitName } || {} });
+      // setProductValue({ ...productValue, sales_unit_id: { value: lastdata?.unitId, label: lastdata?.attributes?.unitName} || {} });
+    }
+    setUnitsBind(false);
+  }, [units]);
+
+  useEffect(() => {
+    console.log("taxs", taxes);
+    const sorted_tax = taxes?.sort((a, b) => {
+      const nameA = a?.attributes?.name?.trim().toLowerCase();
+      const nameB = b?.attributes?.name?.trim().toLowerCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+    setSortedTax(sorted_tax);
+    console.log("sorted_tax", sorted_tax);
+    debugger
+    if (sorted_tax && sorted_tax.length > 0 && taxBind) {
+      let sorted = sorted_tax?.sort((a, b) => a?.taxId - b?.taxId);
+      let lastdata = sorted.pop();
+      setProductValue({ ...productValue, tax: { value: lastdata?.taxId, label: lastdata?.attributes?.taxName } || {} });
+    }
+  }, [taxes]);
+
   /**Sorting Brand Group Category */
   console.log("brands for sort", brands);
-  const sorted_brands = brands.sort((a, b) => {
-    const nameA = a.attributes.name.trim().toLowerCase();
-    const nameB = b.attributes.name.trim().toLowerCase();
+  const sorted_brands = brands?.sort((a, b) => {
+    const nameA = a?.attributes?.name?.trim()?.toLowerCase();
+    const nameB = b?.attributes?.name?.trim()?.toLowerCase();
     if (nameA < nameB) return -1;
     if (nameA > nameB) return 1;
     return 0;
@@ -593,9 +730,9 @@ const ProductForm = (props) => {
   console.log("brands for sort sorted_brands", sorted_brands);
 
   console.log("productCategories for sort", productCategories);
-  const sorted_product_category = productCategories.sort((a, b) => {
-    const nameA = a.attributes.name.trim().toLowerCase();
-    const nameB = b.attributes.name.trim().toLowerCase();
+  const sorted_product_category = productCategories?.sort((a, b) => {
+    const nameA = a?.attributes?.name?.trim()?.toLowerCase();
+    const nameB = b?.attributes?.name?.trim()?.toLowerCase();
     if (nameA < nameB) return -1;
     if (nameA > nameB) return 1;
     return 0;
@@ -605,564 +742,586 @@ const ProductForm = (props) => {
     "productCategories for sort sorted_product_group",
     sorted_product_category
   );
-  const sorted_product_group = productGroups.sort((a, b) => {
-    const nameA = a.attributes.name.trim().toLowerCase();
-    const nameB = b.attributes.name.trim().toLowerCase();
+
+  console.log("productGroups for sort", productGroups);
+  const sorted_product_group = productGroups?.sort((a, b) => {
+    const nameA = a?.attributes?.name?.trim().toLowerCase();
+    const nameB = b?.attributes?.name?.trim().toLowerCase();
     if (nameA < nameB) return -1;
     if (nameA > nameB) return 1;
     return 0;
   });
-  return (
-    <div>
-    <div className="d-md-flex align-items-center justify-content-between mb-5">
-    {title ?<h1 className="mb-0 create-title">{title}</h1> :""}
-    <div className="text-end mt-4 mt-md-0">
-    <div className="row ">
-      <div className="col d-flex"> 
 
-            <Link
-              to={singleProduct ? singleProduct : ""}
-              className="btn btn-primary me-3 save-btn "
-              style={{ width: "100px" }}
-              onClick={onSubmit}
-            >
-              {singleProduct ? getFormattedMessage("globally.update-btn") : getFormattedMessage("globally.save-btn")}
-            </Link>
-            <Link to="/app/products" className="btn btn-outline-primary back-btn">
-              {getFormattedMessage("globally.back-btn")}
-            </Link>
+  console.log("productGroups for sort sorted_product_group", sorted_product_group);
+
+  const handleKeyDownStock = (e) => {
+    debugger
+    if (e.key === "ArrowDown") {
+      if (e.target.value <= 0) {
+        e.preventDefault();
+      }
+    }else if(['e', 'E', '+', '-'].includes(e.key)){
+      e.preventDefault()
+    }
+  }
+  return (
+    <>
+      <Loader />
+      <div>
+        <div className="d-md-flex align-items-center justify-content-between mb-5">
+          {title ? <h1 className="mb-0 create-title">{title}</h1> : ""}
+          <div className="text-end mt-4 mt-md-0">
+            <div className="row ">
+              <div className="col d-flex">
+
+                <Link
+                  to={singleProduct ? singleProduct : ""}
+                  className="btn btn-primary me-3 save-btn "
+                  style={{ width: "100px" }}
+                  onClick={onSubmit}
+                >
+                  {singleProduct ? getFormattedMessage("globally.update-btn") : getFormattedMessage("globally.save-btn")}
+                </Link>
+                <Link to="/app/products" className="btn btn-outline-primary back-btn">
+                  {getFormattedMessage("globally.back-btn")}
+                </Link>
+              </div>
             </div>
           </div>
-       
-      
-      </div>
-      
-
-     
-    </div>
-      <Form>
-        <div className="row">
-          <div className="col-xl-8 col-md-8">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-12 mb-3">
-                    <div style={{ textAlign: "-webkit-right" }}>
-                      <label className="form-check form-check-custom form-check-solid form-check-inline d-flex align-items-center my-4 cursor-pointer custom-label">
-                        <input
-                          type="checkbox"
-                          name="isactive"
-                          value={productValue?.isactive}
-                          checked={productValue?.isactive == 1 ? true : false}
-                          onChange={(event) => handleChanged(event)}
-                          className="me-3 form-check-input cursor-pointer"
-                        />
-                        <div className="control__indicator" />{" "}
-                        {getFormattedMessage("product.input.isactive.label")}
-                      </label>
+        </div>
+        <Form>
+          <div className="row">
+            <div className="col-xl-8 col-md-8">
+              <div className="card">
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-md-12 mb-3">
+                      <div style={{ textAlign: "-webkit-right" }}>
+                        <label className="form-check form-check-custom form-check-solid form-check-inline d-flex align-items-center my-4 cursor-pointer custom-label">
+                          <input
+                            type="checkbox"
+                            name="isactive"
+                            value={productValue?.isactive}
+                            checked={productValue?.isactive == 1 ? true : false}
+                            onChange={(event) => handleChanged(event)}
+                            className="me-3 form-check-input cursor-pointer"
+                          />
+                          <div className="control__indicator" />{" "}
+                          {getFormattedMessage("product.input.isactive.label")}
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="card">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage("globally.input.name.label")}:{" "}
-                      </label>
-                      <span className="required" />
-                      <input
-                        type="text"
-                        name="name"
-                        value={productValue.name}
-                        placeholder={placeholderText(
-                          "globally.input.name.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        autoComplete="off"
-                      />
-                      <span className="text-danger d-block fw-400 fs-small mt-2">
-                        {errors["name"] ? errors["name"] : null}
-                      </span>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage("globally.input.name_print.label")}
-                        :{" "}
-                      </label>
-
-                      <input
-                        type="text"
-                        name="name_print"
-                        value={productValue.name_print}
-                        placeholder={placeholderText(
-                          "globally.input.name_print.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        autoComplete="off"
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage(
-                          "globally.input.code_barcode.label"
-                        )}
-                        :{" "}
-                      </label>
-                      <span className="required" />
-                      <input
-                        type="text"
-                        name="code_barcode"
-                        className=" form-control"
-                        placeholder={placeholderText(
-                          "globally.input.code_barcode.placeholder.label"
-                        )}
-                        onChange={(e) => onChangeInput(e)}
-                        value={productValue.code_barcode}
-                        autoComplete="off"
-                      />
-                      <span className="text-danger d-block fw-400 fs-small mt-2">
-                        {errors["code_barcode"] ? errors["code_barcode"] : null}
-                      </span>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage("globally.input.name_tamil.label")}
-                        :{" "}
-                      </label>
-                      <input
-                        type="text"
-                        name="name_tamil"
-                        value={productValue.name_tamil}
-                        placeholder={placeholderText(
-                          "globally.input.name_tamil.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        autoComplete="off"
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          id="brand"
-                          // isOpen={brandIsOpen}
-                          title={getFormattedMessage(
-                            "product.input.brand.label"
-                          )}
-                          placeholder={placeholderText(
-                            "product.input.brand.placeholder.label"
-                          )}
-                          defaultValue={productValue.category1_id}
-                          value={productValue.category1_id}
-                          data={sorted_brands}
-                          errors={errors["category1_id"]}
-                          onChange={onBrandChange}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showBrandModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setBrandOpen(!brandIsOpen); setCatOpen(false), setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          // isOpen={catIsOpen}
-                          title={getFormattedMessage(
-                            "product.input.category.label"
-                          )}
-                          placeholder={placeholderText(
-                            "product.input.category.placeholder.label"
-                          )}
-                          defaultValue={productValue.category2_id}
-                          value={productValue.category2_id}
-                          data={sorted_product_category}
-                          errors={errors["category2_id"]}
-                          onChange={onProductCategoryChange}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showProductCategoryModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setCatOpen(!catIsOpen); setBrandOpen(false); setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          // isOpen={groupIsOpen}
-                          title={getFormattedMessage(
-                            "product.input.group.label"
-                          )}
-                          placeholder={placeholderText(
-                            "product.input.group.placeholder.label"
-                          )}
-                          defaultValue={productValue.category3_id}
-                          value={productValue.category3_id}
-                          data={sorted_product_group}
-                          errors={errors["category3_id"]}
-                          onChange={onProductGroupChange}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showProductGroupModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setGroupOpen(!groupIsOpen); setBrandOpen(false); setCatOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          // isOpen={taxIsOpen}
-                          title={getFormattedMessage(
-                            "globally.input.tax.label"
-                          )}
-                          placeholder={placeholderText(
-                            "globally.input.tax.placeholder.label"
-                          )}
-                          defaultValue={productValue?.tax}
-                          value={productValue?.tax}
-                          isRequired={true}
-                          data={taxs}
-                          errors={errors["tax"]}
-                          onChange={onTaxChange}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showtaxModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setTaxOpen(!taxIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          // isOpen={purchaseIsOpen}
-                          title={getFormattedMessage(
-                            "product.input.purchase-unit.label"
-                          )}
-                          placeholder={placeholderText(
-                            "product.input.purchase-unit.placeholder.label"
-                          )}
-                          defaultValue={productValue.purchase_unit_id}
-                          value={productValue.purchase_unit_id}
-                          data={units}
-                          errors={errors["purchase_unit_id"]}
-                          onChange={handlePurchaseUnitChange}
-                          isRequired={true}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showUnitModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setPurchaseOpen(!purchaseIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setTaxOpen(false); setSalesOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
-                        <ReactSelect
-                          className="position-relative"
-                          // isOpen={salesIsOpen}
-                          title={getFormattedMessage(
-                            "product.input.sale-unit.label"
-                          )}
-                          placeholder={placeholderText(
-                            "product.input.sale-unit.placeholder.label"
-                          )}
-                          defaultValue={productValue.sales_unit_id}
-                          value={productValue.sales_unit_id}
-                          data={units}
-                          errors={errors["sales_unit_id"]}
-                          onChange={handleSalesUnitChange}
-                          isRequired={true}
-                          onBlur={onBlur}
-                        />
-                        <Button
-                          onClick={() => showUnitModel(true)}
-                          className="position-absolute model-dtn"
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                        <Button
-                          className="position-absolute model-dtn1"
-                          // onClick={() => { setSalesOpen(!salesIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false) }}
-                        >
-                          <FontAwesomeIcon icon={faAngleDown} />
-                        </Button>
-                      </InputGroup>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage("globally.input.pack_count.label")}
-                        :{" "}
-                      </label>
-                      <span className="required" />
-                      <input
-                        type="number"
-                        name="pack_count"
-                        value={productValue.pack_count}
-                        placeholder={placeholderText(
-                          "globally.input.pack_count.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        autoComplete="off"
-                        onKeyDown={(e) => handleKeyDown(e)}
-                        min="0"
-                      />
-                      <span className="text-danger d-block fw-400 fs-small mt-2">
-                        {errors["pack_count"] ? errors["pack_count"] : null}
-                      </span>
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage(
-                          "globally.input.stock_alert.label"
-                        )}
-                        :{" "}
-                      </label>
-                      {/* <span className="required" /> */}
-
-                      <InputGroup className="flex-nowrap dropdown-side-btn">
+                  <div className="card">
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage("globally.input.name.label")}{" "}
+                        </label>
+                        <span className="required" />
                         <input
-                          type="number"
-                          name="stock_alert"
-                          value={productValue.stock_alert}
+                          type="text"
+                          name="name"
+                          value={productValue.name}
                           placeholder={placeholderText(
-                            "globally.input.stock_alert.placeholder.label"
+                            "globally.input.name.placeholder.label"
                           )}
                           className="form-control"
                           autoFocus={true}
-                          onKeyDown={(e) => handleKeyDown(e)}
                           onChange={(e) => onChangeInput(e)}
                           autoComplete="off"
                         />
-                        {/* <span className="text-danger d-block fw-400 fs-small mt-2">
+                        <span className="text-danger d-block fw-400 fs-small mt-2">
+                          {errors["name"] ? errors["name"] : null}
+                        </span>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage("globally.input.name_print.label")}
+                          {" "}
+                        </label>
+
+                        <input
+                          type="text"
+                          name="name_print"
+                          value={productValue.name_print}
+                          placeholder={placeholderText(
+                            "globally.input.name_print.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          autoComplete="off"
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage(
+                            "globally.input.code_barcode.label"
+                          )}
+                          {" "}
+                        </label>
+                        <span className="required" />
+                        <input
+                          type="text"
+                          name="code_barcode"
+                          className=" form-control"
+                          placeholder={placeholderText(
+                            "globally.input.code_barcode.placeholder.label"
+                          )}
+                          onChange={(e) => onChangeInput(e)}
+                          value={productValue.code_barcode}
+                          autoComplete="off"
+                        />
+                        <span className="text-danger d-block fw-400 fs-small mt-2">
+                          {errors["code_barcode"] ? errors["code_barcode"] : null}
+                        </span>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage("globally.input.name_tamil.label")}
+                          {" "}
+                        </label>
+                        <input
+                          type="text"
+                          name="name_tamil"
+                          value={productValue.name_tamil}
+                          placeholder={placeholderText(
+                            "globally.input.name_tamil.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          autoComplete="off"
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            id="brand"
+                            // isOpen={brandIsOpen}
+                            title={getFormattedMessage(
+                              "product.input.brand.label"
+                            )}
+                            placeholder={placeholderText(
+                              "product.input.brand.placeholder.label"
+                            )}
+                            defaultValue={productValue.category1_id}
+                            value={productValue.category1_id}
+                            data={sorted_brands}
+                            errors={errors["category1_id"]}
+                            onChange={onBrandChange}
+                            onBlur={onBlur}
+                          />
+                          <Button
+                            onClick={() => showBrandModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setBrandOpen(!brandIsOpen); setCatOpen(false), setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            // isOpen={catIsOpen}
+                            title={getFormattedMessage(
+                              "product.input.category.label"
+                            )}
+                            placeholder={placeholderText(
+                              "product.input.category.placeholder.label"
+                            )}
+                            defaultValue={productValue.category2_id}
+                            value={productValue.category2_id}
+                            data={sorted_product_category}
+                            errors={errors["category2_id"]}
+                            onChange={onProductCategoryChange}
+                            onBlur={onBlur}
+                          />
+                          <Button
+                            onClick={() => showProductCategoryModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setCatOpen(!catIsOpen); setBrandOpen(false); setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            // isOpen={groupIsOpen}
+                            title={getFormattedMessage(
+                              "product.input.group.label"
+                            )}
+                            placeholder={placeholderText(
+                              "product.input.group.placeholder.label"
+                            )}
+                            defaultValue={productValue.category3_id}
+                            value={productValue.category3_id}
+                            data={sorted_product_group}
+                            errors={errors["category3_id"]}
+                            onChange={onProductGroupChange}
+                            onBlur={onBlur}
+                          />
+                          <Button
+                            onClick={() => showProductGroupModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setGroupOpen(!groupIsOpen); setBrandOpen(false); setCatOpen(false); setTaxOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            // isOpen={taxIsOpen}
+                            title={getFormattedMessage(
+                              "globally.input.tax.label"
+                            )}
+                            placeholder={placeholderText(
+                              "globally.input.tax.placeholder.label"
+                            )}
+                            defaultValue={productValue?.tax}
+                            value={productValue?.tax}
+                            isRequired={true}
+                            data={sortedtax}
+                            errors={errors["tax"]}
+                            onChange={onTaxChange}
+                            onBlur={onBlur}
+                          />
+                          <Button
+                            onClick={() => showtaxModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setTaxOpen(!taxIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setPurchaseOpen(false); setSalesOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            // isOpen={purchaseIsOpen}
+                            title={getFormattedMessage(
+                              "product.input.purchase-unit.label"
+                            )}
+                            placeholder={placeholderText(
+                              "product.input.purchase-unit.placeholder.label"
+                            )}
+                            defaultValue={productValue.purchase_unit_id}
+                            value={productValue.purchase_unit_id}
+                            data={units}
+                            errors={errors["purchase_unit_id"]}
+                            onChange={handlePurchaseUnitChange}
+                            isRequired={true}
+                            onBlur={onBlur}
+                            isWarehouseDisable={disable}
+                          />
+                          <Button
+                            onClick={() => disable == false && showUnitModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setPurchaseOpen(!purchaseIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setTaxOpen(false); setSalesOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <ReactSelect
+                            className="position-relative"
+                            // isOpen={salesIsOpen}
+                            title={getFormattedMessage(
+                              "product.input.sale-unit.label"
+                            )}
+                            placeholder={placeholderText(
+                              "product.input.sale-unit.placeholder.label"
+                            )}
+                            defaultValue={productValue.sales_unit_id}
+                            value={productValue.sales_unit_id}
+                            data={units}
+                            errors={errors["sales_unit_id"]}
+                            onChange={handleSalesUnitChange}
+                            isRequired={true}
+                            onBlur={onBlur}
+                            isWarehouseDisable={disable}
+                          />
+                          <Button
+                            onClick={() => disable == false && showUnitModel(true)}
+                            className="position-absolute model-dtn"
+                            style={{ height: '45px' }}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                          <span
+                            className="position-absolute model-dtn1"
+                          // onClick={() => { setSalesOpen(!salesIsOpen); setBrandOpen(false); setCatOpen(false); setGroupOpen(false); setTaxOpen(false); setPurchaseOpen(false) }}
+                          >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                          </span>
+                        </InputGroup>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage("globally.input.pack_count.label")}
+                          {" "}
+                        </label>
+                        <span className="required" />
+                        <input
+                          type="number"
+                          name="pack_count"
+                          value={productValue.pack_count}
+                          placeholder={placeholderText(
+                            "globally.input.pack_count.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          autoComplete="off"
+                          onKeyDown={(e) => handleKeyDown(e)}
+                          min="0"
+                          disabled={disable}
+                        />
+                        <span className="text-danger d-block fw-400 fs-small mt-2">
+                          {errors["pack_count"] ? errors["pack_count"] : null}
+                        </span>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage(
+                            "globally.input.stock_alert.label"
+                          )}
+                          {" "}
+                        </label>
+                        {/* <span className="required" /> */}
+
+                        <InputGroup className="flex-nowrap dropdown-side-btn">
+                          <input
+                            type="number"
+                            name="stock_alert"
+                            value={productValue.stock_alert}
+                            placeholder={placeholderText(
+                              "globally.input.stock_alert.placeholder.label"
+                            )}
+                            className="form-control"
+                            // autoFocus={true}
+                            // onKeyDown={(e) => handleKeyDown(e)}
+                            onKeyDown={(e) => handleKeyDownStock(e)}
+                            onChange={(e) => onChangeInput(e)}
+                            autoComplete="off"
+                          />
+                          {/* <span className="text-danger d-block fw-400 fs-small mt-2">
                                             {errors["stock_alert"] ? errors["stock_alert"] : null}
                                           </span> */}
-                        <Button className="modal-label">
-                          {productValue?.sales_unit_id?.label ?? ""}
-                        </Button>
-                      </InputGroup>
-                    </div>
+                          <Button className="modal-label">
+                            {productValue?.sales_unit_id?.label ?? ""}
+                          </Button>
+                        </InputGroup>
+                      </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage(
-                          "product.input.product_image.label"
-                        )}
-                        :{" "}
-                      </label>
-                      <MultipleImage
-                        product={singleProduct}
-                        fetchFiles={onChangeFiles}
-                        transferImage={transferImage}
-                        singleImageSwitch="single-image"
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        {getFormattedMessage("globally.input.remarks.label")}:{" "}
-                      </label>
-                      {/* <span className="required" /> */}
-                      <textarea
-                        className="form-control"
-                        name="remarks"
-                        rows={1}
-                        placeholder={placeholderText(
-                          "globally.input.remarks.placeholder.label"
-                        )}
-                        onChange={(e) => onChangeInput(e)}
-                        value={
-                          productValue.remarks
-                            ? productValue.remarks === "null"
-                              ? ""
-                              : productValue.remarks
-                            : ""
-                        }
-                      />
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage(
+                            "product.input.product_image.label"
+                          )}
+                          {" "}
+                        </label>
+                        <MultipleImage
+                          product={singleProduct}
+                          fetchFiles={onChangeFiles}
+                          transferImage={transferImage}
+                          singleImageSwitch="single-image"
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          {getFormattedMessage("globally.input.remarks.label")}{" "}
+                        </label>
+                        {/* <span className="required" /> */}
+                        <textarea
+                          className="form-control"
+                          name="remarks"
+                          rows={1}
+                          placeholder={placeholderText(
+                            "globally.input.remarks.placeholder.label"
+                          )}
+                          onChange={(e) => onChangeInput(e)}
+                          value={
+                            productValue.remarks
+                              ? productValue.remarks === "null"
+                                ? ""
+                                : productValue.remarks
+                              : ""
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="col-xl-4 col-md-4">
-            <div className="card">
-              <div className="card-body">
-                <div>
-                  <div className="col-md-12 mb-3">
-                    <h1 className={"text-center"}>
-                      {getFormattedMessage("opening-stock-add.title")}
-                    </h1>
-                  </div>
-                  <div className="col-md-12 mb-3">
-                    <h8 className={"text-center"}>
-                      {getFormattedMessage("all-inclusive-tax.title")}
-                    </h8>
-                  </div>
-
-                  <div className="col-md-12 mb-3">
-                    <label className="form-label">
-                      {getFormattedMessage("product.input.mrp.label")}:{" "}
-                    </label>
-                    {/* <span className="required" /> */}
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        name="mrp"
-                        value={openingStockValue.mrp}
-                        placeholder={placeholderText(
-                          "product.input.mrp.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        disabled
-                      />
-
-                      <div className="input-group-append">
-                        <span
-                          className="input-group-text"
-                          style={{ borderRadius: "0 0.313rem" }}
-                        >
-                          {productValue?.unitid?.label ?? "-"}
-                        </span>
-                      </div>
+            <div className="col-xl-4 col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <div>
+                    <div className="col-md-12 mb-3">
+                      <h1 className={"text-center"}>
+                        {getFormattedMessage("opening-stock-add.title")}
+                      </h1>
                     </div>
-                    {/* <span className="text-danger d-block fw-400 fs-small mt-2">
+                    <div className="col-md-12 mb-3">
+                      <h8 className={"text-center"}>
+                        {getFormattedMessage("all-inclusive-tax.title")}
+                      </h8>
+                    </div>
+
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        {getFormattedMessage("product.input.mrp.label")}{" "}
+                      </label>
+                      {/* <span className="required" /> */}
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          name="mrp"
+                          value={openingStockValue.mrp}
+                          placeholder={placeholderText(
+                            "product.input.mrp.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          disabled
+                        />
+
+                        <div className="input-group-append">
+                          <span
+                            className="input-group-text"
+                            style={{ borderRadius: "0 0.313rem" }}
+                          >
+                            {productValue?.unitid?.label ?? "-"}
+                          </span>
+                        </div>
+                      </div>
+                      {/* <span className="text-danger d-block fw-400 fs-small mt-2">
                                             {errors["stock_alert"] ? errors["stock_alert"] : null}
                                         </span> */}
-                  </div>
+                    </div>
 
 
-                  <div className="col-md-12 mb-3">
-                    <label className="form-label">
-                      {getFormattedMessage("product.input.sales-price.label")}
-                      :{" "}
-                    </label>
-                    {/* <span className="required" /> */}
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        name="salesPrice"
-                        value={openingStockValue.salesPrice}
-                        placeholder={placeholderText(
-                          "product.input.sales-price.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        disabled
-                      />
-                      <div className="input-group-append">
-                        <span
-                          className="input-group-text"
-                          style={{ borderRadius: "0 0.313rem" }}
-                        >
-                          {productValue?.unitid?.label ?? "-"}
-                        </span>
-                      </div>
-                      {/* <span className="text-danger d-block fw-400 fs-small mt-2">
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        {getFormattedMessage("product.input.sales-price.label")}
+                        {" "}
+                      </label>
+                      {/* <span className="required" /> */}
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          name="salesPrice"
+                          value={openingStockValue.salesPrice}
+                          placeholder={placeholderText(
+                            "product.input.sales-price.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          disabled
+                        />
+                        <div className="input-group-append">
+                          <span
+                            className="input-group-text"
+                            style={{ borderRadius: "0 0.313rem" }}
+                          >
+                            {productValue?.unitid?.label ?? "-"}
+                          </span>
+                        </div>
+                        {/* <span className="text-danger d-block fw-400 fs-small mt-2">
                                             {errors["stock_alert"] ? errors["stock_alert"] : null}
                                           </span> */}
-                    </div>
-                  </div>
-
-                  <div className="col-md-12 mb-3">
-                    <label className="form-label">
-                      {getFormattedMessage("product.input.purchase-cost.label")}
-                      :{" "}
-                    </label>
-                    {/* <span className="required" /> */}
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        name="purchaseCost"
-                        value={openingStockValue.purchaseCost}
-                        placeholder={placeholderText(
-                          "product.input.purchase-cost.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        disabled
-                      />
-                      <div className="input-group-append">
-                        <span
-                          className="input-group-text"
-                          style={{ borderRadius: "0 0.313rem" }}
-                        >
-                          {productValue?.unitid?.label ?? "-"}
-                        </span>
                       </div>
-                      {/* <span className="text-danger d-block fw-400 fs-small mt-2">
+                    </div>
+
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        {getFormattedMessage("product.input.purchase-cost.label")}
+                        {" "}
+                      </label>
+                      {/* <span className="required" /> */}
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          name="purchaseCost"
+                          value={openingStockValue.purchaseCost}
+                          placeholder={placeholderText(
+                            "product.input.purchase-cost.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          disabled
+                        />
+                        <div className="input-group-append">
+                          <span
+                            className="input-group-text"
+                            style={{ borderRadius: "0 0.313rem" }}
+                          >
+                            {productValue?.unitid?.label ?? "-"}
+                          </span>
+                        </div>
+                        {/* <span className="text-danger d-block fw-400 fs-small mt-2">
                                             {errors["stock_alert"] ? errors["stock_alert"] : null}
                                           </span> */}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* <div className="col-md-12 mb-3">
+                    {/* <div className="col-md-12 mb-3">
                     <label className="form-label">
                       {getFormattedMessage("product.input.sales-price.label")}:{" "}
                     </label>
@@ -1179,103 +1338,108 @@ const ProductForm = (props) => {
                     />
                   </div> */}
 
-                  <div className="col-md-12 mb-3">
-                    <label className="form-label">
-                      {getFormattedMessage("product.input.opening-stock.label")}
-                      :{" "}
-                    </label>
-                    {/* <span className="required" /> */}
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        name="stock"
-                        value={openingStockValue.stock}
-                        placeholder={placeholderText(
-                          "product.input.opening-stock.placeholder.label"
-                        )}
-                        className="form-control"
-                        autoFocus={true}
-                        onChange={(e) => onChangeInput(e)}
-                        disabled
-                      />
-                      <div className="input-group-append">
-                        <span
-                          className="input-group-text"
-                          style={{ borderRadius: "0 0.313rem" }}
-                        >
-                          {productValue?.unitid?.label ?? "-"}
-                        </span>
-                      </div>
-                      {/* <span className="text-danger d-block fw-400 fs-small mt-2">
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        {getFormattedMessage("product.input.opening-stock.label")}
+                        {" "}
+                      </label>
+                      {/* <span className="required" /> */}
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          name="stock"
+                          value={openingStockValue.stock}
+                          placeholder={placeholderText(
+                            "product.input.opening-stock.placeholder.label"
+                          )}
+                          className="form-control"
+                          // autoFocus={true}
+                          onChange={(e) => onChangeInput(e)}
+                          disabled
+                        />
+                        <div className="input-group-append">
+                          <span
+                            className="input-group-text"
+                            style={{ borderRadius: "0 0.313rem" }}
+                          >
+                            {productValue?.unitid?.label ?? "-"}
+                          </span>
+                        </div>
+                        {/* <span className="text-danger d-block fw-400 fs-small mt-2">
                                             {errors["stock_alert"] ? errors["stock_alert"] : null}
                                         </span> */}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* <ModelFooter
+              {/* <ModelFooter
               onEditRecord={singleProduct}
               onSubmit={onSubmit}
               //editDisabled={disabled}
               link="/app/products"
             // addDisabled={!productValue.name}
             /> */}
+            </div>
+
           </div>
-         
-        </div>
-      </Form>
-      {unitModel && (
-        <UnitsForm
-          addProductData={addUnitsData}
-          unitid={productValue.unitid}
-          title={getFormattedMessage("unit.create.title")}
-          show={unitModel}
-          hide={setUnitModel}
-        />
-      )}
+        </Form>
+        {unitModel && (
+          <UnitsForm
+            addProductData={addUnitsData}
+            unitid={productValue.unitid}
+            title={getFormattedMessage("unit.create.title")}
+            show={unitModel}
+            handleUnitClose={handleUnitClose}
+            hide={setUnitModel}
+          />
+        )}
 
-      {brandModel && (
-        <BrandsForm
-          addBrandData={addBrandData}
-          category1_id={productValue.category1_id}
-          title={getFormattedMessage("brand.create.title")}
-          show={brandModel}
-          hide={setBrandModel}
-        />
-      )}
+        {brandModel && (
+          <BrandsForm
+            addBrandData={addBrandData}
+            category1_id={productValue.category1_id}
+            title={getFormattedMessage("brand.create.title")}
+            show={brandModel}
+            handleBrandClose={handleBrandClose}
+            hide={setBrandModel}
+          />
+        )}
 
-      {productCategoryModel && (
-        <ProductCategoryForm
-          addProductcData={addProductcData}
-          category2_id={productValue.category2_id}
-          title={getFormattedMessage("product-category.create.title")}
-          show={productCategoryModel}
-          hide={setProductCategoryModel}
-        />
-      )}
+        {productCategoryModel && (
+          <ProductCategoryForm
+            addProductcData={addProductcData}
+            category2_id={productValue.category2_id}
+            title={getFormattedMessage("product-category.create.title")}
+            show={productCategoryModel}
+            handleCategoryClose={handleCategoryClose}
+            hide={setProductCategoryModel}
+          />
+        )}
 
-      {productGroupModel && (
-        <ProductGroupsForm
-          addProductGroupsData={addProductGroupsData}
-          category3_id={productValue.category3_id}
-          title={getFormattedMessage("productGroup.create.title")}
-          show={productGroupModel}
-          hide={setProductGroupModel}
-        />
-      )}
-      {console.log("taxModal", taxModal)}
+        {productGroupModel && (
+          <ProductGroupsForm
+            addProductGroupsData={addProductGroupsData}
+            category3_id={productValue.category3_id}
+            title={getFormattedMessage("productGroup.create.title")}
+            show={productGroupModel}
+            handleGroupClose={handleGroupClose}
+            hide={setProductGroupModel}
+          />
+        )}
+        {console.log("taxModal", taxModal)}
 
-      {taxModal && (
-        <TaxSetupForm
-          addProductData={addTaxSetupData}
-          show={taxModal}
-          title={getFormattedMessage("taxSetup.create.title")}
-          hide={setTaxModal}
-        />
-      )}
-    </div>
-  
+        {taxModal && (
+          <TaxSetupForm
+            addProductData={addTaxSetupData}
+            show={taxModal}
+            title={getFormattedMessage("taxSetup.create.title")}
+            handleTaxClose={handleTaxClose}
+            hide={setTaxModal}
+          />
+        )}
+      </div>
+    </>
   );
 };
 
@@ -1289,6 +1453,7 @@ const mapStateToProps = (state) => {
     suppliers,
     warehouses,
     taxs,
+
   } = state;
   return {
     brands,
@@ -1299,6 +1464,7 @@ const mapStateToProps = (state) => {
     suppliers,
     warehouses,
     taxs,
+
   };
 };
 
@@ -1321,4 +1487,6 @@ export default connect(mapStateToProps, {
   addProductGroup,
   productGroupDropdown,
   fetchTax,
+  fetchTaxSetup,
+  fetchProducts,
 })(ProductForm);

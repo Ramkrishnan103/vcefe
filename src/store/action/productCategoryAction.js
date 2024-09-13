@@ -87,40 +87,35 @@ export const fetchProductCategory =
       });
   };
 
-export const addProductCategory = (products) => async (dispatch) => {
+export const addProductCategory = (products,handleClose, handleCategoryClose) => async (dispatch) => {
+  debugger
   await apiConfig
     .post(apiBaseURL.PRODUCTS_CATEGORIES, products)
     .then((response) => {
+      // dispatch({
+      //   type: productCategoriesActionType.ADD_PRODUCT_CATEGORIES,
+      //   payload: response?.data?.data,
+      // });
       if (response?.data?.success) {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.SUCCESS })
         );
+        handleClose && handleClose(false);
+        handleCategoryClose && handleCategoryClose(false);
         dispatch(fetchProductCategories());
       }
-      // else {
-      //   dispatch({
-      //     type: productCategoriesActionType.ADD_PRODUCT_CATEGORIES,
-      //     payload: response.data.data,
-      //   });
-      //   dispatch(
-      //     addToast({
-      //       text: getFormattedMessage(
-      //         "product-category.success.create.message"
-      //       ),
-      //     })
-      //   );
-      //   dispatch(addInToTotalRecord(1));
-      // }
+     
       else {
         dispatch(
           addToast({ text: response?.data?.message, type: toastType.ERROR })
         );
       }
+      dispatch(addInToTotalRecord(1));
     })
     .catch(({ response }) => {
-      dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
-      );
+      // dispatch(
+      //   addToast({ text: response?.data?.message, type: toastType.ERROR })
+      // );
     });
 };
 
@@ -135,18 +130,21 @@ export const editProductCategory =
         //     type: productCategoriesActionType.EDIT_PRODUCT_CATEGORIES,
         //     payload: response.data.data,
         // });
-        handleClose(false);
+      //  handleClose(false);
+      debugger
         if (response?.data?.success == true) {
 
-        dispatch(
-          addToast({
-            text: getFormattedMessage("product-category.success.edit.message"),
-          })
-        );
+          dispatch(
+            addToast({
+              text: response?.data?.message,
+              type: toastType.SUCCESS,
+            })
+          )
+        handleClose(false)
       }else{
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -155,7 +153,7 @@ export const editProductCategory =
       .catch(({ response }) => {
         dispatch(
           addToast({
-            text: response.data.message,
+            text: response?.data?.message,
             type: toastType.ERROR,
           })
         );
@@ -172,15 +170,16 @@ export const deleteProductCategory = (productId) => async (dispatch) => {
         payload: productId,
       });
       if(response?.data?.success == true){
-      dispatch(
-        addToast({
-          text: getFormattedMessage("product-category.success.delete.message"),
-        })
-      );
+        dispatch(
+          addToast({
+            text: response?.data?.message,
+            type: toastType.SUCCESS,
+          })
+        )
     }else{
       dispatch(
         addToast({
-          text: response.data.message,
+          text: response?.data?.message,
           type: toastType.ERROR,
         })
       );
@@ -189,7 +188,7 @@ export const deleteProductCategory = (productId) => async (dispatch) => {
     })
     .catch(({ response }) => {
       dispatch(
-        addToast({ text: response.data.message, type: toastType.ERROR })
+        addToast({ text: response?.data?.message, type: toastType.ERROR })
       );
     });
 };

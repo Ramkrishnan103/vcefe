@@ -5,7 +5,7 @@ import {
   getFormattedMessage,
   placeholderText,
 } from "../../shared/sharedMethod";
-import { editUnit } from "../../store/action/unitsAction";
+import { editUnit, addUnit } from "../../store/action/unitsAction";
 import ModelFooter from "../../shared/components/modelFooter";
 import ReactSelect from "../../shared/select/reactSelect";
 import { fetchAllProductGroups } from "../../store/action/productGroupsAction";
@@ -23,6 +23,8 @@ const UnitsForm = (props) => {
     hide,
     product_unit,
     buttonText,
+    addUnit,
+    handleUnitClose
   } = props;
   const innerRef = createRef();
   // const newUnit = singleUnit && base.filter((da) => singleUnit.base_unit === da.attributes.name);
@@ -129,19 +131,31 @@ const UnitsForm = (props) => {
     return formData;
   };
 
+  const handleformClose = () => {
+    if (handleUnitClose) {
+      handleUnitClose(false);
+    }
+    // handleUnitClose ? handleUnitClose(false) : hide(false);
+    handleClose ? handleClose(false) : hide(false);
+  }
+
   const onSubmit = (event) => {
     event.preventDefault();
     const valid = handleValidation();
     if (singleUnit && valid) {
       if (!disabled) {
         editUnit(singleUnit.unitid, prepareFormData(unitValue), handleClose);
-        clearField(false);
+        // clearField(false);
       }
     } else {
       if (valid) {
         setUnitValue(unitValue);
-        addProductData(prepareFormData(unitValue));
-        clearField(false);
+        addUnit(prepareFormData(unitValue), () => {
+          handleClose,
+            handleformClose,
+            clearField();
+        });
+        // clearField(false);
       }
     }
   };
@@ -152,6 +166,7 @@ const UnitsForm = (props) => {
       decimalPoint: "",
       // base_unit: ''
     });
+    handleformClose();
     setErrors("");
     // handleClose(false);
     handleClose ? handleClose(false) : hide(false);
@@ -164,7 +179,7 @@ const UnitsForm = (props) => {
       keyboard={true}
       onShow={() =>
         setTimeout(() => {
-        console.log(document.getElementById("name").focus());
+          console.log(document.getElementById("name").focus());
           // innerRef.current.focus();
         }, 1)
       }
@@ -267,6 +282,6 @@ const mapStateToProps = (state) => {
   return { base };
 };
 
-export default connect(mapStateToProps, { fetchAllProductGroups, editUnit })(
+export default connect(mapStateToProps, { fetchAllProductGroups, editUnit, addUnit })(
   UnitsForm
 );

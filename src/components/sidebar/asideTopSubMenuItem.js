@@ -1,23 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleDown, faPlusSquare } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Permissions } from "../../constants";
+import { fetchCompanyConfig } from "../../store/action/companyConfigAction";
 
 const AsideTopSubMenuItem = (props) => {
-    const { asideConfig, isMenuCollapse } = props;
+    const { asideConfig, isMenuCollapse, fetchCompanyConfig, companyConfig } = props;
     const config = useSelector((state) => state.config);
     const location = useLocation();
     const id = useParams();
 
+    useEffect(() => {
+        fetchCompanyConfig();
+    }, [])
+    
+
+    const companyName = companyConfig?.companyName
+
     return (
         <nav
-            className={`navbar navbar-expand-xl ${
-                isMenuCollapse === true ? "top-navbar" : "top-nav-heding"
-            } navbar-light d-xl-flex align-items-stretch d-block px-3 px-xl-0 py-4 py-xl-0`}
+            className={`navbar navbar-expand-xl ${isMenuCollapse === true ? "top-navbar" : "top-nav-heding"
+                } navbar-light d-xl-flex align-items-stretch d-block px-3 px-xl-0 py-4 py-xl-0`}
         >
             <div className="navbar-collapse">
                 {/* <Dropdown className="d-flex align-items-stretch me-3 report_dropdown">
@@ -128,17 +135,23 @@ const AsideTopSubMenuItem = (props) => {
                     </Dropdown.Menu>
                 </Dropdown> */}
                 <div className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <div className="nav-item position-relative mx-xl-3 mb-3 mb-xl-0 h1">
-                            <span>
-                                {getFormattedMessage(
-                                    "company.title"
-                                )}
-                            </span>
-                        </div>
+                    <div className="nav-item position-relative mx-xl-3 mb-3 mb-xl-0 h1">
+                        <span style={{ fontWeight: 'bold', fontSize: '1.5rem'}}>
+                            {/* {getFormattedMessage(
+                                "company.title"
+                            )} */}
+                            {companyName}
+                        </span>
+                    </div>
                 </div>
             </div>
         </nav>
     );
 };
 
-export default AsideTopSubMenuItem;
+const mapStateToProps = (state) => {
+    const { companyConfig } = state;
+    return { companyConfig }
+}
+
+export default connect(mapStateToProps, { fetchCompanyConfig })(AsideTopSubMenuItem);

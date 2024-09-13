@@ -1,10 +1,12 @@
-import {permissionActionType, toastType, apiBaseURL} from '../../constants';
+import {permissionActionType, toastType, apiBaseURL, getPermissionConfigActionType, getUserPermissionActionType, permissionConfigActionType} from '../../constants';
 import apiConfig from '../../config/apiConfig';
 import {addToast} from './toastAction';
+import { setLoading } from './loadingAction';
 
-export const fetchPermissions = () => async (dispatch) => {
-    await apiConfig.get('getPermissionConfig')
-        .then((response) => {
+// export const fetchPermissions = () => async (dispatch) => {
+//     await apiConfig.get('getPermissionConfig')
+//         .then((response) => {
+
             // let data = {
             //     "data": [
             //         {
@@ -284,10 +286,57 @@ export const fetchPermissions = () => async (dispatch) => {
             //         "total": 27
             //     }
             // };
-            dispatch({type: permissionActionType.FETCH_PERMISSIONS, payload: response.data.data});
-        })
-        .catch(({response}) => {
-            dispatch(addToast(
-                {text: response.data.message, type: toastType.ERROR}));
-        });
-};
+//             dispatch({type: permissionActionType.FETCH_PERMISSIONS, payload: response.data.data});
+//         })
+//         .catch(({response}) => {
+//             dispatch(addToast(
+//                 {text: response.data.message, type: toastType.ERROR}));
+//         });
+// };
+
+
+
+export const fetchPermissions =
+    (filter = {}, isLoading = true,id) =>
+    async (dispatch) => {
+        if (isLoading) {
+            dispatch(setLoading(true));
+        }
+
+        let url = apiBaseURL.PERMISSIONS_CONFIG ;
+        console.log(url)
+        // if (
+        //     !_.isEmpty(filter) &&
+        //     (filter.page ||
+        //         filter.pageSize ||
+        //         filter.search ||
+        //         filter.order_By ||
+        //         filter.created_at)
+        // ) {
+        //     url += requestParam(filter, null, null, null, url);
+        // }
+        apiConfig
+            .get(url)
+            .then((response) => {
+               console.log("Resonse",response)
+
+                dispatch({
+                    type: permissionConfigActionType.FETCH_PERMISSION_CONFIG,
+                    payload: response?.data?.data,
+                });
+          
+                
+               if (isLoading) {
+                dispatch(setLoading(false));
+            }   
+               
+            })
+            .catch(({ response }) => {
+                dispatch(
+                    addToast({
+                        text: response?.data?.message,
+                        type: toastType.ERROR,
+                    })
+                );
+            });
+    };

@@ -56,6 +56,8 @@ export const fetchEmpDepartment =
     console.log(empDepartment)
         dispatch(setSavingButton(true));
 
+        console.log("HandleCLose :",handleClose)
+
         await apiConfig
             .post(apiBaseURL.EMPDEPARTMENT, empDepartment)
             .then((response) => {
@@ -80,7 +82,7 @@ export const fetchEmpDepartment =
                         type: toastType?.ERROR,
                     })
                 );
-                handleClose(true)
+                
                
               }
 
@@ -159,13 +161,13 @@ export const fetchEmpDepartment =
                 text: getFormattedMessage("Data.success.update.message"),
               })
             );
-           
+           handleClose(false)
           }
           else{
             dispatch(
               addToast({ text: response?.data?.message, type: toastType?.ERROR })
             )
-           
+           //handleClose(true)
           }
          
         //   dispatch({
@@ -173,7 +175,7 @@ export const fetchEmpDepartment =
         //       payload: response?.data?.data,
         //   });
 
-          handleClose(false);
+         // handleClose(false);
           dispatch(fetchEmpDepartment());
           dispatch(setSavingButton(false));
          dispatch(addInToTotalRecord(1));

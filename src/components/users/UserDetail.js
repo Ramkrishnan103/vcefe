@@ -26,7 +26,7 @@
 //     return (
 //         <MasterLayout>
 //             <TopProgressBar />
-//             <HeaderTitle title={getFormattedMessage("users.list.title")} to='/app/users' editLink={`/app/users/edit/${id}`}/>
+//             <HeaderTitle title={getFormattedMessage('user-details.title')} to='/app/users' editLink={`/app/users/edit/${id}`}/>
 //             <TabTitle title={placeholderText('user-details.title')}/>
 //             {isLoading ? <Spinner /> : <>
 //                 <div>

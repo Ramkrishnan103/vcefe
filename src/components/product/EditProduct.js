@@ -67,6 +67,7 @@ const EditProduct = (props) => {
         label: product?.attributes?.tax_name,
       },
       is_Edit: true,
+      isEditable: product?.attributes?.isEditable
     }));
    // console.log(itemsValue)
   const getProductUnit =
