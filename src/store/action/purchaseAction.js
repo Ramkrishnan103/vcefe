@@ -1,5 +1,5 @@
 import apiConfig from "../../config/apiConfig";
-import { apiBaseURL, purchaseActionType, toastType } from "../../constants";
+import { apiBaseURL, purchaseActionType, purchaseSingleActionType, toastType } from "../../constants";
 import { addToast } from "./toastAction";
 import {
     setTotalRecord,
@@ -10,6 +10,7 @@ import requestParam from "../../shared/requestParam";
 import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
+import { setLoader } from "./loaderAction";
 
 export const fetchPurchases =
     (filter = {}, isLoading = true) =>
@@ -57,6 +58,38 @@ export const fetchPurchases =
             });
     };
 
+    export const fetchPosPurchaseListing =
+    (filter = {}, isLoading = true) =>
+    async (dispatch) => {
+        if (isLoading) {
+            dispatch(setLoading(true));
+        }
+        let url = apiBaseURL.PURCHASES;
+        console.log(url)
+       
+        apiConfig
+            .get(url)
+            .then((response) => {
+                console.log("Response => ",response)
+                dispatch({  
+                    type: purchaseActionType.FETCH_PURCHASE_LISTING,
+                    payload: response?.data?.data,
+                });
+               
+                if (isLoading) {
+                    dispatch(setLoading(false));
+                }
+            })
+            .catch(({ response }) => {
+                dispatch(
+                    addToast({
+                        text: response?.data?.message,
+                        type: toastType.ERROR,
+                    })
+                );
+            });
+    };
+
 export const fetchPurchase =
     (purchaseId, singlePurchase, isLoading = true) =>
     async (dispatch) => {
@@ -80,7 +113,52 @@ export const fetchPurchase =
             .catch(({ response }) => {
                 dispatch(
                     addToast({
-                        text: response.data.message,
+                        text: response?.data?.message,
+                        type: toastType.ERROR,
+                    })
+                );
+            });
+    };
+
+    export const fetchSinglePurchase =
+    (purchaseId, singlePurchase, isLoading = true) =>
+    async (dispatch) => {
+        if (isLoading) {
+            dispatch(setLoading(true));
+            dispatch(setLoader(true));
+        }
+        apiConfig
+            .get(
+                apiBaseURL.PURCHASES + "?purchaseTxno=" + purchaseId,
+                singlePurchase
+            )
+            .then((response) => {
+                dispatch({
+                    type: purchaseSingleActionType.FETCH_PURCHASE,
+                    payload: response.data.data,
+                });
+                if(response?.data?.success){
+                if (isLoading) {
+                    dispatch(fetchPosPurchaseListing());
+                    dispatch(setLoading(false));
+                }
+                dispatch(setLoader(false));
+            }else{
+                dispatch(fetchPosPurchaseListing());
+                dispatch(setLoader(false));
+                dispatch(
+                    addToast({
+                        text: response?.data?.message,
+                        type: toastType.ERROR,
+                    })
+                );
+            }
+            })
+            .catch(({ response }) => {
+                dispatch(setLoader(false));
+                dispatch(
+                    addToast({
+                        text: response?.data?.message,
                         type: toastType.ERROR,
                     })
                 );
@@ -88,6 +166,7 @@ export const fetchPurchase =
     };
 
 export const addPurchase = (purchase, navigate) => async (dispatch) => {
+    debugger
     dispatch(setSavingButton(true));
     apiConfig
         .post(apiBaseURL.PURCHASES, purchase)
@@ -96,21 +175,30 @@ export const addPurchase = (purchase, navigate) => async (dispatch) => {
                 type: purchaseActionType.ADD_PURCHASE,
                 payload: response.data.data,
             });
-            dispatch(
-                addToast({
-                    text: getFormattedMessage(
-                        "purchase.success.create.message"
-                    ),
-                })
-            );
-            navigate("/app/purchases");
-            dispatch(addInToTotalRecord(1));
+            if(response?.data?.success){
+                dispatch(
+                    addToast({
+                        text: getFormattedMessage(
+                            "purchase.success.create.message"
+                        ),
+                    })
+                );
+                dispatch(fetchPosPurchaseListing());
+                if(purchase?.xMode != 'D'){window.location.href = "#/app/purchases";}
+                dispatch(addInToTotalRecord(1));
+            }else{
+                dispatch(fetchPosPurchaseListing());
+                dispatch(
+                    addToast({ text: response?.data?.message, type: toastType.ERROR })
+                );
+            }
+            
             dispatch(setSavingButton(false));
         })
         .catch(({ response }) => {
             dispatch(setSavingButton(false));
             dispatch(
-                addToast({ text: response.data.message, type: toastType.ERROR })
+                addToast({ text: response?.data?.message, type: toastType.ERROR })
             );
         });
 };
@@ -167,5 +255,5 @@ export const deletePurchase = (purchaseId) => async (dispatch) => {
             dispatch(
                 addToast({ text: response.data.message, type: toastType.ERROR })
             );
-        });
+        });
 };

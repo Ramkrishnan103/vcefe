@@ -750,7 +750,17 @@ export const singleEmployeeActionType = {
   FETCH_EMPLOYEE: "FETCH_EMPLOYEE",
 }
 
-
+export const singleSalary = {
+  FETCH_SINGLE_SALARY: "FETCH_SINGLE_SALARY",
+  ADD_SALARY: "ADD_SALARY",
+  EDIT_SALARY: "EDIT_SALARY"
+}
+export const userPermissionActionType = {
+  ADD_USERS_PERMISSIONS :"ADD_USERS_PERMISSIONS",
+ 
+  FETCH_USERS_PERMIISIONS:"FETCH_USERS_PERMIISIONS"
+  
+}
 export const settingsKey = {
   LANGUAGE: "language",
   DEFAULT_LOCALE: "en",
@@ -932,6 +942,9 @@ export const priceListActionType = {
 
 export const counterList = {
   GET_ALL_COUNTER: "GET_ALL_COUNTER",
+}
+export const purchaseSingleActionType = {
+  FETCH_PURCHASE: "FETCH_PURCHASE",
 }
 
 export const cartItem = {

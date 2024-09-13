@@ -968,6 +968,7 @@
   "globally.input.MobileNo.label": "Mobileno",
   "Ledger.create.title": "Create Ledger",
   "globally.input.LedgerName.label": "Ledger Name",
+  "globally.input.LedgerCode.label":"Ledger Code",
   "globally.input.Ledgername.placeholder.label": "Enter Ledger Name",
   "globally.input.alterLanguage.label": "Alter Language",
   "globally.input.alterLanguage.placeholder.label": "Enter Alter Language",
@@ -1089,10 +1090,11 @@
  "employeeSummary.title":"Employee Summary",
 
  "globally.input.pageSize.name":"Page Size",
- "globally.input.pageOrientation.name":"Page Orientation"
+ "globally.input.pageOrientation.name":"Page Orientation",
 
-  
-
+ "ledgerList.create.title":"List of Ledgers",
+  "product.input.forSales.label":"For Sales.?",
+  "razorPay.title":"RazorPay"
 
   
 }

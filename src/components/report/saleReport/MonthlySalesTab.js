@@ -447,31 +447,32 @@ const handleFieldCancel=()=>{
   return (
     <>
     <div className="warehouse_sale_report_table">
-    <div className="row mb-3">
-        <div className=" col-sm-12 col-md-3 col-lg-3 d-flex align-items-center">
+    <div className="row ">
+        <div className=" col-md-3 ">
           <input
-            className="form-control "
+            className="form-control wd-100 "
             placeholder="Search"
             ref={searchRef}
             value={searchQuery}
             onChange={handleSearchChange}
-            style={{ paddingLeft: '30px',position:"relative" }} 
+            style={{ paddingLeft: '30px' }} 
           />
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
-            style={{ marginLeft: "10px", fontSize: '1rem',position:"absolute",left:"15px" }}
+            style={{ marginTop: "-66px", marginLeft: "10px" }}
           />
         </div>
-       
-        <div className="col-sm-12 col-md-6 col-lg-3 d-flex align-items-center">
-          <h3 className="mb-0" >
+        <div className="col-md-1"></div>
+        <div className="col-md-1">
+          <h3 className="mt-3" >
             Ac Year
           </h3>
-          
+          </div>
+        <div className="col-md-3">
           
           <InputGroup className="ms-2 flex-nowrap ">
             <ReactSelect
-              className="position-relative"
+              className="flex-nowrap dropdown-side-btn text-black"
               placeholder={placeholderText("globally.input.AcYear.label")}
               // ref={acFrom}
               defaultValue={selectedYearRange}
@@ -482,8 +483,8 @@ const handleFieldCancel=()=>{
 
         </div>
 
-      
-        <div className="col-sm-12 col-md-12 col-lg-6 d-flex justify-content-center align-items-center">
+        <div className="col-md-1"></div>
+        <div className="col-md-3">
           <button
             style={{
               display: "flex",
@@ -491,10 +492,10 @@ const handleFieldCancel=()=>{
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-             
+             width:"180px",
               height: "60px",
               backgroundColor: "white",
-              gap: "10px",  
+              gap: "13px",  
             }}
           >
             
@@ -509,7 +510,7 @@ const handleFieldCancel=()=>{
             <FontAwesomeIcon
               icon={faFileExcel}
               className="fa-2x search-icon "
-              style={{ color: "green",paddingLeft:"10px"}}
+              style={{ color: "green"}}
               onClick={exportToExcel}
             ></FontAwesomeIcon>
          
@@ -518,7 +519,7 @@ const handleFieldCancel=()=>{
             <FontAwesomeIcon
               icon={faFilePdf}
               className="fa-2x search-icon"
-              style={{ color: "red" ,paddingLeft:"10px"}}
+              style={{ color: "red" }}
               onClick={handleClick}
             ></FontAwesomeIcon>
 

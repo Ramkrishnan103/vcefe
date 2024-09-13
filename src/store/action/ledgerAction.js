@@ -87,33 +87,12 @@ export const fetchLedger =
     // MARK RAM FROM [12-07-2024]
 
  export const addLedger = (ledger,navigate) => async (dispatch) => {
+    
     console.log(ledger)
         dispatch(setSavingButton(true));
 
-        const { ledgerName, altlanguage,underGroup,dob,mobileno1,mobileno2,regno, email, address,city,state,country,isactive,remarks,entryfrom,forSales} = ledger;
-    const data = {
-        ledgerName,
-        altlanguage,
-        underGroup,
-        dob:dob === null ? null : moment(dob).format("YYYY-MM-DD"),
-        mobileno1,
-        mobileno2,
-        regno,
-        email,
-        address,
-        city,
-        state,
-        country,
-        isactive,
-        remarks,
-        entryfrom,
-        forSales,
-        id:0,
-    };
-    // debugger
-    console.log(data)
-        await apiConfig
-            .post(apiBaseURL.LEDGER, data)
+      await apiConfig
+            .post(apiBaseURL.LEDGER, ledger)
             .then((response) => {
               console.log(response)
 
@@ -161,38 +140,17 @@ export const fetchLedger =
 
     
 export const editLedger =
-(ledgerId, ledgers, navigate) => async (dispatch) => {
+(ledgerId, ledger, navigate) => async (dispatch) => {
 
     console.log("Ledger Id  => ",ledgerId)
     dispatch(setSavingButton(true));
-   const { ledgerName, altlanguage,underGroup,dob,mobileno1,mobileno2,regno, email, address,city,state,country,isactive,remarks,entryfrom,forSales} = ledgers;
-    const data = {
-        ledgerName,
-        altlanguage,
-        underGroup,
-        dob:dob === null ? null : moment(dob).format("YYYY-MM-DD"),
-        mobileno1,
-        mobileno2,
-        regno,
-        email,
-        address,
-        city,
-        state,
-        country,
-        isactive,
-        remarks,
-        entryfrom,
-        forSales,
-        id:ledgerId,
-    };
-    
-    console.log(data)
+   
   apiConfig
-        .post(apiBaseURL.LEDGER,data )
+        .post(apiBaseURL.LEDGER,ledger)
        
        //console.log(apiBaseURL.CUSTOMERS + "?customerId=" + customerId )
         .then((response) => {
-            console.log(apiBaseURL.LEDGER,data)
+            console.log(apiBaseURL.LEDGER,ledger)
             console.log(response)
 
             if(response?.data?.success == false){
@@ -263,11 +221,7 @@ export const deleteLedger = (ledgerId) => async (dispatch) => {
 
             dispatch(fetchLedger());
             
-            // dispatch({
-            //     type: ledgerActionType.DELETE_LEDGER,
-            //     payload: ledgerId,
-            // });
-            
+           
         })
         .catch(({ response }) => {
             response &&

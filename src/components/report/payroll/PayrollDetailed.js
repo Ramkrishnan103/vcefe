@@ -134,43 +134,45 @@ const PayrollDetailed = (props) => {
   const [loadingPdf, setLoadingPdf] = useState(false);
 
   const columns = [
-    { title: "Emp ID", field: "empId", width: 80, headerSort: false },
-    { title: "Emp Name", field: "empName", width: 110, headerSort: false },
+    { title: "Emp ID", field: "empId", width: "7%", headerSort: false },
+    { title: "Emp Name", field: "empName",width:"7%", headerSort: false },
     {
-      title: "Earnings", hozAlign: "center",
+      title: "Earnings", hozAlign: "center",width:"28%",
       columns: [
-        { title: "Basic Pay", field: "basicPay", hozAlign: "right", width: 70, headerSort: false },
-        { title: "HRA", field: "hra", hozAlign: "right", width: 70, headerSort: false },
-        { title: "Conveyance", field: "conveyance", hozAlign: "right", width: 80, headerSort: false },
-        { title: "Others", field: "others", hozAlign: "right", width: 70, headerSort: false },
-        { title: "Total Earnings", field: "others", hozAlign: "right", width: 80, headerSort: false }
+        { title: "Basic Pay", field: "basicPay", hozAlign: "right", headerSort: false },
+        { title: "HRA", field: "hra", hozAlign: "right", headerSort: false },
+        { title: "Conveyance", field: "conveyance", hozAlign: "right", headerSort: false },
+        { title: "Others", field: "others", hozAlign: "right", headerSort: false },
+        { title: "Total Earnings", field: "totalEarnings", hozAlign: "right",  headerSort: false }
       ]
     },
     {
-      title: "Deductions", hozAlign: "center",
+      title: "Deductions", hozAlign: "center",width:"28%",
       columns: [
-        { title: "ESI", field: "esi", hozAlign: "right", width: 70, headerSort: false },
-        { title: "PF", field: "pf", hozAlign: "right", width: 70, headerSort: false },
-        { title: "LWF", field: "lwf", hozAlign: "right", width: 70, headerSort: false },
-        { title: "Tax Deduc.", field: "taxDeduc", hozAlign: "right", width: 70, headerSort: false },
-        { title: "Total Deduc.", field: "totalDeduc", hozAlign: "right", width: 70, headerSort: false }
+        { title: "ESI", field: "esi", hozAlign: "right", headerSort: false },
+        { title: "PF", field: "pf", hozAlign: "right", headerSort: false },
+        { title: "LWF", field: "lwf", hozAlign: "right", headerSort: false },
+        { title: "Tax Deduc.", field: "taxDeduc", hozAlign: "right", headerSort: false },
+        { title: "Total Deduc.", field: "totalDeduction", hozAlign: "right", headerSort: false }
       ]
     },
-    { title: "Gross Amount", field: "grossAmt", width: 80, hozAlign: "right", headerSort: false },
-    { title: "LOP",hozAlign:"center",
+    { title: "Gross Amount", field: "grossAmount", width: "6%", hozAlign: "right", headerSort: false },
+    { title: "LOP",hozAlign:"center",width:"10%",
       columns:[
-        { title: "Leave Days", field: "leaveDays", hozAlign: "right", width: 70, headerSort: false },
-        { title: "Loss of Pay", field: "lossOfPay", hozAlign: "right", width: 70, headerSort: false },
+        { title: "Leave Days", field: "leaveDays", hozAlign: "right", headerSort: false },
+        { title: "Loss of Pay", field: "lop", hozAlign: "right" ,headerSort: false },
       ]
     },
-    { title: "Net Paid", field: "netPaid", width: 80, hozAlign: "right", headerSort: false },
+    { title: "Variable Pay", field: "variablePay", width: "7%", hozAlign: "right", headerSort: false },
+    { title: "Net Paid", field: "netPaid", width: "7%", hozAlign: "right", headerSort: false }
+   
   ];
 
-  const getFooterData = (table) => {
-    return [
-      { empId: '', empName: 'Total', basicPay: '', hra: '', conveyance: '', others: '', netPaid: payrollReport?.data?.employeeDetails?.reduce((total, item) => total + parseFloat(item?.netPaid), 0) }
-    ];
-  };
+  // const getFooterData = (table) => {
+  //   return [
+  //     { empId: '', empName: 'Total', basicPay: '', hra: '', conveyance: '', others: '', netPaid: payrollReport?.data?.employeeDetails?.reduce((total, item) => total + parseFloat(item?.netPaid), 0) }
+  //   ];
+  // };
 
   const getCurrentDateTimeInIST = () => {
     const options = {
@@ -335,26 +337,29 @@ const PayrollDetailed = (props) => {
   };
 
   const itemsValue =
-    payrollReport &&
-    payrollReport?.data?.employeeDetails?.map((payroll) => {
-      return {
-        empId: payroll?.empId,
-        empName: payroll?.empName,
-        basicPay: parseFloat(payroll?.basicPay).toFixed(2) || payroll?.basicPay,
-        hra: parseFloat(payroll?.hra).toFixed(2) || payroll?.hra,
-        conveyance: parseFloat(payroll?.conveyaences).toFixed(2) || payroll?.conveyaences,
-        others: parseFloat(payroll?.others).toFixed(2) || payroll?.others,
-        totalEarnings:"",
-        esi: parseFloat(payroll?.employeeEsi).toFixed(2) || payroll?.employeeEsi,
-        pf: parseFloat(payroll?.employeePf).toFixed(2) || payroll?.employeePf,
-        lwf: parseFloat(payroll?.lwf).toFixed(2) || payroll?.lwf,
-        taxDeduc: parseFloat(payroll?.taxDeductions).toFixed(2) || payroll?.taxDeductions,
-        totalDeduc:"",
-        grossAmt:"",
-        lop: parseFloat(payroll?.lop).toFixed(2) || payroll?.lop,
-        netPaid: parseFloat(payroll?.netPaid).toFixed(2)
-      };
-    });
+  payrollReport &&
+  payrollReport?.data?.employeeDetails?.map((payroll) => {
+    return {
+      empId: payroll?.empId,
+      empName: payroll?.empName,
+      basicPay: parseFloat(payroll?.basicPay).toFixed(2) || payroll?.basicPay,
+      hra: parseFloat(payroll?.hra).toFixed(2) || payroll?.hra,
+      conveyance: parseFloat(payroll?.conveyaences).toFixed(2) || payroll?.conveyaences,
+      others: parseFloat(payroll?.others).toFixed(2) || payroll?.others,
+      esi: parseFloat(payroll?.employeeEsi).toFixed(2) || payroll?.employeeEsi,
+      pf: parseFloat(payroll?.employeePf).toFixed(2) || payroll?.employeePf,
+      lwf: parseFloat(payroll?.lwf).toFixed(2) || payroll?.lwf,
+      taxDeduc: parseFloat(payroll?.taxDeductions).toFixed(2) || payroll?.taxDeductions,
+      lop: parseFloat(payroll?.lop).toFixed(2) || payroll?.lop,
+      netPaid: parseFloat(payroll?.netPaid).toFixed(2),
+      grossAmount: parseFloat(payroll?.grossAmount).toFixed(2),
+      totalEarnings: parseFloat(payroll?.totalEarnings).toFixed(2),
+      totalDeduction: parseFloat(payroll?.totalDeduction).toFixed(2),
+      leaveDays: payroll?.leaveDays,
+      lop: parseFloat(payroll?.lop).toFixed(2),
+      variablePay: parseFloat(payroll?.variablePay).toFixed(2),
+    };
+  });
   console.log(itemsValue);
 
   const handlePdfClick = () => {
@@ -366,7 +371,6 @@ const PayrollDetailed = (props) => {
   };
 
   return (
-    <>
     <div className="warehouse_purchase_report_table">
       <div className="row mb-4">
         <div className="col-md-3">
@@ -432,8 +436,8 @@ const PayrollDetailed = (props) => {
         </div>
       </div>
 
-      <div ref={paySlipRef} className="payroll-container" >
-        <div className="row ">
+      <div ref={paySlipRef} className="payroll-container" style={{ width: '100%', overflowX: 'auto', height: "auto", marginTop: '20px', borderRadius: "5px", border: "none" }}>
+        <div className="row mt-4 mb-4">
           <div className="col-md-5">
             <h4>Payroll on {paySlipMonth}</h4>
           </div>
@@ -442,26 +446,28 @@ const PayrollDetailed = (props) => {
           columns={columns}
           data={itemsValue || []}
           ref={tableRef}
+        
           options={{
-            columnHeaderVertAlign: "bottom",
+            // columnHeaderVertAlign: "bottom",
             layout: 'fitColumns',
             responsiveLayout: "hide",
             placeholder: "No records found",
-            height:"auto",
-            footerElement: `<div style='width:100%;text-align: left; padding: 10px;   display: flex; justify-content: space-between; align-items: center;'>
+             height:"auto",
+            footerElement: `<div style='width:100%;text-align: left; padding: 10px; border: 1px solid rgb(99, 166, 77);  border-radius: 0 0 5px 5px;  display: flex; justify-content: space-between; align-items: center;'>
               <div style='padding-left: 10px;'>Total</div>
-              <div style='padding-right: 10px;'>${parseFloat(payrollReport?.data?.employeeDetails?.reduce((a, b) => a + b.netPaid, 0)).toFixed(2)}</div>
+              <div style='padding-right: 10px;'>${isNaN(parseFloat(payrollReport?.data?.employeeDetails?.reduce((a, b) => a + b.netPaid, 0)).toFixed(2)) ? '0.00' : parseFloat(payrollReport?.data?.employeeDetails?.reduce((a, b) => a + b.netPaid, 0)).toFixed(2)}</div>
             </div>`,
-           
+            initialSort: [
+              { column: "empId", dir: "asc" }  // Default sort on empName in ascending order
+            ]
           }}
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse'
-          }}
+          // style={{
+          //   width: '100%',
+          //   borderCollapse: 'collapse',
+          // }}
         />
       </div>
     </div>
-    </>
   );
 };
 

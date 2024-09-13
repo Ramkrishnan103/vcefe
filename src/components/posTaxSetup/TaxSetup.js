@@ -15,6 +15,7 @@ import ActionButton from "../../shared/action-buttons/ActionButton";
 import CreateTaxSetup from "./CreateTaxSetup";
 import EditTaxSetup from "./EditTaxSetup";
 import DeleteTaxSetup from "./DeleteTaxSetup";
+import { useNavigate } from "react-router";
 
 const TaxSetup = (props) => {
   const { fetchTaxSetup, taxSetup, totalRecord, isLoading, allConfigData } =
@@ -24,7 +25,27 @@ const TaxSetup = (props) => {
   const [editModel, setEditModel] = useState(false);
   const [taxsetup, setTaxsetup] = useState();
 
-  
+  const [formcode, setFormCode] = useState("M01");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
 
   const handleClose = (item) => {
     setEditModel(!editModel);
@@ -105,7 +126,7 @@ const TaxSetup = (props) => {
         // ButtonValue={getFormattedMessage("product.create.title")}
         title={getFormattedMessage("TaxSetup.title")}
         // buttonImport={true}
-        totalRows={totalRecord}
+        totalRows={itemsValue?.length}
        to="/app/taxSetup"
       />
       <EditTaxSetup

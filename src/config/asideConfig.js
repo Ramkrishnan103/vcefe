@@ -124,6 +124,7 @@ export default [
                 class: "d-flex",
                 permission: Permissions.MANAGE_CUSTOMERS,
             },
+           
             //Mark from Nila 29-7-24
             {
                 title: "customer.title",
@@ -157,6 +158,15 @@ export default [
                 class: "d-flex",
                 permission: Permissions.MANAGE_CUSTOMERS,
             },
+            {
+                title: "razorPay.title",
+                name: "razorPay",
+                fontIcon: <FontAwesomeIcon icon={faUserGroup} />,
+                to: "/app/razorPay",
+                class: "d-flex",
+                permission: "",
+            },
+          
            
             {
                 title: "User.title",

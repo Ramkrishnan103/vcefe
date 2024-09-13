@@ -19,146 +19,168 @@ import ActionButton from "../../shared/action-buttons/ActionButton";
 import { useNavigate } from "react-router";
 import DeletePosCustomer from "./DeletePosCustomer";
 
- 
-const PosCustomer=(props)=>{
+const PosCustomer = (props) => {
   const navigate = useNavigate();
   const [deleteModel, setDeleteModel] = useState(false);
   const [isDelete, setIsDelete] = useState(null);
-  const [editModel, setEditModel] = useState(false)
-  const {fetchCustomers,posCustomer,isLoading}=props
+  const [editModel, setEditModel] = useState(false);
+  const [formcode, setFormCode] = useState("M02");
+  const { fetchCustomers, posCustomer, isLoading } = props;
   const [importCustomer, setimportCustomer] = useState(false);
-  const [filterPosCustomer,setFilterPosCustomer]=useState([])
-  console.log("posCustomer",posCustomer);
+  const [filterPosCustomer, setFilterPosCustomer] = useState([]);
+  console.log("posCustomer", posCustomer);
   useEffect(() => {
-  fetchCustomers();
-}, [])
-const handleClose = () => {
-  setEditModel(!editModel);
-  setimportCustomer(!importCustomer);
-};
+    fetchCustomers();
+  }, []);
+  const handleClose = () => {
+    setEditModel(!editModel);
+    setimportCustomer(!importCustomer);
+  };
 
-const goToEditCustomer = (item) => {
-  const id = item.id
-  console.log("id",id)
-  navigate(`/app/posCustomer/edit/${id}`)
-};
-const onClickDeleteModel = (isDelete = null) => {
-  setDeleteModel(!deleteModel);
-  setIsDelete(isDelete);
-};
-useEffect(()=>{
-setFilterPosCustomer(posCustomer)
-},[posCustomer])
+  const goToEditCustomer = (item) => {
+    const id = item.id;
+    console.log("id", id);
+    navigate(`/app/posCustomer/edit/${id}`);
+  };
+  const onClickDeleteModel = (isDelete = null) => {
+    setDeleteModel(!deleteModel);
+    setIsDelete(isDelete);
+  };
+  useEffect(() => {
+    setFilterPosCustomer(posCustomer);
+  }, [posCustomer]);
+
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
+
 
   const columns = [
     {
-        name: getFormattedMessage("customerCode.title"),
-        selector: row => row.customerCode,
-        sortField: 'customerCode',
-        sortable: true,
+      name: getFormattedMessage("customerCode.title"),
+      selector: (row) => row.customerCode,
+      sortField: "customerCode",
+      sortable: true,
     },
     {
-        name: getFormattedMessage("globally.input.customerName.label"),
-        selector: row => row.customerName,
-        sortField: 'customerName',
-        sortable: true,
+      name: getFormattedMessage("globally.input.customerName.label"),
+      selector: (row) => row.customerName,
+      sortField: "customerName",
+      sortable: true,
     },
     {
-        name: getFormattedMessage('globally.input.MobileNo.label'),
-        selector: row => row.mobileNo,
-        sortField: 'mobileNo',
-        sortable: true,
-       
-      },
-   
+      name: getFormattedMessage("globally.input.MobileNo.label"),
+      selector: (row) => row.mobileNo,
+      sortField: "mobileNo",
+      sortable: true,
+    },
+
     {
-        name: getFormattedMessage('globally.input.city.label'),
-        selector: row => row.city,
-        sortField: 'city',
-        sortable: true,
+      name: getFormattedMessage("globally.input.city.label"),
+      selector: (row) => row.city,
+      sortField: "city",
+      sortable: true,
     },
     {
       name: getFormattedMessage("globally.input.isactive.label"),
-      selector: row => row.isActive,
-      sortField: 'isActive',
+      selector: (row) => row.isActive,
+      sortField: "isActive",
       sortable: true,
-  },
+    },
     {
-        name: getFormattedMessage('react-data-table.action.column.label'),
-        right: true,
-        ignoreRowClick: true,
-        allowOverflow: true,
-        button: true,
-        cell: row =>
-          <ActionButton item={row} 
-        goToEditProduct={goToEditCustomer} isEditMode={true}
-        isViewIcon={true}
-            onClickDeleteModel={onClickDeleteModel}
-            />
-    }
-];
-const handleSearchData = (e) => {
-  const { name, value } = e.target;
-  console.log("hi name", name);
-  console.log("hi value", value);
-  const filtered_posCustomers=
-    value.length > 0
-      ? posCustomer.filter((item) =>
-          item?.attributes?.ledgerName
-            ?.toLowerCase()
-            ?.includes(value?.toLowerCase())
-        )
-      : posCustomer;
-      setFilterPosCustomer(filtered_posCustomers);
-      };
-const itemsValue = filterPosCustomer&&
-filterPosCustomer
-            .map(posCustomer => {
-                if (posCustomer?.attributes?.underGroup === "CUSTOMERS") {
-                  console.log('hi')
-                    return {
-                        customerCode: posCustomer?.attributes?.ledgerCode,
-                        customerName: posCustomer?.attributes?.ledgerName,
-                        mobileNo:posCustomer?.attributes?.mobileNo1,
-                        city: posCustomer?.attributes?.city,
-                        isActive: posCustomer?.attributes?.isActive == true ? "Yes" : "No", 
-                       id:posCustomer?.id
-                    }; 
-                }
-                return null;
-            })
-            .filter(item => item !== null)
-       ;
-
-return(
- 
-
+      name: getFormattedMessage("react-data-table.action.column.label"),
+      right: true,
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      cell: (row) => (
+        <ActionButton
+          item={row}
+          goToEditProduct={goToEditCustomer}
+          isEditMode={true}
+          isViewIcon={true}
+          onClickDeleteModel={onClickDeleteModel}
+        />
+      ),
+    },
+  ];
+  const handleSearchData = (e) => {
+    const { name, value } = e.target;
+    console.log("hi name", name);
+    console.log("hi value", value);
+    const filtered_posCustomers =
+      value.length > 0
+        ? posCustomer.filter((item) =>
+            item?.attributes?.ledgerName
+              ?.toLowerCase()
+              ?.includes(value?.toLowerCase())
+          )
+        : posCustomer;
+    setFilterPosCustomer(filtered_posCustomers);
+  };
+  const itemsValue =
+    filterPosCustomer &&
+    filterPosCustomer
+      .map((posCustomer) => {
+        if (posCustomer?.attributes?.underGroup === "CUSTOMERS") {
+          console.log("hi");
+          return {
+            customerCode: posCustomer?.attributes?.ledgerCode,
+            customerName: posCustomer?.attributes?.ledgerName,
+            mobileNo: posCustomer?.attributes?.mobileNo1,
+            city: posCustomer?.attributes?.city,
+            isActive: posCustomer?.attributes?.isActive == true ? "Yes" : "No",
+            id: posCustomer?.id,
+          };
+        }
+        return null;
+      })
+      .filter((item) => item !== null);
+  return (
     <MasterLayout>
-      <TopProgressBar/>
-      <TabTitle title={placeholderText("customer.create.title")}/>
-      <HeaderTitle
-        title={getFormattedMessage("customerList.create.title")}/>
-     <SearchComponent
+      <TopProgressBar />
+      <TabTitle title={placeholderText("customer.create.title")} />
+      <HeaderTitle title={getFormattedMessage("customerList.create.title")} />
+      <SearchComponent
         handleSearchData={handleSearchData}
-      
         autoComplete="off"
         ButtonValue={getFormattedMessage("customer.create.title")}
         to="#/app/posCustomer/create"
         totalRows={itemsValue?.length}
-        goToImport={handleClose} 
-       
+        goToImport={handleClose}
       />
-   
-      <ReactDataTable  columns={columns} items={itemsValue} isLoading={isLoading}/>
-     <DeletePosCustomer onClickDeleteModel={onClickDeleteModel} deleteModel={deleteModel} onDelete={isDelete} />
 
+      <ReactDataTable
+        columns={columns}
+        items={itemsValue}
+        isLoading={isLoading}
+      />
+      <DeletePosCustomer
+        onClickDeleteModel={onClickDeleteModel}
+        deleteModel={deleteModel}
+        onDelete={isDelete}
+      />
     </MasterLayout>
-  )
-
-  
-}
-const mapStateToProps=(state)=>{
-  const {posCustomer,isLoading}=state;
-  return {posCustomer,isLoading}
-}
-export default connect(mapStateToProps,{fetchCustomers})(PosCustomer)
+  );
+};
+const mapStateToProps = (state) => {
+  const { posCustomer, isLoading } = state;
+  return { posCustomer, isLoading };
+};
+export default connect(mapStateToProps, { fetchCustomers })(PosCustomer);

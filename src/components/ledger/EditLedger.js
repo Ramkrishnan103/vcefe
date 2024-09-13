@@ -20,13 +20,14 @@ const EditLedger=(props) => {
 
 useEffect(() => {
     fetchLedgers(id);
-     editLedger();
+    //  editLedger();
 },[])
 
 
 console.log(ledger.length)
 
 const itemsValue = ledger && ledger.length ===1 && ledger.map(ledgers => ({
+    ledgerCode:ledgers?.attributes?.ledgerCode,
     ledgerName:ledgers.attributes.ledgerName,
     alterLanguage:ledgers.attributes.altLanguage,
     underGroup:ledgers.attributes.underGroup,
@@ -52,7 +53,7 @@ console.log("itemsValue => " , itemsValue)
         <MasterLayout>
             <TopProgressBar/>
             {/* <HeaderTitle title={getFormattedMessage( 'ledgers.edit.title' )}  to='/app/ledger' /> */}
-            {ledger.length === 1 && <LedgerForm singleLedger={itemsValue} id={id}  title={getFormattedMessage( 'ledgers.edit.title' )} />}
+            {ledger.length === 1 && <LedgerForm singleLedger={itemsValue} id={id}  title={getFormattedMessage( 'ledgers.edit.title' )} to='/app/ledger' />}
         </MasterLayout>
     )
 }

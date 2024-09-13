@@ -18,6 +18,7 @@ const Ledger = (props) => {
     const [importLedger, setImportLedger] = useState(false);
     const [deleteModel, setDeleteModel] = useState(false);
     const [isDelete, setIsDelete] = useState(null);
+    const [formcode, setFormCode] = useState("M04");
 
     const handleClose = () => {
         setEditModel(!editModel);
@@ -35,6 +36,27 @@ const Ledger = (props) => {
     useEffect(() => {
         fetchLedger();
     }, [])
+
+    useEffect(() => {
+        debugger;
+        const storedFormData = localStorage.getItem("UserFormCode");
+    
+        if (storedFormData) {
+          const parsedFormData = JSON.parse(storedFormData);
+    
+          console.log("Parsed Form Data:", parsedFormData);
+          if (parsedFormData.length > 0) {
+            const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+            console.log("Form Code Items:", formCodeItems);
+            if(!formCodeItems.length > 0){
+                navigate("/app/dashboard");
+            }
+          } else {
+            navigate("/app/dashboard");
+          }
+        } 
+      }, []);
+
 
     const goToEditLedger = (item) => {
         const id = item.id

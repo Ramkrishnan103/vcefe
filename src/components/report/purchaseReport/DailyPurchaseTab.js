@@ -408,7 +408,6 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
                   </div>
   
                   <div className='col-md-1'></div>
-  
                   <div className='col-md-2 mt-2'>
                           <h4>To Date</h4>
                   </div>
@@ -416,9 +415,10 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
                   <div className='col-md-2'>
                           <input id2='dateRequired2' type='date' ref={tooDate} defaultValue={defaultValue}  className='form-control  rounded text-align-center  align-items-center mr-15 mb-5'></input>
                   </div>
-  
+                  <div className='col-md-1' ></div>
+                 
                
-                  <div className='col-md-2 mx-auto ' >
+                  <div className='col-md-1' >
                  
           <button
             style={{
@@ -427,11 +427,10 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
               justifyContent: "center",
               border: "none",
               borderRadius: "10px",
-              width: "220px",
+              width: "100px",
               height: "60px",
               gap: "13px",
-              background: "white",
-              
+              background: "white"
             }}
           >
             <FontAwesomeIcon
@@ -444,14 +443,14 @@ generatePurchaseReportExcel (companyDetails, reportDetails, itemsValue)
             <FontAwesomeIcon
               icon={faFileExcel}
               className="fa-2x search-icon "
-              style={{ color: "green", paddingLeft: "10px" }}
+              style={{ color: "green", }}
               onClick={exportToExcel}
             ></FontAwesomeIcon>
 
             <FontAwesomeIcon
               icon={faFilePdf}
               className="fa-2x search-icon"
-              style={{ color: "red", paddingLeft: "10px" }}
+              style={{ color: "red",  }}
               onClick={handleClick}
             ></FontAwesomeIcon>
 

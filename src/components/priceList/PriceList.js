@@ -24,6 +24,8 @@ import PriceHistoryModal from "./PriceHistoryModal";
 import AddPriceListConfirmationModal from "../../shared/action-buttons/AddPriceListConfimationModal";
 import HeaderTitle from "../header/HeaderTitle";
 import ActionButtonForNewItems from "../../shared/action-buttons/ActionButtonForNewItems";
+import ValidationModal from "./ValidationModal";
+import { useNavigate } from "react-router";
 const PriceList = () => {
   const { priceListing, isLoading, priceHistoryList } = useSelector(
     (state) => state
@@ -47,23 +49,94 @@ const PriceList = () => {
   const [isAddButtonClicked, setIsAddButtonClicked] = useState(false);
   const [isExclusive, setIsExclusive] = useState(false);
   const [totalRecord, setTotalRecord] = useState();
+  const [isEditIconClicked, setIsEditIconClicked] = useState(false);
+  const [mrpValidation, setMrpValidation] = useState(false);
+  const [salesPriceValidation, setSalesPriceValidation] = useState(false);
+  const [costValidation, setCostValidation] = useState(false);
+  const [formcode, setFormCode] = useState("M05");
   const Dispatch = useDispatch();
+  const navigate = useNavigate()
   const salesPriceInput = useRef(null);
 
   useEffect(() => {
     Dispatch(fetchPriceList(true));
   }, []);
+
   useEffect(() => {
-    setPriceListNew(priceListing);
-    setFilterPriceListNew(priceListing);
-    setTotalRecord(priceListing.length);
+    let data = [...priceListing];
+    data = data?.map((item) => {
+      return {
+        ...item,
+        attributes: {
+          ...item.attributes,
+          salesPrice: Number(item?.attributes?.salesPrice * (1 + (item?.attributes?.tax / 100))).toFixed(2).toString(),
+          purchaseCost: Number(item?.attributes?.purchaseCost * (1 + (item?.attributes?.tax / 100))).toFixed(2).toString(),
+        }
+      }
+    });
+    debugger
+    setPriceListNew(data);
+    setFilterPriceListNew(data);
+    setTotalRecord(data.length);
   }, [priceListing]);
+
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
+
+
   const goToEditProduct = (item) => {
+    const updatedNewList = [...priceListNew];
+    const index = updatedNewList?.findIndex((row) => row?.itemId === item?.itemId && Number(row?.attributes?.mrp).toFixed(2) == Number(item.mrp).toFixed(2) && row?.attributes?.batchNo == item?.batchNo);
+    const row = updatedNewList?.find((row) => row?.itemId === item?.itemId && Number(row?.attributes?.mrp).toFixed(2) == Number(item.mrp).toFixed(2) && row?.attributes?.batchNo == item?.batchNo);
+    row.attributes.isRowEdit = true;
+    console.log("edited", row);
+    updatedNewList[index] = row;
+    setPriceListNew(updatedNewList);
+    console.log("goToEditProduct", updatedNewList);
     console.log("goToEditProduct", salesPriceInput);
-    console.log("goToEditProduct1", salesPriceInput.current.focus());
+    console.log("goToEditProduct1", salesPriceInput?.current?.focus());
     setSelectedRowItem(item);
-    salesPriceInput.current.focus();
+    salesPriceInput?.current?.focus();
+    salesPriceInput?.current?.addEventListener('keydown', handleKeyDown);
+    setIsEditIconClicked(true);
+    setDataToSend({ ...item });
   };
+
+  const handleKeyDown = (e) => {
+    const regex = /[[\]\/';:"\\_=+@#$%^&*()!~`{}|,-]/;
+    // if (['e', 'E', '+', '-'].includes(e.key)) {
+    if (regex.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const closeEdit = (item) => {
+    const updatedNewList = [...priceListNew];
+    const index = updatedNewList?.findIndex((row) => row?.itemId === item?.itemId && Number(row?.attributes?.mrp).toFixed(2) == Number(item.mrp).toFixed(2) && row?.attributes?.batchNo == item?.batchNo);
+    const row = updatedNewList?.find((row) => row?.itemId === item?.itemId && Number(row?.attributes?.mrp).toFixed(2) == Number(item.mrp).toFixed(2) && row?.attributes?.batchNo == item?.batchNo);
+    row.attributes.isRowEdit = false;
+    console.log("edited", row);
+    updatedNewList[index] = row;
+    setPriceListNew(updatedNewList);
+    setSelectedRowItem({});
+  }
 
   const onClickDeleteModel = (isDelete = null) => {
     setDeleteModel(!deleteModel);
@@ -74,36 +147,90 @@ const PriceList = () => {
     const { value, name } = e.target;
     console.log("onChangeInput:::Name", name);
     console.log("onChangeInput:::Value", value);
-    const updatedPriceList = priceListNew.map((item, index) => {
-      console.log("row===>2", item);
-      return item.itemId === row.itemId && row.key === index
-        ? { ...item, attributes: { ...item.attributes, [name]: value } }
-        : item;
-    });
-    console.log("onChangeInput:::updatedPriceList", updatedPriceList);
-    setPriceListNew(updatedPriceList);
-    setDataToSend({
-      ...row,
-      [name]: value,
-    });
+    if (value.includes('.')) {
+      let decimalValue1 = value.split('.')[1].length;
+      console.log(decimalValue1);
+      if (decimalValue1 > 2) {
+        e.preventDefault();
+      } else {
+        // calc[key] = value;
+        const updatedPriceList = priceListNew.map((item, index) => {
+          console.log("row===>2", item);
+          return item.itemId === row.itemId && row.key === index
+            ? { ...item, attributes: { ...item.attributes, [name]: value } }
+            : item;
+        });
+        console.log("onChangeInput:::updatedPriceList", updatedPriceList);
+        setPriceListNew(updatedPriceList);
+        setDataToSend({
+          ...row,
+          [name]: Number(value).toFixed(2),
+        });
+      }
+    }
   };
   const EditSubmit = () => {
-    Dispatch(updatePriceList(dataToSend));
+    debugger
+    let data = {
+      ...dataToSend,
+    }
+    data["salesPrice"] = Number((Number(dataToSend?.salesPrice) / (1 + (dataToSend?.tax / 100))));
+    data["purchaseCost"] = Number(dataToSend?.purchaseCost);
+    Dispatch(updatePriceList(data));
     setSelectedRowItem({});
   };
 
+  /** */
+  // const onClickValidationModel=()=>{
+  //   setMrpValidation(false)
+  // }
+  const addNewPriceItemV2 = (dataToSend, mrpValidationValues, salesPriceValidationValues, costValidationValues) => {
+    const { itemId, mrp, batchNo, salesPrice, remarks, updatedBy } = dataToSend;
+    console.log('addNewPriceItemV2 ::: mrpValidation', mrpValidationValues);
+    console.log('addNewPriceItemV2 ::: !mrpValidation', !mrpValidationValues);
+    console.log('addNewPriceItemV2 ::: salesPriceValidationValues', salesPriceValidationValues ? 'MRP FINE' : 'MRP LOW');
+    if (!mrpValidationValues && !salesPriceValidationValues && !costValidationValues) {
+      const data_send_for_add = {
+        itemId: itemId,
+        mrp: mrp,
+        batchNo: "",
+        salesPrice: salesPrice,
+        remarks: "",
+        updatedBy: updatedBy,
+        entryFrom: "Price List",
+      };
+      Dispatch(addPriceList(data_send_for_add));
+    }
+  }
   const addNewPriceItem = (dataToSend) => {
     const { itemId, mrp, batchNo, salesPrice, remarks, updatedBy } = dataToSend;
-    const data_send_for_add = {
-      itemId: itemId,
-      mrp: mrp,
-      batchNo: "B",
-      salesPrice: salesPrice,
-      remarks: "good",
-      updatedBy: updatedBy,
-      entryFrom: "Price List",
-    };
-    Dispatch(addPriceList(data_send_for_add));
+    console.log('price syed', priceListNew);
+    let mrpValidationValues;
+    /**duplicate MRP Calculation */
+
+    const filterByItemId = priceListNew.filter((each) => each?.itemId == itemId && each?.attributes?.isNewRow !== true);
+    console.log('MRP CAL ::: filterByItemId', filterByItemId);
+    for (let eachitems of filterByItemId) {
+      console.log('MRP CAL ::: eachitems', eachitems);
+      setMrpValidation(Number(eachitems?.attributes?.mrp)?.toFixed(2) == Number(mrp)?.toFixed(2));
+      mrpValidationValues = Number(eachitems?.attributes?.mrp)?.toFixed(2) == Number(mrp)?.toFixed(2);
+      console.log('MRP CAL ::: checkMrp inside mrp', mrp);
+      console.log('MRP CAL ::: checkMrp inside 0', Number(mrp)?.toFixed(2));
+      console.log('MRP CAL ::: checkMrp inside 1', Number(eachitems?.attributes?.mrp)?.toFixed(2));
+      console.log('MRP CAL ::: checkMrp inside 2', Number(mrp)?.toFixed(2) == Number(eachitems?.attributes?.mrp)?.toFixed(2));
+      console.log('MRP CAL ::: checkMrp inside 3', mrpValidation);
+      if (mrpValidationValues) break;
+    }
+
+    console.log('MRP CAL ::: checkMrp', mrpValidation);
+    /** SalesPriceValidation*/
+
+    setSalesPriceValidation(Number(mrp) < Number(salesPrice));
+    const salesPriceValidationValues = Number(mrp) < Number(salesPrice);
+    /**Cost Validation */
+    setCostValidation(Number(salesPrice) < Number(purchaseCost));
+    const costValidationValues = Number(salesPrice) < Number(purchaseCost);
+    addNewPriceItemV2(dataToSend, mrpValidationValues, salesPriceValidationValues, costValidationValues);
   };
   const onClickPriceHistory = (items) => {
     setPriceHistoryModalShow(!priceHistoryModalShow);
@@ -142,7 +269,7 @@ const PriceList = () => {
       cell: (row) => (
         <input
           className="form-control"
-          type="text"
+          type="number"
           value={row?.purchaseCost}
           disabled={true}
         />
@@ -162,6 +289,7 @@ const PriceList = () => {
               selectedRowItem?.mrp === row?.mrp
             ) && !row.isNewRow
           }
+          onKeyDown={(e) => handleKeyDown(e, row)}
           // name={isExclusive ? "salesPrice" : "salesPriceInclusive"}
           name="salesPrice"
           onChange={(e) => onChangeInput(e, row)}
@@ -180,11 +308,11 @@ const PriceList = () => {
       button: true,
       width: "120px",
       cell: (row) =>
-        row?.isNewRow ? (
+        row?.isNewRow || row?.isRowEdit ? (
           <ActionButtonForNewItems
             // onSubmitEdit={(row) => EditSubmit(row)}
-            addNewPriceItem={(row) => addNewPriceItem(row)}
-            removeAddedItem={(row) => removeAddedItem(row)}
+            addNewPriceItem={(row) => row?.isRowEdit ? EditSubmit(row) : addNewPriceItem(row)}
+            removeAddedItem={(row) => row?.isRowEdit ? closeEdit(row) : removeAddedItem(row)}
             item={row}
           />
         ) : (
@@ -193,12 +321,12 @@ const PriceList = () => {
             goToEditProduct={(row) => goToEditProduct(row)}
             isEditMode={
               selectedRowItem?.itemId === row?.itemId &&
-              selectedRowItem?.mrp === row?.mrp &&
-              selectedRowItem?.batchNo === row?.batchNo
+                selectedRowItem?.mrp === row?.mrp &&
+                selectedRowItem?.batchNo === row?.batchNo
                 ? "save"
                 : row?.isNewRow
-                ? "add_new_row"
-                : "edit"
+                  ? "add_new_row"
+                  : "edit"
             }
             onSubmitEdit={(row) => EditSubmit(row)}
             onClickDeleteModel={onClickDeleteModel}
@@ -209,12 +337,14 @@ const PriceList = () => {
             addNewPriceItem={(row) => addNewPriceItem(row)}
             onClickPriceHistory={() => onClickPriceHistory(row)}
             addPriceListModalShowing={(row) => addPriceListModalShowing(row)}
+            removeAddedItem={(row) => removeAddedItem(row)}
           />
         ),
     },
   ];
 
   const addNewRow = (item) => {
+    debugger
     setAddPriceListModalShow(false);
     const {
       itemName,
@@ -233,7 +363,7 @@ const PriceList = () => {
       attributes: {
         itemName: itemName,
         mrp: 0.0,
-        purchaseCost: purchaseCost,
+        purchaseCost: 0.0,
         salesPrice: 0.0,
         salesUnitName: salesUnitName,
         isNewRow: true,
@@ -266,15 +396,20 @@ const PriceList = () => {
       key: index,
       itemId: item?.itemId,
       itemName: item?.attributes?.itemName,
-      mrp: item?.attributes?.mrp,
-      purchaseCost: item?.attributes?.purchaseCost,
-      salesPrice: item?.attributes?.salesPrice,
+      mrp: Number(item?.attributes?.mrp)?.toFixed(2),
+      /**TODO Tax*/
+      // purchaseCost: isExclusive ? Number(item?.attributes?.purchaseCost).toFixed(2).toString(): Number(item?.attributes?.purchaseCost).toFixed(2).toString(),
+      // salesPrice: isExclusive ? Number(item?.attributes?.salesPrice).toFixed(2).toString() : Number(item?.attributes?.salesPrice).toFixed(2).toString(),
+      purchaseCost: isExclusive ? item?.attributes?.purchaseCost : item?.attributes?.purchaseCost,
+      salesPrice: isExclusive ? item?.attributes?.salesPrice : item?.attributes?.salesPrice,
       salesUnitName: item?.attributes?.salesUnitName,
       batchNo: item?.attributes?.batchNo,
       remarks: item?.attributes?.remarks,
       updatedBy: 1,
       entryFrom: "Price List",
       isNewRow: item?.attributes?.isNewRow ?? false,
+      isRowEdit: item?.attributes?.isRowEdit ?? false,
+      tax: item?.attributes?.tax
     }));
 
   const handleSearchBar = (event) => {
@@ -282,14 +417,14 @@ const PriceList = () => {
     const filtered_prices =
       value.length > 0
         ? filterPriceListNew.filter((item) =>
-            item?.attributes?.itemName
-              ?.toLowerCase()
-              ?.includes(value?.toLowerCase())
-          )
+          item?.attributes?.itemName
+            ?.toLowerCase()
+            ?.includes(value?.toLowerCase())
+        )
         : filterPriceListNew;
     setPriceListNew(filtered_prices);
   };
-
+  console.log('mrpValidation a', mrpValidation);
   return (
     <MasterLayout>
       <TopProgressBar />
@@ -339,6 +474,9 @@ const PriceList = () => {
           onClickPriceHistory={onClickPriceHistory}
           priceHistoryList={priceHistoryList}
         />
+        {
+          mrpValidation || salesPriceValidation && <ValidationModal name={mrpValidation ? getFormattedMessage("priceList.DublicteMRP") : !salesPriceValidation ? getFormattedMessage("priceList.salesPriceValidation") : ''} />
+        }
       </div>
     </MasterLayout>
   );

@@ -3,14 +3,14 @@ import apiConfig from "../../config/apiConfig";
 import { apiBaseURL, empDesignationActionType, payrollReport, salaryDetailActionType, salaryListingall, toastType } from "../../constants";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 // import { setLoader } from "./loaderAction";
-import { setLoading } from "./loadingAction";
+// import { setLoading } from "./loadingAction";
 import { addToast } from "./toastAction";
 
 export const fetchSalaryDetails =
   (filter = {}, isLoading = true) =>
     async (dispatch) => {
       if (isLoading) {
-        dispatch(setLoading(true));
+        // dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.SALARYDETAILS;
@@ -28,7 +28,7 @@ export const fetchSalaryDetails =
 
 
           if (isLoading) {
-            dispatch(setLoading(false));
+            // dispatch(setLoading(false));
           }
 
         })
@@ -83,12 +83,12 @@ export const fetchSalaryDetailsFilter =
   (value, filter = {}, isLoading = true, mode) =>
     async (dispatch) => {
       if (isLoading) {
-        dispatch(setLoading(true));
+        // dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.SALARYDETAILS + value;
       console.log(url)
-      // dispatch(setLoader(true))
+      dispatch(setLoader(true))
       apiConfig
         .get(url)
         .then((response) => {
@@ -103,9 +103,9 @@ export const fetchSalaryDetailsFilter =
             if (mode != 'print') {
               window.location.href = "#/app/salaryPreparationListPage";
             }
-            // dispatch(setLoader(false))
+            dispatch(setLoader(false))
           } else {
-            // dispatch(setLoader(false))
+            dispatch(setLoader(false))
             dispatch(
               addToast({
                 text: response?.data?.message,
@@ -119,7 +119,7 @@ export const fetchSalaryDetailsFilter =
           // window.location.href = "#/app/salaryPreparationListPage";
         })
         .catch(({ response }) => {
-          // dispatch(setLoader(false))
+          dispatch(setLoader(false))
           dispatch(
             addToast({
               text: response?.data?.message,
@@ -129,88 +129,98 @@ export const fetchSalaryDetailsFilter =
         });
     };
 
-export const addSalaryDetails = (data, navigate) => async (dispatch) => {
-  debugger
-  await apiConfig
-    .post(apiBaseURL.SALARYDETAILS, data)
-    //console.log(apiBaseURL.USERS,supplier)
-    .then((response) => {
-      console.log(response)
-      dispatch({
-        type: salaryDetailActionType.ADD_SALARYDEATILS,
-        payload: response?.data?.data,
-      });
-      if (response?.data?.success) {
-        dispatch(
-          addToast({
-            text: getFormattedMessage(
-              response?.data?.message
-            ),
-          })
-        );
-        debugger
-        window.location.href = "#/app/salaryPreparation";
-      } else {
-        dispatch(
-          addToast({
-            type: toastType.ERROR,
-            text: getFormattedMessage(response?.data?.message),
-          })
-        );
+    export const addSalaryDetails = (data, navigate, lock) => async (dispatch) => {
+      try {
+        const response = await apiConfig.post(apiBaseURL.SALARYDETAILS, data);
+    
+        if (response?.data?.success) {
+          dispatch({
+            type: salaryDetailActionType.ADD_SALARYDEATILS,
+            payload: response?.data?.data,
+          });
+    
+          dispatch(
+            addToast({
+              text: getFormattedMessage(response?.data?.message),
+            })
+          );
+    
+          if (!lock) {
+            window.location.href = "#/app/salaryPreparation";
+          }
+    
+          return true; // Indicate success
+        } else {
+          dispatch(
+            addToast({
+              type: toastType.ERROR,
+              text: getFormattedMessage(response?.data?.message),
+            })
+          );
+          return false; // Indicate failure
+        }
+      } catch (error) {
+        const { response } = error;
+        if (response) {
+          dispatch(
+            addToast({
+              text: response?.data?.message,
+              type: toastType.ERROR,
+            })
+          );
+        }
+        return false; // Indicate failure due to error
       }
-
-    })
-    .catch(({ response }) => {
-      response &&
-        dispatch(
-          addToast({
-            text: response?.data?.message,
-            type: toastType.ERROR,
-          })
-        );
-    });
-};
-
-export const lockSalaryDetails = (data, navigate) => async (dispatch) => {
-  debugger
-  await apiConfig
-    .post(apiBaseURL.SALARYLOCK, data)
-    //console.log(apiBaseURL.USERS,supplier)
-    .then((response) => {
-      console.log(response)
-      dispatch({
-        type: salaryDetailActionType.LOCK_SALARYDEATILS,
-        payload: response?.data?.data,
-      });
-      if (response?.data?.success) {
-        dispatch(
-          addToast({
-            text: getFormattedMessage(
-              response?.data?.message
-            ),
-          })
-        );
-        window.location.href = "#/app/salaryPreparation";
+    };
+    
+    export const lockSalaryDetails = (data, navigate, details) => async (dispatch) => {
+      const addSuccess = await dispatch(addSalaryDetails(details, navigate, true));
+      
+      if (addSuccess) {
+        try {
+          const response = await apiConfig.post(apiBaseURL.SALARYLOCK, data);
+          
+          if (response?.data?.success) {
+            dispatch({
+              type: salaryDetailActionType.LOCK_SALARYDEATILS,
+              payload: response?.data?.data,
+            });
+    
+            dispatch(
+              addToast({
+                text: getFormattedMessage(response?.data?.message),
+              })
+            );
+    
+            window.location.href = "#/app/salaryPreparation";
+          } else {
+            dispatch(
+              addToast({
+                type: toastType.ERROR,
+                text: getFormattedMessage(response?.data?.message),
+              })
+            );
+          }
+        } catch (error) {
+          const { response } = error;
+          if (response) {
+            dispatch(
+              addToast({
+                text: response?.data?.message,
+                type: toastType.ERROR,
+              })
+            );
+          }
+        }
       } else {
-        dispatch(
-          addToast({
-            type: toastType.ERROR,
-            text: getFormattedMessage(response?.data?.message),
-          })
-        );
+        // dispatch(
+        //   addToast({
+        //     text: response?.data?.message,
+        //     type: toastType.ERROR,
+        //   })
+        // );
       }
-
-    })
-    .catch(({ response }) => {
-      response &&
-        dispatch(
-          addToast({
-            text: response?.data?.message,
-            type: toastType.ERROR,
-          })
-        );
-    });
-};
+    };
 
 export const deleteSalaryDetails = (data, navigate) => async (dispatch) => {
   debugger
@@ -264,12 +274,12 @@ export const fetchSalaryDetailsReportFilter =
   (value, filter = {}, isLoading = true, mode) =>
     async (dispatch) => {
       if (isLoading) {
-        dispatch(setLoading(true));
+        // dispatch(setLoading(true));
       }
 
       let url = apiBaseURL.PAYROLLDETAILS + value;
       console.log(url)
-      // dispatch(setLoader(true))
+      dispatch(setLoader(true))
       apiConfig
         .get(url)
         .then((response) => {
@@ -284,9 +294,9 @@ export const fetchSalaryDetailsReportFilter =
             // if (mode != 'print') {
             //   window.location.href = "#/app/salaryPreparationListPage";
             // }
-            // dispatch(setLoader(false))
+            dispatch(setLoader(false))
           } else {
-            // dispatch(setLoader(false))
+            dispatch(setLoader(false))
             dispatch(
               addToast({
                 text: response?.data?.message,
@@ -295,12 +305,12 @@ export const fetchSalaryDetailsReportFilter =
             )
           }
           if (isLoading) {
-            dispatch(setLoading(false));
+            // dispatch(setLoading(false));
           }
           // window.location.href = "#/app/salaryPreparationListPage";
         })
         .catch(({ response }) => {
-          // dispatch(setLoader(false))
+          dispatch(setLoader(false))
           dispatch(
             addToast({
               text: response?.data?.message,

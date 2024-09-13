@@ -8,6 +8,8 @@ import {
 } from "../../constants";
 import { addToast } from "./toastAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
+import { useNavigate } from "react-router";
+
 export const fetchPriceList =
   (isLoading = true) =>
   async (dispatch) => {
@@ -97,7 +99,7 @@ export const updatePriceList = (data_send) => async (dispatch) => {
         type: priceListActionType.EDIT_PRICE,
         payload: response?.data?.data,
       });
-      // dispatch(fetchPriceList(true));
+      dispatch(fetchPriceList(true));
     })
     .catch((response) => {
       console.log("Action ::: updatePriceList ERROR", response);
@@ -195,6 +197,8 @@ export const fetchPriceListByFilter =
 export const fetchPriceHistory =
   (isLoading = true, PriceListHistoryItemId) =>
   async (dispatch) => {
+    debugger
+    
     const url = `/priceListHistory?PriceListHistoryItemId=${PriceListHistoryItemId}`;
     await apiConfig
       .get(url)
@@ -222,3 +226,42 @@ export const fetchPriceHistory =
         );
       });
   };
+
+// MARK FROM RAM [26-08-2024]
+
+export const fetchPriceListSpecific =
+  (isLoading = true, PriceListHistoryItemId) =>
+  async (dispatch) => {
+    
+    const url = `/priceList?PriceListItemId=${PriceListHistoryItemId}`;
+    await apiConfig
+      .get(url)
+      .then((response) => {
+        console.log("Response :" ,response)
+        if (!response?.data?.success) {
+          dispatch(
+            addToast({ text: response?.data?.message, type: toastType.ERROR })
+          );
+         
+        } else {
+          dispatch({
+            type: priceListActionType.FETCH_PRICE_HISTRY,
+            payload: response?.data?.data,
+          });
+          window.location.href = "#/app/price-list";
+          if (isLoading) {
+            dispatch(setLoading(false));
+          }
+        }
+      })
+      .catch((response) => {
+        dispatch(
+          addToast({
+            text: response?.data?.message,
+            type: toastType.ERROR,
+          })
+        );
+      });
+  };
+
+

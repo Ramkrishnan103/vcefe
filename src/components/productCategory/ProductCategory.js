@@ -16,6 +16,7 @@ import ActionButton from "../../shared/action-buttons/ActionButton";
 import { Tokens } from "../../constants";
 import TopProgressBar from "../../shared/components/loaders/TopProgressBar";
 import SearchComponent from "../../shared/components/SearchComponent";
+import { useNavigate } from "react-router";
 
 const ProductCategory = (props) => {
   const Dispatch = useDispatch();
@@ -37,6 +38,28 @@ const ProductCategory = (props) => {
     setDeleteModel(!deleteModel);
     setIsDelete(isDelete);
   };
+
+  const [formcode, setFormCode] = useState("M01");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
 
   useEffect(() => {
     console.log("USE EFFECT CALLING");

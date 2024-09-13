@@ -25,7 +25,7 @@ const SupplierList =(props) => {
     const [importSupplier, setimportSupplier] = useState(false);
     const [deleteModel,setDeleteModel] =useState(false)
     const [isDelete,setIsDelete] =useState(null)
-
+    const [formcode, setFormCode] = useState("M03");
     const [possupplier,setPosSupplier] =useState();
     const [filterPosSupplier, setFilterPosSupplier] = useState([]);
 
@@ -45,6 +45,46 @@ const SupplierList =(props) => {
         setDeleteModel(!deleteModel);
         setIsDelete(isDelete);
     };
+
+    useEffect(() => {
+        debugger;
+        const storedFormData = localStorage.getItem("UserFormCode");
+    
+        if (storedFormData) {
+          const parsedFormData = JSON.parse(storedFormData);
+    
+          console.log("Parsed Form Data:", parsedFormData);
+          if (parsedFormData.length > 0) {
+            const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+            console.log("Form Code Items:", formCodeItems);
+          } else {
+            navigate("/app/dashboard");
+          }
+        } else {
+          navigate("/app/dashboard");
+        }
+      }, []);
+
+      useEffect(() => {
+        debugger;
+        const storedFormData = localStorage.getItem("UserFormCode");
+    
+        if (storedFormData) {
+          const parsedFormData = JSON.parse(storedFormData);
+    
+          console.log("Parsed Form Data:", parsedFormData);
+          if (parsedFormData.length > 0) {
+            const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+            console.log("Form Code Items:", formCodeItems);
+            if(!formCodeItems.length > 0){
+                navigate("/app/dashboard");
+            }
+          } else {
+            navigate("/app/dashboard");
+          }
+        } 
+      }, []);
+
 
 
     const navigate =useNavigate();
@@ -72,14 +112,7 @@ const SupplierList =(props) => {
                   ?.includes(value?.toLowerCase())
               )
             : possupplier;
-            setFilterPosSupplier(filtered_posSuppliers); 
-
-
-
-
-
-
-            
+            setFilterPosSupplier(filtered_posSuppliers);            
       };
 
 
@@ -194,7 +227,7 @@ const SupplierList =(props) => {
                     items={itemsValue}
                     isLoading={isLoading}
                     // ButtonValue={getFormattedMessage('supplier.create.title')} 
-                    // totalRows={itemsValue?.length}
+                     totalRows={itemsValue?.length}
                     // goToImport={handleClose} 
                     // to='#/app/suppliers/create'
                     isUnitFilter

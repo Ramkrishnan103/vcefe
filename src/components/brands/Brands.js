@@ -16,6 +16,7 @@ import {
 import { brandFormActionType, Tokens } from "../../constants";
 import TopProgressBar from "../../shared/components/loaders/TopProgressBar";
 import SearchComponent from "../../shared/components/SearchComponent.js";
+import { useNavigate } from "react-router";
 
 const Brands = () => {
   const { brands, totalRecord, isLoading } = useSelector((state) => state);
@@ -41,6 +42,28 @@ const Brands = () => {
     setDeleteModel(!deleteModel);
     setIsDelete(isDelete);
   };
+
+  const [formcode, setFormCode] = useState("M01");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
 
   // const onChange = (filter) => {
   //   Dispatch(fetchBrands(filter, true));
@@ -121,6 +144,7 @@ const Brands = () => {
       <TabTitle title={placeholderText("brands.title")} />
       <SearchComponent
         handleSearchData={handleSearchData}
+        
         AddButton={<CreateBrands />}
       />
       <ReactDataTable

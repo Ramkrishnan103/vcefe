@@ -130,7 +130,7 @@ import closingStockReportReducer from "./closingStockReportReducer";
 
 //Mark from Nila 30-7-2024
 import posCustomerReducer from "./posCustomerReducer";
-// import salaryReducer from "./salaryReducer";
+import salaryReducer from "./salaryReducer";
 import SalaryStructureReducer from "./SalaryStructureReducer";
 export default combineReducers({
   companyConfig: companyConfigReducer,
@@ -259,7 +259,7 @@ export default combineReducers({
  
   //Mark from Nila 30-7-2024
   posCustomer:posCustomerReducer,
-  // salary:salaryReducer,
+  salary:salaryReducer,
   // singleSalary: salarySingleReducer,
   salaryDetail:SalaryStructureReducer,
   // salaryListingall: salaryListingallReducer,

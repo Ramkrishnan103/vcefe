@@ -11,17 +11,40 @@ import TabTitle from '../../../shared/tab-title/TabTitle';
 import Widget from '../../../shared/Widget/Widget';
 
 import TodaySalePurchaseCount from '../../dashboard/TodaySalePurchaseCount';
-
 import { fetchDailyPurchase } from '../../../store/action/dailyPurchaseAction';
 import MonthlyPurchaseTab from './MonthlyPurchaseTab';
 import DailyPurchaseTab from './DailyPurchaseTab';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faPrint, faFileExcel, faFilePdf, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router';
+
+
 const PosPurchaseReport=(props) => {
-    const { monthlyPosPurchase, fetchMonthPurchase,fetchDailyPurchase,dailypospurchase,monthlyPurchaseReportData, allConfigData } = props;
+    const { monthlyPosPurchase,monthlyPurchase,dailyPurchase,fetchMonthPurchase,fetchDailyPurchase,dailypospurchase,monthlyPurchaseReportData, allConfigData } = props;
     const [monthlyPurchaseValue, setmonthlyPurchaseValue ] = useState( { label: getFormattedMessage( "unit.filter.all.label" ), value: null } );
     const[dailyPurchaseValue,setDailyPurhchaseValue]=useState({label:getFormattedMessage("unit.filter.all.label"),value:null});
     const [ key, setKey ] = useState( 'sales' );
+    console.log(dailyPurchaseValue)
+
+    const [formcode, setFormCode] = useState("T01");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
 
 
 // useEffect (()=>{
@@ -72,7 +95,6 @@ return (
             </Tab>
             
         </Tabs>
-
     </MasterLayout>
     </div>
     
@@ -80,8 +102,8 @@ return (
 };
 
 const mapStateToProps = ( state ) => {
-const { monthlyPosPurchase, monthlyPurchaseReportData,allConfigData } = state;
-return { monthlyPosPurchase,monthlyPurchaseReportData, allConfigData }
+const { monthlyPosPurchase, monthlyPurchaseReportData,allConfigData,monthlyPurchase,dailyPurchase} = state;
+return { monthlyPosPurchase,monthlyPurchaseReportData, allConfigData,monthlyPurchase,dailyPurchase }
 };
 export default connect( mapStateToProps, { fetchMonthPurchase,fetchDailyPurchase } )( PosPurchaseReport );
 

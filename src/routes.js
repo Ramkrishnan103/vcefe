@@ -122,7 +122,7 @@ import EditEmployees from "./components/Employees/EditEmployees";
 import PaySlip from "./components/report/purchaseReport/PaySlip";
 // import EmpDepartment from "./components/employeeDepartment/EmpDepartment";
 // import EmpDesignation from "./components/employeeDesignation/EmpDesignation";
-
+import RazorPay from "./components/razorPay/RazorPay";
 import PayrollReports from './components/report/payroll/PayrollReports'
 import PayrollSummary from "./components/report/payroll/PayrollSummary";
 import PayrollDetailed from "./components/report/payroll/PayrollDetailed";
@@ -138,6 +138,11 @@ export const route = [
   {
     path: "ledger",
     ele: <Ledger />,
+    permission: "",
+  },
+  {
+    path: "razorPay",
+    ele: <RazorPay />,
     permission: "",
   },
   {

@@ -17,6 +17,7 @@ import DailySalesTab from './DailySalesTab';
 import { fetchDailySales } from '../../../store/action/dailySalesAction';
 import ProductSalesTab from './ProductSalesTab';
 import { filter } from 'lodash';
+import { useNavigate } from 'react-router';
 
 const PosSalesReport = ( props ) => {
     const { monthlypossales, fetchMonthSales,fetchMonthSalesparam,monthlySales,fetchDailySales,dailySales,dailypossales,productposSales,monthlySalesReportData, allConfigData } = props;
@@ -27,6 +28,28 @@ const PosSalesReport = ( props ) => {
     console.log(dailySalesValue)
     console.log(monthlySalesValue)
     console.log(productSalesValue)
+
+    const [formcode, setFormCode] = useState("T03");
+  const navigate =useNavigate()
+  useEffect(() => {
+    debugger;
+    const storedFormData = localStorage.getItem("UserFormCode");
+
+    if (storedFormData) {
+      const parsedFormData = JSON.parse(storedFormData);
+
+      console.log("Parsed Form Data:", parsedFormData);
+      if (parsedFormData.length > 0) {
+        const formCodeItems = parsedFormData.filter((item) => item?.attributes?.formCode == formcode && item?.attributes?.visibility );
+        console.log("Form Code Items:", formCodeItems);
+        if(!formCodeItems.length > 0){
+            navigate("/app/dashboard");
+        }
+      } else {
+        navigate("/app/dashboard");
+      }
+    } 
+  }, []);
     
 
     
